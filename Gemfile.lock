@@ -1,0 +1,65 @@
+PATH
+  remote: .
+  specs:
+    rails-mermaid_erd (0.1.0)
+      activerecord (>= 4.2)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activemodel (7.0.4)
+      activesupport (= 7.0.4)
+    activerecord (7.0.4)
+      activemodel (= 7.0.4)
+      activesupport (= 7.0.4)
+    activesupport (7.0.4)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
+    ast (2.4.2)
+    concurrent-ruby (1.1.10)
+    i18n (1.12.0)
+      concurrent-ruby (~> 1.0)
+    json (2.6.2)
+    minitest (5.16.3)
+    parallel (1.22.1)
+    parser (3.1.2.1)
+      ast (~> 2.4.1)
+    rainbow (3.1.1)
+    rake (13.0.6)
+    regexp_parser (2.6.0)
+    rexml (3.2.5)
+    rubocop (1.35.1)
+      json (~> 2.3)
+      parallel (~> 1.10)
+      parser (>= 3.1.2.1)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
+      rexml (>= 3.2.5, < 4.0)
+      rubocop-ast (>= 1.20.1, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 1.4.0, < 3.0)
+    rubocop-ast (1.21.0)
+      parser (>= 3.1.1.0)
+    rubocop-performance (1.14.3)
+      rubocop (>= 1.7.0, < 2.0)
+      rubocop-ast (>= 0.4.0)
+    ruby-progressbar (1.11.0)
+    standard (1.16.1)
+      rubocop (= 1.35.1)
+      rubocop-performance (= 1.14.3)
+    tzinfo (2.0.5)
+      concurrent-ruby (~> 1.0)
+    unicode-display_width (2.3.0)
+
+PLATFORMS
+  x86_64-linux-musl
+
+DEPENDENCIES
+  rails-mermaid_erd!
+  rake
+  standard
+
+BUNDLED WITH
+   2.3.7

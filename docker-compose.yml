@@ -1,0 +1,12 @@
+services:
+  devcontainer:
+    container_name: devcontainer-rails-mermaid-erd
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - bundle_data:/usr/local/bundle
+
+volumes:
+  bundle_data:
