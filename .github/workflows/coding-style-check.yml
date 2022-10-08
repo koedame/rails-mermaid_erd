@@ -1,0 +1,37 @@
+name: Coding Style Check
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  coding-style-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Restore Cache
+        uses: actions/cache@v3
+        id: bundle_cache_id
+        env:
+          cache-name: cache-bundle
+        with:
+          path: ./vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gem-${{ env.cache-name }}-
+            ${{ runner.os }}-gem-
+            ${{ runner.os }}-
+
+      - name: Install Packages
+        shell: bash
+        run: |
+          docker compose -f docker-compose.ci.yml run --rm app bundle install --jobs=16
+          docker compose -f docker-compose.ci.yml run --rm app bundle clean --force
+
+      - name: Run Linter
+        run: docker compose -f docker-compose.ci.yml run --rm app bundle exec standardrb

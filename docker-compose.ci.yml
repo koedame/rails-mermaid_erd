@@ -1,0 +1,9 @@
+services:
+  app:
+    container_name: app-rails-mermaid-erd
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+    volumes:
+      - .:/app
+      - ./vendor/bundle:/usr/local/bundle

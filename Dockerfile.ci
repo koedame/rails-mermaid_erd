@@ -1,0 +1,9 @@
+FROM ruby:alpine
+
+ENV APP /app
+
+WORKDIR $APP
+
+RUN apk add --no-cache alpine-sdk git
+
+RUN bundle config set path 'vendor/bundle'
