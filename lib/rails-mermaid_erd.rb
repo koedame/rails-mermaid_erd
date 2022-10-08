@@ -2,6 +2,7 @@ require "erb"
 require "fileutils"
 require "rake"
 require "rake/dsl_definition"
+require "rails-mermaid_erd/version"
 
 module RailsMermaidErd
   extend Rake::DSL
@@ -187,6 +188,7 @@ module RailsMermaidErd
       end
     end
 
+    version = VERSION
     app_name = ::Rails.application.class.try(:parent_name) || ::Rails.application.class.try(:module_parent_name)
     logo = File.read(File.expand_path("./assets/logo.svg", __dir__))
     erb = ERB.new(File.read(File.expand_path("./templates/index.html.erb", __dir__)))
