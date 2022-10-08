@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails-mermaid_erd (0.1.0)
+    rails-mermaid_erd (0.1.2)
       activerecord (>= 4.2)
 
 GEM
@@ -54,6 +54,7 @@ GEM
     unicode-display_width (2.3.0)
 
 PLATFORMS
+  x86_64-darwin-21
   x86_64-linux-musl
 
 DEPENDENCIES

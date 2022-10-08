@@ -2,7 +2,7 @@ require "erb"
 require "fileutils"
 require "rake"
 require "rake/dsl_definition"
-require "rails-mermaid_erd/version"
+require_relative "rails-mermaid_erd/version"
 
 module RailsMermaidErd
   extend Rake::DSL
