@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MyApp - Rails Mermaid ERD</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjc2IiBoZWlnaHQ9IjI3NiIgdmlld0JveD0iMCAwIDI3
+NiAyNzYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8y
+MDAwL3N2ZyIgY2xhc3M9ImgtNiB3LTYiPgo8ZyBjbGlwLXBhdGg9InVybCgj
+Y2xpcDBfM18yKSI+CjxyZWN0IHdpZHRoPSIyNzYiIGhlaWdodD0iMjc2IiBy
+eD0iNDAiIGZpbGw9IiNEQzI2MjYiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVu
+b2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik05NCA2MC44OEM5NCA1NC44
+NDQzIDk4LjkyNjMgNTAgMTA0Ljk0MyA1MEgxNzAuMzEzQzE3Ni4zMyA1MCAx
+ODEuMjA4IDU0Ljg5MjkgMTgxLjIwOCA2MC45Mjg2TDE4MS4yNTcgMTA3LjA3
+MUMxODEuMjU3IDExMy4xMDcgMTc2LjM3OSAxMTggMTcwLjM2MiAxMThDMTUx
+LjggMTE4IDEyMy41NTQgMTE4IDEwNC45OTIgMTE4Qzk4Ljk3NDggMTE4IDk0
+LjA0ODUgMTEzLjA1OCA5NC4wNDg1IDEwNy4wMjNMOTQgNjAuODhaIiBmaWxs
+PSJ3aGl0ZSIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVs
+ZT0iZXZlbm9kZCIgZD0iTTMyIDE2OC44OEMzMiAxNjIuODQ0IDM2LjkyNjMg
+MTU4IDQyLjk0MzQgMTU4SDEwOC4zMTNDMTE0LjMzIDE1OCAxMTkuMjA4IDE2
+Mi44OTMgMTE5LjIwOCAxNjguOTI5TDExOS4yNTcgMjE1LjA3MUMxMTkuMjU3
+IDIyMS4xMDcgMTE0LjM3OSAyMjYgMTA4LjM2MiAyMjZDODkuOCAyMjYgNjEu
+NTUzNyAyMjYgNDIuOTkxOSAyMjZDMzYuOTc0OCAyMjYgMzIuMDQ4NSAyMjEu
+MDU4IDMyLjA0ODUgMjE1LjAyM0wzMiAxNjguODhaIiBmaWxsPSJ3aGl0ZSIv
+Pgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9k
+ZCIgZD0iTTE1NiAxNjguODhDMTU2IDE2Mi44NDQgMTYwLjkyNiAxNTggMTY2
+Ljk0MyAxNThIMjMyLjMxM0MyMzguMzMgMTU4IDI0My4yMDggMTYyLjg5MyAy
+NDMuMjA4IDE2OC45MjlMMjQzLjI1NyAyMTUuMDcxQzI0My4yNTcgMjIxLjEw
+NyAyMzguMzc5IDIyNiAyMzIuMzYyIDIyNkMyMTMuOCAyMjYgMTg1LjU1NCAy
+MjYgMTY2Ljk5MiAyMjZDMTYwLjk3NSAyMjYgMTU2LjA0OCAyMjEuMDU4IDE1
+Ni4wNDggMjE1LjAyM0wxNTYgMTY4Ljg4WiIgZmlsbD0id2hpdGUiLz4KPHBh
+dGggZD0iTTEzNC4xNDIgMTA5LjA3MUwxNDEuMjEzIDEwMkwyMjYuMDY2IDE4
+Ni44NTNMMjE4Ljk5NSAxOTMuOTI0TDEzNC4xNDIgMTA5LjA3MVoiIGZpbGw9
+IndoaXRlIi8+CjxwYXRoIGQ9Ik0xMzMuODUzIDEwMkwxNDAuOTI0IDEwOS4w
+NzFMNTYuMDcxMSAxOTMuOTI0TDQ5IDE4Ni44NTNMMTMzLjg1MyAxMDJaIiBm
+aWxsPSJ3aGl0ZSIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAw
+XzNfMiI+CjxyZWN0IHdpZHRoPSIyNzYiIGhlaWdodD0iMjc2IiBmaWxsPSJ3
+aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
+">
+  <style>
+    #mermaid-erd {
+      fill: #9c9c9c !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header class="bg-red-600">
+      <nav class="mx-auto px-4">
+        <div class="flex w-full items-center justify-between py-4">
+          <h1 class="text-white inline-flex space-x-1 items-center">
+            <svg width="276" height="276" viewBox="0 0 276 276" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6">
+<g clip-path="url(#clip0_3_2)">
+<rect width="276" height="276" rx="40" fill="#DC2626"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M94 60.88C94 54.8443 98.9263 50 104.943 50H170.313C176.33 50 181.208 54.8929 181.208 60.9286L181.257 107.071C181.257 113.107 176.379 118 170.362 118C151.8 118 123.554 118 104.992 118C98.9748 118 94.0485 113.058 94.0485 107.023L94 60.88Z" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M32 168.88C32 162.844 36.9263 158 42.9434 158H108.313C114.33 158 119.208 162.893 119.208 168.929L119.257 215.071C119.257 221.107 114.379 226 108.362 226C89.8 226 61.5537 226 42.9919 226C36.9748 226 32.0485 221.058 32.0485 215.023L32 168.88Z" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M156 168.88C156 162.844 160.926 158 166.943 158H232.313C238.33 158 243.208 162.893 243.208 168.929L243.257 215.071C243.257 221.107 238.379 226 232.362 226C213.8 226 185.554 226 166.992 226C160.975 226 156.048 221.058 156.048 215.023L156 168.88Z" fill="white"/>
+<path d="M134.142 109.071L141.213 102L226.066 186.853L218.995 193.924L134.142 109.071Z" fill="white"/>
+<path d="M133.853 102L140.924 109.071L56.0711 193.924L49 186.853L133.853 102Z" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_3_2">
+<rect width="276" height="276" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+
+            <span class="font-bold">Rails Mermaid ERD</span>
+          </h1>
+          <div class="space-x-4 inline-flex items-center">
+            <select v-model="language" @change="setLanguage(language)" class="text-xs border-0 rounded py-1 pl-3 pr-8 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-600">
+              <option value="en">English</option>
+              <option value="ja">Japanese - 日本語</option>
+            </select>
+            <a href="https://github.com/koedame/rails-mermaid_erd" class="text-white hover:text-red-200" target="_blank" rel="noopener noreferrer">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  fillRule="evenodd"
+                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="flex">
+      <div class="w-[250px] border-r border-gray-300 h-full flex-none p-2">
+        <div class="p-2">
+          <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["actions"]["title"]}}</h2>
+
+          <div class="space-y-2">
+            <button @click="reset" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+              <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+              </svg>
+              <span>{{i18n[language]["actions"]["reset"]}}</span>
+            </button>
+
+            <button @click="onCopyUrl" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+              <template v-if="isCopiedUrl">
+                <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                <span>{{i18n[language]["actions"]["copied_url"]}}</span>
+              </template>
+              <template v-else>
+                <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                </svg>
+                <span>{{i18n[language]["actions"]["copy_url"]}}</span>
+              </template>
+            </button>
+
+            <button @click="onCopyMermaid" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+              <template v-if="isCopiedMermaid">
+                <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                <span>{{i18n[language]["actions"]["copied_mermaid_code"]}}</span>
+              </template>
+              <template v-else>
+                <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                </svg>
+                <span>{{i18n[language]["actions"]["copy_mermaid_code"]}}</span>
+              </template>
+            </button>
+
+            <button @click="onCopyMarkdown" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+              <template v-if="isCopiedMarkdown">
+                <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                <span>{{i18n[language]["actions"]["copied_markdown_code"]}}</span>
+              </template>
+              <template v-else>
+                <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                </svg>
+                <span>{{i18n[language]["actions"]["copy_markdown_code"]}}</span>
+              </template>
+            </button>
+
+            <button @click="onDownloadSvg" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+              <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              <span>{{i18n[language]["actions"]["download_svg_file"]}}</span>
+            </button>
+
+            <button @click="onDownloadPng" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+              <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              <span>{{i18n[language]["actions"]["download_png_file"]}}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-2">
+          <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["options"]["title"]}}</h2>
+
+          <div class="space-y-1">
+            <div class="min-w-0 flex-1 text-sm">
+              <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  v-model="isPreviewRelations"
+                  @change="updateHash"
+                />
+                <span class="text-xs text-gray-900">{{i18n[language]["options"]["preview_relationships"]}}</span>
+              </label>
+            </div>
+
+            <div class="min-w-0 flex-1 text-sm">
+              <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  v-model="isHideColumns"
+                  @change="updateHash"
+                />
+                <span class="text-xs text-gray-900">{{i18n[language]["options"]["hide_columns"]}}</span>
+              </label>
+            </div>
+
+            <div class="min-w-0 flex-1 text-sm">
+              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ isHideColumns ? 'cursor-not-allowed' : 'cursor-pointer' }`">
+                <input
+                  type="checkbox"
+                  :class="`h-4 w-4 rounded border-gray-300 mr-2 focus:ring-red-600 ${ isHideColumns ? 'text-gray-400' : 'text-red-600'}`"
+                  v-model="isShowKey"
+                  @change="updateHash"
+                  :disabled="isHideColumns"
+                />
+                <span :class="`text-xs ${ isHideColumns ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_key"]}}</span>
+              </label>
+            </div>
+
+            <div class="min-w-0 flex-1 text-sm">
+              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ isHideColumns ? 'cursor-not-allowed' : 'cursor-pointer' }`">
+                <input
+                  type="checkbox"
+                  :class="`h-4 w-4 rounded border-gray-300 mr-2 focus:ring-red-600 ${ isHideColumns ? 'text-gray-400' : 'text-red-600'}`"
+                  v-model="isShowComment"
+                  @change="updateHash"
+                  :disabled="isHideColumns"
+                />
+                <span :class="`text-xs ${ isHideColumns ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_column_comment"]}}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-2">
+          <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["models"]["title"]}}</h2>
+
+          <div>
+            <input type="search" class="rounded text-xs w-full py-1 px-2 border border-gray-300 bg-gray-100 focus:border-red-600 focus:ring-red-600" :placeholder="i18n[language]['models']['filter']" v-model="filterText">
+          </div>
+
+          <div class="space-x-1 text-xs text-gray-900 my-1">
+            <span>{{i18n[language]["models"]["select"]}}</span>
+            <button @click="onSelectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["all"]}}</button>
+            <span>/</span>
+            <button @click="onUnselectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["none"]}}</button>
+          </div>
+
+          <div class="space-y-1">
+            <div class="inline-flex items-center text-xs text-gray-700" v-if="isExistsNoModelTable">
+              <svg class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              <span>{{i18n[language]["models"]["no_model_file"]}}</span>
+            </div>
+
+            <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded" v-for="model in filteredModelList">
+              <div class="min-w-0 flex-1 text-xs text-gray-900 inline-flex items-center">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  :value="model.ModelName"
+                  :checked="selectModels.includes(model.ModelName)"
+                  @change="onChange"
+                />
+                <svg v-if="!model.IsModelExist" class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <span>{{model.ModelName}}</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1 bg-gray-900">
+        <div class="space-x-2 inline-flex p-4">
+          <button @click="tab = 'erd'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'erd' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["erd"]}}</button>
+          <button @click="tab = 'code'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'code' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["code"]}}</button>
+        </div>
+        <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)]" id="preview"></div>
+        <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs min-h-[calc(100vh-56px-32px-56px)] border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
+      </div>
+    </div>
+
+    <footer class="bg-gray-100">
+      <p class="text-center text-xs text-gray-600 py-2">
+        <a href="https://github.com/koedame/rails-mermaid_erd" class="hover:text-gray-400" target="_blank" rel="noopener noreferrer">
+          Rails Mermaid ERD v0.1.0
+        </a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.tailwindcss.com/3.1.8?plugins=forms@0.5.2,typography@0.5.4"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/9.1.7/mermaid.min.js"></script>
+  <script src="https://unpkg.com/vue@3.2.40/dist/vue.global.js"></script>
+
+  <script>window.SCHEMA_DATA={"Models":[{"TableName":"user_images","ModelName":"UserImage","IsModelExist":true,"Columns":[{"name":"id","type":"integer","key":"PK","comment":null},{"name":"image","type":"string","key":"","comment":"Avatar image"},{"name":"user_id","type":"integer","key":"FK","comment":null},{"name":"created_at","type":"datetime","key":"","comment":null},{"name":"updated_at","type":"datetime","key":"","comment":null}]},{"TableName":"posts","ModelName":"Post","IsModelExist":true,"Columns":[{"name":"id","type":"integer","key":"PK","comment":null},{"name":"title","type":"string","key":"","comment":"Post Title"},{"name":"user_id","type":"integer","key":"FK","comment":null},{"name":"created_at","type":"datetime","key":"","comment":null},{"name":"updated_at","type":"datetime","key":"","comment":null}]},{"TableName":"comments","ModelName":"Comment","IsModelExist":true,"Columns":[{"name":"id","type":"integer","key":"PK","comment":null},{"name":"body","type":"string","key":"","comment":null},{"name":"post_id","type":"integer","key":"FK","comment":null},{"name":"user_id","type":"integer","key":"FK","comment":null},{"name":"created_at","type":"datetime","key":"","comment":null},{"name":"updated_at","type":"datetime","key":"","comment":null}]},{"TableName":"user_profiles","ModelName":"AuthorProfile","IsModelExist":true,"Columns":[{"name":"id","type":"integer","key":"PK","comment":null},{"name":"birthday","type":"date","key":"","comment":"Birthday"},{"name":"user_id","type":"integer","key":"FK","comment":null},{"name":"created_at","type":"datetime","key":"","comment":null},{"name":"updated_at","type":"datetime","key":"","comment":null}]},{"TableName":"users","ModelName":"Author","IsModelExist":true,"Columns":[{"name":"id","type":"integer","key":"PK","comment":null},{"name":"name","type":"string","key":"","comment":"nickname"},{"name":"email","type":"string","key":"","comment":"email"},{"name":"created_at","type":"datetime","key":"","comment":null},{"name":"updated_at","type":"datetime","key":"","comment":null}]}],"Relations":[{"LeftModelName":"UserImage","LeftValue":"}o","RightModelName":"Author","RightValue":"o|","Comment":"belongs_to user : has_many images"},{"LeftModelName":"Post","LeftValue":"||","RightModelName":"Comment","RightValue":"o{","Comment":""},{"LeftModelName":"Post","LeftValue":"}o","RightModelName":"Author","RightValue":"||","Comment":""},{"LeftModelName":"Comment","LeftValue":"}o","RightModelName":"Author","RightValue":"||","Comment":""},{"LeftModelName":"AuthorProfile","LeftValue":"|o","RightModelName":"Author","RightValue":"||","Comment":"has_one profile"}]}</script>
+  <script>
+    window.i18n = {
+      en: {
+        actions: {
+          title: 'Actions',
+          reset: 'Reset',
+          copy_mermaid_code: 'Copy Mermaid Code',
+          copied_mermaid_code: 'Copied Mermaid Code',
+          copy_markdown_code: 'Copy Markdown Code',
+          copied_markdown_code: 'Copied Markdown Code',
+          copy_url: 'Copy Link for Sharing',
+          copied_url: 'Copied Link for Sharing',
+          download_svg_file: 'Download SVG File',
+          download_png_file: 'Download PNG File',
+        },
+        options: {
+          title: 'Options',
+          preview_relationships: 'Preview Relationships',
+          show_key: 'Show Key',
+          show_column_comment: 'Show Column Comment',
+          hide_columns: 'Hide Columns',
+        },
+        models: {
+          title: 'Models',
+          select: 'Select',
+          all: 'All',
+          none: 'None',
+          filter: 'Filter',
+          no_model_file: 'No Model File',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'Code',
+        },
+      },
+      ja: {
+        actions: {
+          title: '操作',
+          reset: 'リセット',
+          copy_mermaid_code: 'Mermaid コードをコピー',
+          copied_mermaid_code: 'コピーしました',
+          copy_markdown_code: 'Markdown コードをコピー',
+          copied_markdown_code: 'コピーしました',
+          copy_url: '共有リンクをコピー',
+          copied_url: 'コピーしました',
+          download_svg_file: 'SVG ファイルをダウンロード',
+          download_png_file: 'PNG ファイルをダウンロード',
+        },
+        options: {
+          title: '設定',
+          preview_relationships: 'リレーションをプレビュー',
+          show_key: 'キーを表示',
+          show_column_comment: 'コメントを表示',
+          hide_columns: 'カラムを非表示',
+        },
+        models: {
+          title: 'モデル',
+          select: '選択',
+          all: '全て',
+          none: 'なし',
+          filter: '絞り込み',
+          no_model_file: 'モデル未定義',
+        },
+        tab: {
+          erd: 'ER図',
+          code: 'コード',
+        },
+      }
+    }
+  </script>
+  <script>
+    const App = {
+      setup(){
+        const language = Vue.ref('en')
+        const isCopiedMermaid = Vue.ref(false)
+        const isCopiedMarkdown = Vue.ref(false)
+        const tab = Vue.ref('erd')
+
+        const schemaData = {
+          ...window.SCHEMA_DATA,
+          Models: window.SCHEMA_DATA.Models.sort((a, b) => a.ModelName < b.ModelName ? -1 : 1)
+        }
+        const selectModels = Vue.ref([])
+        const isPreviewRelations = Vue.ref(false)
+        const isShowKey = Vue.ref(false)
+        const isShowComment = Vue.ref(false)
+        const isHideColumns = Vue.ref(false)
+
+        const restoreFromHash = () => {
+          try {
+            const h = location.hash.substr(1, location.hash.length)
+            const parsedData = JSON.parse(atob(h))
+            selectModels.value = parsedData.selectModels || []
+            isPreviewRelations.value = !!parsedData.isPreviewRelations
+            isShowKey.value = !!parsedData.isShowKey
+            isShowComment.value = !!parsedData.isShowComment
+            isHideColumns.value = !!parsedData.isHideColumns
+          } catch {
+            reset()
+          }
+        }
+
+        const reset = () => {
+          selectModels.value = []
+          schemaData.Models.forEach((model) => {
+            selectModels.value.push(model.ModelName)
+          })
+          isPreviewRelations.value = false
+          isShowKey.value = false
+          isShowComment.value = false
+          isHideColumns.value = false
+          updateHash()
+        }
+
+        const updateHash = () => {
+          location.hash = btoa(JSON.stringify({
+            selectModels: selectModels.value,
+            isPreviewRelations: isPreviewRelations.value,
+            isShowKey: isShowKey.value,
+            isShowComment: isShowComment.value,
+            isHideColumns: isHideColumns.value,
+          }))
+        }
+
+        const onChange = (e) => {
+          if (e.target.checked) {
+            selectModels.value.push(e.target.value)
+          } else {
+            selectModels.value = selectModels.value.filter((selectModel) => selectModel !== e.target.value)
+          }
+          selectModels.value
+          updateHash()
+        }
+
+        const onSelectAll = () => {
+          filteredModelList.value.forEach((model) => {
+            if (!selectModels.value.includes(model.ModelName)) {
+              selectModels.value.push(model.ModelName)
+            }
+          })
+          updateHash()
+        }
+
+        const onUnselectAll = () => {
+          selectModels.value = selectModels.value.filter((model) => {
+            return !filteredModelList.value.some((fm) => fm.ModelName === model)
+          })
+          updateHash()
+        }
+
+        isCopiedUrl = Vue.ref(false)
+        const onCopyUrl = () => {
+          navigator.clipboard.writeText(location.href);
+          isCopiedUrl.value = true
+
+          setTimeout(() => {
+            if (isCopiedUrl) {
+              isCopiedUrl.value = false
+            }
+          }, 1000)
+        }
+
+        const mermaidErd = Vue.computed(() => {
+          const lines = []
+          lines.push('erDiagram')
+          lines.push('    %% --------------------------------------------------------')
+          lines.push('    %% Generated by "Rails Mermaid ERD"')
+          lines.push('    %% https://github.com/koedame/rails-mermaid_erd')
+          lines.push(`    %% Restore Hash: ${location.hash}`)
+          lines.push('    %% --------------------------------------------------------')
+          lines.push('')
+
+          filteredData.value.Models.forEach(model => {
+            lines.push(`    %% table name: ${model.TableName}`)
+            lines.push(`    ${model.ModelName.replace(/:/g, '-')} {`)
+
+            if (!isHideColumns.value) {
+              model.Columns.forEach(column => {
+                lines.push(`        ${column.type} ${column.name} ${isShowKey.value ? column.key : ''} ${isShowComment.value ? `"${column.comment || ''}"` : ''}`)
+              })
+            }
+
+            lines.push(`    }`)
+            lines.push('')
+          });
+
+          filteredData.value.Relations.forEach(relation => {
+            lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}--${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : "${relation.Comment}"`)
+          });
+
+          return lines.join("\n")
+        })
+
+        const filteredData = Vue.computed(() => {
+          let relations
+          if (isPreviewRelations.value) {
+            relations = schemaData.Relations.filter(relation => {
+              return selectModels.value.includes(relation.LeftModelName) || selectModels.value.includes(relation.RightModelName)
+            })
+          } else {
+            relations = schemaData.Relations.filter(relation => {
+              return selectModels.value.includes(relation.LeftModelName) && selectModels.value.includes(relation.RightModelName)
+            })
+          }
+
+          return {
+            Models: schemaData.Models.filter(model => selectModels.value.includes(model.ModelName)),
+            Relations: relations
+          }
+        })
+
+        const graph = Vue.ref()
+
+        const filterText = Vue.ref('')
+
+        const reRender = () => {
+          mermaid.initialize({theme: 'dark'})
+          mermaid.init()
+          graph.value = mermaid.mermaidAPI.render("mermaid-erd", mermaidErd.value);
+          document.getElementById('preview').innerHTML = graph.value
+        }
+
+        const onCopyMermaid = () => {
+          navigator.clipboard.writeText(mermaidErd.value);
+          isCopiedMermaid.value = true
+
+          setTimeout(() => {
+            if (isCopiedMermaid) {
+              isCopiedMermaid.value = false
+            }
+          }, 1000)
+        }
+
+        const onCopyMarkdown = () => {
+          navigator.clipboard.writeText(`\`\`\`mermaid\n${mermaidErd.value}\n\`\`\`\n`);
+          isCopiedMarkdown.value = true
+
+          setTimeout(() => {
+            if (isCopiedMarkdown) {
+              isCopiedMarkdown.value = false
+            }
+          }, 1000)
+        }
+
+        const onDownloadSvg = () => {
+          const svgBlob = new Blob([graph.value], { type: 'image/svg+xml;charset=utf-8' });
+          const svgUrl = URL.createObjectURL(svgBlob);
+
+          const a = document.createElement("a");
+          a.href = svgUrl;
+          a.setAttribute("download", "mermaid_erd.svg");
+          a.dispatchEvent(new MouseEvent("click"));
+
+          URL.revokeObjectURL(svgUrl);
+        }
+
+        const onDownloadPng = () => {
+          const svg = document.querySelector("#preview > svg");
+          const svgData = new XMLSerializer().serializeToString(svg);
+          const canvas = document.createElement("canvas");
+          canvas.width = svg.width.baseVal.value;
+          canvas.height = svg.height.baseVal.value;
+
+          const ctx = canvas.getContext("2d");
+          const image = new Image;
+          image.onload = () => {
+            ctx.drawImage(image, 0, 0);
+            const a = document.createElement("a");
+            a.href = canvas.toDataURL("image/png");
+            a.setAttribute("download", "mermaid_erd.png");
+            a.dispatchEvent(new MouseEvent("click"));
+          }
+          image.src = "data:image/svg+xml;charset=utf-8;base64," + btoa(unescape(encodeURIComponent(svgData)));
+        }
+
+        const filteredModelList = Vue.computed(() => {
+          return schemaData.Models.filter((model) => {
+            if (model.ModelName.toLowerCase().includes(filterText.value.toLowerCase())) {
+              return true
+            }
+            if (model.TableName.toLowerCase().includes(filterText.value.toLowerCase())) {
+              return true
+            }
+          })
+        })
+
+        const isExistsNoModelTable = Vue.computed(() => {
+          return filteredModelList.value.some((model) => !model.IsModelExist)
+        })
+
+        const setLanguage = (l) => {
+          if (Object.keys(window.i18n).includes(l)) {
+            language.value = l
+            document.documentElement.lang = l
+          } else {
+            language.value = 'en'
+            document.documentElement.lang = 'en'
+          }
+        }
+
+        Vue.onMounted(() => {
+          setLanguage(window.navigator.language)
+          restoreFromHash()
+          reRender()
+        })
+
+        window.addEventListener('hashchange', () => {
+          restoreFromHash()
+          reRender()
+        }, false);
+
+        return {
+          filteredModelList,
+          filterText,
+          i18n: window.i18n,
+          isCopiedMarkdown,
+          isCopiedMermaid,
+          isCopiedUrl,
+          isExistsNoModelTable,
+          isPreviewRelations,
+          isShowComment,
+          isShowKey,
+          language,
+          mermaidErd,
+          onChange,
+          onCopyMarkdown,
+          onCopyMermaid,
+          onCopyUrl,
+          onDownloadPng,
+          onDownloadSvg,
+          onSelectAll,
+          onUnselectAll,
+          reset,
+          schemaData,
+          selectModels,
+          setLanguage,
+          tab,
+          updateHash,
+          isHideColumns,
+        }
+      }
+    }
+
+    Vue.createApp(App).mount('#app')
+  </script>
+</body>
+</html>
