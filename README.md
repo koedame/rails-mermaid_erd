@@ -4,6 +4,8 @@ Generate [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationship
 
 [<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
 
+[Demo Page](https://koedame.github.io/rails-mermaid_erd/example.html)
+
 Mermaid ERD can be generated at will.
 The generated ERD can be copied in Markdown format, so they can be easily shared on GitHub.
 You can also save it as an image, so it can be used in environments where Mermaid is not available.
