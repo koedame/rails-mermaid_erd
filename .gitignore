@@ -17,3 +17,4 @@ test/dummy/log/*.log
 test/dummy/tmp/
 test/reports
 tmp
+vendor/bundle
