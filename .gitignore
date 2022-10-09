@@ -14,6 +14,7 @@ rdoc
 spec/dummy/.sass-cache
 spec/dummy/db/*.sqlite3
 spec/dummy/log/*.log
+spec/dummy/mermaid_erd/
 spec/dummy/tmp/
 spec/reports
 tmp
