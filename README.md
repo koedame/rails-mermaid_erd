@@ -1,5 +1,7 @@
 # Rails Mermaid ERD
 
+[![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
+
 Generate [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram) from your Ruby on Rails application.
 
 [<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
