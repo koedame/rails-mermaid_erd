@@ -1,9 +1,26 @@
 services:
   app:
-    container_name: app-rails-mermaid-erd
+    container_name: ci-rails-mermaid-erd-app
     build:
       context: .
       dockerfile: Dockerfile.ci
+    environment:
+      RAILS_ENV: test
     volumes:
       - .:/app
       - ./vendor/bundle:/usr/local/bundle
+
+  db:
+    container_name: ci-rails-mermaid-erd-db
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8'
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+
+volumes:
+  bundle_data:
+  postgresql_data:
