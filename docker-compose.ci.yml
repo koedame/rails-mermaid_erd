@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ci
+    tty: true
     environment:
       RAILS_ENV: test
     volumes:
