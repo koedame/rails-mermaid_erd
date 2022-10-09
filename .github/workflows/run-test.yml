@@ -1,0 +1,47 @@
+name: Run Test
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Restore Cache
+        uses: actions/cache@v3
+        id: bundle_cache_id
+        env:
+          cache-name: cache-bundle
+        with:
+          path: ./vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gem-${{ env.cache-name }}-
+            ${{ runner.os }}-gem-
+            ${{ runner.os }}-
+
+      - name: Up Docker Container
+        run: docker compose -f docker-compose.ci.yml up -d
+
+      - name: Install Packages
+        shell: bash
+        run: |
+          docker compose -f docker-compose.ci.yml exec app bundle install --jobs=16
+          docker compose -f docker-compose.ci.yml exec app bundle clean --force
+
+      - name: Setup DB
+        run: |
+          docker compose -f docker-compose.ci.yml exec app sh -c "cd ./spec/dummy && bundle exec rails db:setup"
+
+      - name: Run Test
+        run: docker compose -f docker-compose.ci.yml exec app bundle exec rspec
+
+      - name: Down Docker Container
+        run: docker compose -f docker-compose.ci.yml down

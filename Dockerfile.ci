@@ -4,6 +4,6 @@ ENV APP /app
 
 WORKDIR $APP
 
-RUN apk add --no-cache alpine-sdk git
+RUN apk add --no-cache alpine-sdk git postgresql-dev
 
 RUN bundle config set path 'vendor/bundle'
