@@ -1,3 +1,5 @@
+[English](./README.md) | [日本語](./README.ja.md)
+
 # Rails Mermaid ERD
 
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
