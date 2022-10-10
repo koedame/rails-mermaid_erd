@@ -1,4 +1,9 @@
+[English](./README.md) | [日本語](./README.ja.md)
+
 # Rails Mermaid ERD
+
+[![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
+[![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
 
 Generate [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram) from your Ruby on Rails application.
 
@@ -47,6 +52,17 @@ mermaid_erd
 If you share this file, it can be used by those who do not have Ruby on Rails environment. Or, you can upload the file to a web server and share it with the same URL.
 
 It would be very smart to generate it automatically using CI.
+
+## Configuration
+
+`./config/mermaid_erd.yml` to customize the configuration.
+See [./docs/example.yml](./docs/example.yml) for an example configuration.
+
+The setting items are as follows.
+
+| key | description | default |
+| --- | --- | --- |
+| `result_path` | Destination of generated files. | `mermaid_erd/index.html` |
 
 <!--
 TODO:

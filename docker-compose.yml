@@ -8,5 +8,17 @@ services:
       - .:/app
       - bundle_data:/usr/local/bundle
 
+  db:
+    container_name: rails-mermaid-erd-db
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8'
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+
 volumes:
   bundle_data:
+  postgresql_data:
