@@ -49,6 +49,17 @@ mermaid_erd
 このファイルを共有すれば、Ruby on Rails環境が無くても使用できます。サーバーにアップロードすれば、同じURLを共有することもできます。
 CIと連携して生成から共有までを自動化するのはとても有効な手段です。
 
+## 設定
+
+`./config/mermaid_erd.yml` を設置することで設定を変更できます。
+設定例は [./docs/example.yml](./docs/example.yml) を参照してください。
+
+設定項目は次のとおりです。
+
+| キー | 説明 | 初期値 |
+| --- | --- | --- |
+| `result_path` | 生成されるファイルのパス。 | `mermaid_erd/index.html` |
+
 <!--
 TODO:
 ## Contributing

@@ -51,6 +51,17 @@ If you share this file, it can be used by those who do not have Ruby on Rails en
 
 It would be very smart to generate it automatically using CI.
 
+## Configuration
+
+`./config/mermaid_erd.yml` to customize the configuration.
+See [./docs/example.yml](./docs/example.yml) for an example configuration.
+
+The setting items are as follows.
+
+| key | description | default |
+| --- | --- | --- |
+| `result_path` | Destination of generated files. | `mermaid_erd/index.html` |
+
 <!--
 TODO:
 ## Contributing
