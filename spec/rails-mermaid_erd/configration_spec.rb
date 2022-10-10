@@ -5,7 +5,7 @@ describe RailsMermaidErd::Configuration do
 
   context "when the config file does not exist" do
     it "return default config value" do
-      expect(configuration.result_path).to eq('mermaid_erd/index.html')
+      expect(configuration.result_path).to eq("mermaid_erd/index.html")
     end
   end
 
@@ -17,7 +17,7 @@ describe RailsMermaidErd::Configuration do
       FileUtils.rm(Rails.root.join("config/mermaid_erd.yml").to_s)
     end
     it "return overwrite config value" do
-      expect(configuration.result_path).to eq('doc/erd.html')
+      expect(configuration.result_path).to eq("doc/erd.html")
     end
   end
 end
