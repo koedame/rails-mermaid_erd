@@ -24,6 +24,9 @@ module RailsMermaidErd
     ::Rails.application.eager_load!
     ::ActiveRecord::Base.descendants.each do |defined_model|
       next unless defined_model.table_exists?
+
+      next if defined_model.name.include?("HABTM_")
+
       model = {
         TableName: defined_model.table_name,
         ModelName: defined_model.name,
@@ -88,6 +91,25 @@ module RailsMermaidErd
               Comment: ""
             }
           end
+        end
+      end
+
+      defined_model.reflect_on_all_associations(:has_and_belongs_to_many).each do |h|
+        reverse_relation = if h.options[:class_name]
+          result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == h.options[:class_name] }
+        else
+          result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == h.name.to_s.classify }
+        end
+        if reverse_relation
+          reverse_relation[:Comment] = "HABTM"
+        else
+          result[:Relations] << {
+            LeftModelName: model[:ModelName],
+            LeftValue: "}o",
+            RightModelName: h.name.to_s.classify,
+            RightValue: "o{",
+            Comment: "HABTM"
+          }
         end
       end
 
