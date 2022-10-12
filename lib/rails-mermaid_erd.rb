@@ -91,6 +91,36 @@ module RailsMermaidErd
         end
       end
 
+      defined_model.reflect_on_all_associations(:has_and_belongs_to_many).each do |h|
+        if h.options[:class_name]
+          reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == h.options[:class_name] }
+          if reverse_relation
+            reverse_relation[:Comment] = "HABTM"
+          else
+            result[:Relations] << {
+              LeftModelName: model[:ModelName],
+              LeftValue: "}o",
+              RightModelName: h.name.to_s.classify,
+              RightValue: "o{",
+              Comment: "HABTM"
+            }
+          end
+        else
+          reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == h.name.to_s.classify }
+          if reverse_relation
+            reverse_relation[:Comment] = "HABTM"
+          else
+            result[:Relations] << {
+              LeftModelName: model[:ModelName],
+              LeftValue: "}o",
+              RightModelName: h.name.to_s.classify,
+              RightValue: "o{",
+              Comment: "HABTM"
+            }
+          end
+        end
+      end
+
       defined_model.reflect_on_all_associations(:belongs_to).each do |h|
         if h.options[:class_name]
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == h.options[:class_name] }
