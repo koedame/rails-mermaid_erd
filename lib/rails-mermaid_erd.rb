@@ -24,6 +24,9 @@ module RailsMermaidErd
     ::Rails.application.eager_load!
     ::ActiveRecord::Base.descendants.each do |defined_model|
       next unless defined_model.table_exists?
+
+      next if defined_model.name.include?("HABTM_")
+
       model = {
         TableName: defined_model.table_name,
         ModelName: defined_model.name,
