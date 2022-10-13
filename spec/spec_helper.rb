@@ -1,4 +1,11 @@
 ENV["RAILS_ENV"] ||= "test"
+
+require "simplecov"
+SimpleCov.start do
+  enable_coverage :branch
+  add_filter %r{^/spec/}
+end
+
 require File.expand_path("./dummy/config/environment", __dir__)
 require "rspec/rails"
 

@@ -79,6 +79,7 @@ GEM
     concurrent-ruby (1.1.10)
     crass (1.0.6)
     diff-lcs (1.5.0)
+    docile (1.4.0)
     e2mmap (0.1.0)
     erubi (1.11.0)
     globalid (1.0.0)
@@ -186,6 +187,12 @@ GEM
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.11.0)
+    simplecov (0.21.2)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.12.3)
+    simplecov_json_formatter (0.1.4)
     solargraph (0.47.2)
       backport (~> 1.2)
       benchmark
@@ -229,6 +236,7 @@ DEPENDENCIES
   rails-mermaid_erd!
   rake
   rspec-rails
+  simplecov
   solargraph
   standard
   tzinfo-data
