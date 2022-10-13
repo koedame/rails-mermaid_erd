@@ -21,7 +21,9 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"GitHub.copilot"
+				"GitHub.copilot",
+				"rebornix.ruby",
+				"castwide.solargraph"
 			]
 		}
 	}
