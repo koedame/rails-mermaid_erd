@@ -182,6 +182,18 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
                 <input
                   type="checkbox"
                   class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  v-model="isShowRelationComment"
+                  @change="updateHash"
+                />
+                <span class="text-xs text-gray-900">{{i18n[language]["options"]["show_relationship_comment"]}}</span>
+              </label>
+            </div>
+
+            <div class="min-w-0 flex-1 text-sm">
+              <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
                   v-model="isHideColumns"
                   @change="updateHash"
                 />
@@ -271,7 +283,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
     <footer class="bg-gray-100">
       <p class="text-center text-xs text-gray-600 py-2">
         <a href="https://github.com/koedame/rails-mermaid_erd" class="hover:text-gray-400" target="_blank" rel="noopener noreferrer">
-          Rails Mermaid ERD v0.4.0
+          Rails Mermaid ERD v0.4.1
         </a>
       </p>
     </footer>
@@ -300,6 +312,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
         options: {
           title: 'Options',
           preview_relationships: 'Preview Relationships',
+          show_relationship_comment: 'Show Relationship Comment',
           show_key: 'Show Key',
           show_column_comment: 'Show Column Comment',
           hide_columns: 'Hide Columns',
@@ -333,6 +346,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
         options: {
           title: '設定',
           preview_relationships: 'リレーションをプレビュー',
+          show_relationship_comment: 'リレーションのコメントを表示',
           show_key: 'キーを表示',
           show_column_comment: 'コメントを表示',
           hide_columns: 'カラムを非表示',
@@ -366,6 +380,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
         }
         const selectModels = Vue.ref([])
         const isPreviewRelations = Vue.ref(false)
+        const isShowRelationComment = Vue.ref(false)
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
         const isHideColumns = Vue.ref(false)
@@ -376,6 +391,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
             const parsedData = JSON.parse(atob(h))
             selectModels.value = parsedData.selectModels || []
             isPreviewRelations.value = !!parsedData.isPreviewRelations
+            isShowRelationComment.value = !!parsedData.isShowRelationComment
             isShowKey.value = !!parsedData.isShowKey
             isShowComment.value = !!parsedData.isShowComment
             isHideColumns.value = !!parsedData.isHideColumns
@@ -390,6 +406,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
             selectModels.value.push(model.ModelName)
           })
           isPreviewRelations.value = false
+          isShowRelationComment.value = false
           isShowKey.value = false
           isShowComment.value = false
           isHideColumns.value = false
@@ -400,6 +417,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           location.hash = btoa(JSON.stringify({
             selectModels: selectModels.value,
             isPreviewRelations: isPreviewRelations.value,
+            isShowRelationComment: isShowRelationComment.value,
             isShowKey: isShowKey.value,
             isShowComment: isShowComment.value,
             isHideColumns: isHideColumns.value,
@@ -469,7 +487,11 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           });
 
           filteredData.value.Relations.forEach(relation => {
-            lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : "${relation.Comment}"`)
+            if (isShowRelationComment.value) {
+              lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : "${relation.Comment}"`)
+            } else {
+              lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : ""`)
+            }
           });
 
           return lines.join("\n")
@@ -602,6 +624,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           isCopiedUrl,
           isExistsNoModelTable,
           isPreviewRelations,
+          isShowRelationComment,
           isShowComment,
           isShowKey,
           language,
