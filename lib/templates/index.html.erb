@@ -422,7 +422,7 @@
           });
 
           filteredData.value.Relations.forEach(relation => {
-            lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}--${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : "${relation.Comment}"`)
+            lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : "${relation.Comment}"`)
           });
 
           return lines.join("\n")

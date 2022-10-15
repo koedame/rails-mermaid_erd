@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "pg"
   spec.add_development_dependency "rspec-rails"
+  spec.add_development_dependency "simplecov"
   spec.add_development_dependency "standard"
   spec.add_development_dependency "tzinfo-data"
 end
