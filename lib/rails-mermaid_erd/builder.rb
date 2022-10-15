@@ -9,7 +9,7 @@ class RailsMermaidErd::Builder
       }
 
       ::Rails.application.eager_load!
-      ::ActiveRecord::Base.descendants.each do |defined_model|
+      ::ActiveRecord::Base.descendants.sort_by(&:name).each do |defined_model|
         next unless defined_model.table_exists?
         next if defined_model.name.include?("HABTM_")
         next if defined_model.table_name.blank?
