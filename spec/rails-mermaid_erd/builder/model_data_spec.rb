@@ -86,17 +86,52 @@ describe RailsMermaidErd::Builder.model_data do
 
   it "Relation includes" do
     expect(result[:Relations]).to match_array([{
-      LeftModelName: "UserImage",
-      LeftValue: "}o",
+      LeftModelName: "Author",
+      LeftValue: "||",
       Line: "--",
-      RightModelName: "Author",
-      RightValue: "o|",
-      Comment: "BT:user, HM:images"
+      RightModelName: "Post",
+      RightValue: "o{",
+      Comment: "HM:posts, BT:author"
     }, {
-      LeftModelName: "Tag",
+      LeftModelName: "Author",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "Comment",
+      RightValue: "o{",
+      Comment: "HM:comments, BT:author"
+    }, {
+      LeftModelName: "Author",
       LeftValue: "}o",
       Line: "..",
       RightModelName: "Post",
+      RightValue: "o{",
+      Comment: "HMT:comment_posts, HMT:comment_authors"
+    }, {
+      LeftModelName: "Author",
+      LeftValue: "|o",
+      Line: "--",
+      RightModelName: "UserImage",
+      RightValue: "o{",
+      Comment: "HM:images, BT:user"
+    }, {
+      LeftModelName: "Author",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "AuthorProfile",
+      RightValue: "o|",
+      Comment: "HO:profile, BT:author"
+    }, {
+      LeftModelName: "Comment",
+      LeftValue: "}o",
+      Line: "--",
+      RightModelName: "Post",
+      RightValue: "||",
+      Comment: "BT:post, HM:comments"
+    }, {
+      LeftModelName: "Post",
+      LeftValue: "}o",
+      Line: "..",
+      RightModelName: "Tag",
       RightValue: "o{",
       Comment: "HABTM"
     }, {
@@ -113,41 +148,6 @@ describe RailsMermaidErd::Builder.model_data do
       RightModelName: "Tag",
       RightValue: "||",
       Comment: "BT:tag"
-    }, {
-      LeftModelName: "Post",
-      LeftValue: "||",
-      Line: "--",
-      RightModelName: "Comment",
-      RightValue: "o{",
-      Comment: "HM:comments, BT:post"
-    }, {
-      LeftModelName: "Post",
-      LeftValue: "}o",
-      Line: "..",
-      RightModelName: "Author",
-      RightValue: "o{",
-      Comment: "HMT:comment_authors, HMT:comment_posts"
-    }, {
-      LeftModelName: "Post",
-      LeftValue: "}o",
-      Line: "--",
-      RightModelName: "Author",
-      RightValue: "||",
-      Comment: "BT:author, HM:posts"
-    }, {
-      LeftModelName: "Comment",
-      LeftValue: "}o",
-      Line: "--",
-      RightModelName: "Author",
-      RightValue: "||",
-      Comment: "BT:author, HM:comments"
-    }, {
-      LeftModelName: "AuthorProfile",
-      LeftValue: "|o",
-      Line: "--",
-      RightModelName: "Author",
-      RightValue: "||",
-      Comment: "BT:author, HO:profile"
     }])
   end
 end
