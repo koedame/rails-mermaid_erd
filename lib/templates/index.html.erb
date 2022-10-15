@@ -135,6 +135,18 @@
                 <input
                   type="checkbox"
                   class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  v-model="isShowRelationComment"
+                  @change="updateHash"
+                />
+                <span class="text-xs text-gray-900">{{i18n[language]["options"]["show_relationship_comment"]}}</span>
+              </label>
+            </div>
+
+            <div class="min-w-0 flex-1 text-sm">
+              <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
                   v-model="isHideColumns"
                   @change="updateHash"
                 />
@@ -253,6 +265,7 @@
         options: {
           title: 'Options',
           preview_relationships: 'Preview Relationships',
+          show_relationship_comment: 'Show Relationship Comment',
           show_key: 'Show Key',
           show_column_comment: 'Show Column Comment',
           hide_columns: 'Hide Columns',
@@ -286,6 +299,7 @@
         options: {
           title: '設定',
           preview_relationships: 'リレーションをプレビュー',
+          show_relationship_comment: 'リレーションのコメントを表示',
           show_key: 'キーを表示',
           show_column_comment: 'コメントを表示',
           hide_columns: 'カラムを非表示',
@@ -319,6 +333,7 @@
         }
         const selectModels = Vue.ref([])
         const isPreviewRelations = Vue.ref(false)
+        const isShowRelationComment = Vue.ref(false)
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
         const isHideColumns = Vue.ref(false)
@@ -329,6 +344,7 @@
             const parsedData = JSON.parse(atob(h))
             selectModels.value = parsedData.selectModels || []
             isPreviewRelations.value = !!parsedData.isPreviewRelations
+            isShowRelationComment.value = !!parsedData.isShowRelationComment
             isShowKey.value = !!parsedData.isShowKey
             isShowComment.value = !!parsedData.isShowComment
             isHideColumns.value = !!parsedData.isHideColumns
@@ -343,6 +359,7 @@
             selectModels.value.push(model.ModelName)
           })
           isPreviewRelations.value = false
+          isShowRelationComment.value = false
           isShowKey.value = false
           isShowComment.value = false
           isHideColumns.value = false
@@ -353,6 +370,7 @@
           location.hash = btoa(JSON.stringify({
             selectModels: selectModels.value,
             isPreviewRelations: isPreviewRelations.value,
+            isShowRelationComment: isShowRelationComment.value,
             isShowKey: isShowKey.value,
             isShowComment: isShowComment.value,
             isHideColumns: isHideColumns.value,
@@ -422,7 +440,11 @@
           });
 
           filteredData.value.Relations.forEach(relation => {
-            lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : "${relation.Comment}"`)
+            if (isShowRelationComment.value) {
+              lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : "${relation.Comment}"`)
+            } else {
+              lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : ""`)
+            }
           });
 
           return lines.join("\n")
@@ -555,6 +577,7 @@
           isCopiedUrl,
           isExistsNoModelTable,
           isPreviewRelations,
+          isShowRelationComment,
           isShowComment,
           isShowKey,
           language,
