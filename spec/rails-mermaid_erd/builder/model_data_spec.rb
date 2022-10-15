@@ -88,51 +88,66 @@ describe RailsMermaidErd::Builder.model_data do
     expect(result[:Relations]).to match_array([{
       LeftModelName: "UserImage",
       LeftValue: "}o",
+      Line: "--",
       RightModelName: "Author",
       RightValue: "o|",
-      Comment: include("belongs_to user", "has_many images")
-    }, {
-      LeftModelName: "PostsTag",
-      LeftValue: "}o",
-      RightModelName: "Post",
-      RightValue: "||",
-      Comment: ""
+      Comment: "BT:user, HM:images"
     }, {
       LeftModelName: "Tag",
       LeftValue: "}o",
+      Line: "..",
       RightModelName: "Post",
       RightValue: "o{",
       Comment: "HABTM"
     }, {
       LeftModelName: "PostsTag",
       LeftValue: "}o",
+      Line: "--",
+      RightModelName: "Post",
+      RightValue: "||",
+      Comment: "BT:post"
+    }, {
+      LeftModelName: "PostsTag",
+      LeftValue: "}o",
+      Line: "--",
       RightModelName: "Tag",
       RightValue: "||",
-      Comment: ""
+      Comment: "BT:tag"
     }, {
       LeftModelName: "Post",
       LeftValue: "||",
+      Line: "--",
       RightModelName: "Comment",
       RightValue: "o{",
-      Comment: ""
+      Comment: "HM:comments, BT:post"
     }, {
       LeftModelName: "Post",
       LeftValue: "}o",
+      Line: "..",
+      RightModelName: "Author",
+      RightValue: "o{",
+      Comment: "HMT:comment_authors, HMT:comment_posts"
+    }, {
+      LeftModelName: "Post",
+      LeftValue: "}o",
+      Line: "--",
       RightModelName: "Author",
       RightValue: "||",
-      Comment: ""
+      Comment: "BT:author, HM:posts"
     }, {
       LeftModelName: "Comment",
       LeftValue: "}o",
+      Line: "--",
       RightModelName: "Author",
       RightValue: "||",
-      Comment: ""
+      Comment: "BT:author, HM:comments"
     }, {
       LeftModelName: "AuthorProfile",
       LeftValue: "|o",
+      Line: "--",
       RightModelName: "Author",
       RightValue: "||",
-      Comment: "has_one profile"
+      Comment: "BT:author, HO:profile"
     }])
   end
 end
