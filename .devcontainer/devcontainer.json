@@ -23,8 +23,15 @@
 			"extensions": [
 				"GitHub.copilot",
 				"rebornix.ruby",
-				"castwide.solargraph"
-			]
+				"castwide.solargraph",
+				"znck.grammarly"
+			],
+			"settings": {
+				"grammarly.files.include": [
+					"**/*.txt",
+					"**/*.md"
+				]
+			}
 		}
 	}
 
