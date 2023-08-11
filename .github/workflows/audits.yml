@@ -1,0 +1,22 @@
+name: dependencies
+
+on: [pull_request]
+
+jobs:
+  bundler-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bundler Audit
+        uses: commonlit/bundler-audit-action@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  yarn-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Yarn Audit
+        uses: commonlit/yarn-audit-action2@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
