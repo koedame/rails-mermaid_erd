@@ -122,7 +122,7 @@ GEM
     parser (3.2.2.3)
       ast (~> 2.4.1)
       racc
-    pg (1.4.4)
+    pg (1.5.4)
     racc (1.7.1)
     rack (2.2.8)
     rack-test (2.0.2)
