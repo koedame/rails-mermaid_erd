@@ -41,7 +41,7 @@
     </header>
 
     <div class="flex">
-      <div class="w-[250px] border-r border-gray-300 h-full flex-none p-2">
+      <div class="w-[250px] h-[calc(100vh-56px-32px)] overflow-y-scroll border-r border-gray-300 flex-none p-2">
         <div class="p-2">
           <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["actions"]["title"]}}</h2>
 
@@ -216,20 +216,21 @@
                 <svg v-if="!model.IsModelExist" class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
-                <span>{{model.ModelName}}</span>
+                <p :title="model.ModelName" class="text-ellipsis overflow-hidden">{{model.ModelName}}</p>
               </div>
             </label>
           </div>
         </div>
       </div>
 
-      <div class="flex-1 bg-gray-900">
-        <div class="space-x-2 inline-flex p-4">
+      <div class="flex-1 bg-gray-900 relative overflow-hidden">
+        <div v-show="tab === 'erd'" class="px-4 w-full h-[calc(100vh-56px-32px)]" id="preview"></div>
+        <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs min-h-[calc(100vh-56px-32px)] border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
+
+        <div class="space-x-2 inline-flex pt-4 pr-4 pl-8 pb-8 absolute top-0 right-0 opacity-20 hover:opacity-100">
           <button @click="tab = 'erd'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'erd' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["erd"]}}</button>
           <button @click="tab = 'code'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'code' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["code"]}}</button>
         </div>
-        <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)]" id="preview"></div>
-        <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs min-h-[calc(100vh-56px-32px-56px)] border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
       </div>
     </div>
 
@@ -245,6 +246,7 @@
   <script src="https://cdn.tailwindcss.com/3.1.8?plugins=forms@0.5.2,typography@0.5.4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/9.1.7/mermaid.min.js"></script>
   <script src="https://unpkg.com/vue@3.2.40/dist/vue.global.js"></script>
+  <script src='https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js'></script>
 
   <script>window.SCHEMA_DATA=<%= result.to_json %></script>
   <script>
@@ -477,6 +479,7 @@
           mermaid.init()
           graph.value = mermaid.mermaidAPI.render("mermaid-erd", mermaidErd.value);
           document.getElementById('preview').innerHTML = graph.value
+          panzoom(document.querySelector("#preview > svg"))
         }
 
         const onCopyMermaid = () => {
