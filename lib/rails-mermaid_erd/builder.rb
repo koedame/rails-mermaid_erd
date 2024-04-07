@@ -14,8 +14,10 @@ class RailsMermaidErd::Builder
         next if defined_model.name.include?("HABTM_")
         next if defined_model.table_name.blank?
 
+        table_name = defined_model.table_name
         model = {
-          TableName: defined_model.table_name,
+          TableName: table_name,
+          TableComment: ::ActiveRecord::Base.connection.table_comment(table_name.to_sym) || "",
           ModelName: defined_model.name,
           IsModelExist: true,
           Columns: []
