@@ -6,6 +6,7 @@ describe RailsMermaidErd::Builder.model_data do
   it "Model includes" do
     expect(result[:Models]).to match_array([{
       TableName: "user_images",
+      TableComment: "uploaded image by user",
       ModelName: "UserImage",
       IsModelExist: true,
       Columns: [
@@ -17,6 +18,7 @@ describe RailsMermaidErd::Builder.model_data do
       ]
     }, {
       TableName: "tags",
+      TableComment: "",
       ModelName: "Tag",
       IsModelExist: true,
       Columns: [
@@ -27,6 +29,7 @@ describe RailsMermaidErd::Builder.model_data do
       ]
     }, {
       TableName: "posts_tags",
+      TableComment: "",
       ModelName: "PostsTag",
       IsModelExist: true,
       Columns: [
@@ -38,6 +41,7 @@ describe RailsMermaidErd::Builder.model_data do
       ]
     }, {
       TableName: "posts",
+      TableComment: "",
       ModelName: "Post",
       IsModelExist: true,
       Columns: [
@@ -49,6 +53,7 @@ describe RailsMermaidErd::Builder.model_data do
       ]
     }, {
       TableName: "comments",
+      TableComment: "",
       ModelName: "Comment",
       IsModelExist: true,
       Columns: [
@@ -61,6 +66,7 @@ describe RailsMermaidErd::Builder.model_data do
       ]
     }, {
       TableName: "user_profiles",
+      TableComment: "",
       ModelName: "AuthorProfile",
       IsModelExist: true,
       Columns: [
@@ -72,6 +78,7 @@ describe RailsMermaidErd::Builder.model_data do
       ]
     }, {
       TableName: "users",
+      TableComment: "",
       ModelName: "Author",
       IsModelExist: true,
       Columns: [
