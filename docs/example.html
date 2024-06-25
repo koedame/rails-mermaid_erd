@@ -275,7 +275,27 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           <button @click="tab = 'erd'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'erd' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["erd"]}}</button>
           <button @click="tab = 'code'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'code' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["code"]}}</button>
         </div>
-        <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)]" id="preview"></div>
+        <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
+          <div class="absolute inset-0" :style="zoomStyle" ref="zoomArea">
+            <div id="preview"></div>
+          </div>
+
+          <div class="absolute bottom-0 right-0 p-4 space-x-4 flex">
+            <div class="space-x-2 flex items-center">
+              <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomIn">+</button>
+              <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomOut">-</button>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveLeft">←</button>
+              <div class="flex flex-col space-y-8">
+                <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveUp">↑</button>
+                <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveDown">↓</button>
+              </div>
+              <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveRight">→</button>
+            </div>
+          </div>
+
+        </div>
         <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs min-h-[calc(100vh-56px-32px-56px)] border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
       </div>
     </div>
@@ -283,7 +303,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
     <footer class="bg-gray-100">
       <p class="text-center text-xs text-gray-600 py-2">
         <a href="https://github.com/koedame/rails-mermaid_erd" class="hover:text-gray-400" target="_blank" rel="noopener noreferrer">
-          Rails Mermaid ERD v0.4.2
+          Rails Mermaid ERD v0.5.0
         </a>
       </p>
     </footer>
@@ -385,6 +405,37 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
         const isShowComment = Vue.ref(false)
         const isHideColumns = Vue.ref(false)
 
+        const scale = Vue.ref(1)
+        const posX = Vue.ref(0)
+        const posY = Vue.ref(0)
+        const zoomArea = Vue.ref(null)
+
+        const zoomStyle = Vue.computed(() => {
+          return {
+            transform: `scale(${scale.value}) translate(${posX.value}px, ${posY.value}px)`,
+            transformOrigin: 'top left'
+          }
+        })
+
+        const zoomIn = () => {
+          scale.value = Math.min(scale.value + 0.1, 3)
+        }
+
+        const zoomOut = () => {
+          scale.value = Math.max(scale.value - 0.1, 0.5)
+        }
+
+        const move = (dx, dy) => {
+          const step = 10 / scale.value
+          posX.value += dx * step
+          posY.value += dy * step
+        }
+
+        const moveUp = () => move(0, -10)
+        const moveDown = () => move(0, 10)
+        const moveLeft = () => move(-10, 0)
+        const moveRight = () => move(10, 0)
+
         const restoreFromHash = () => {
           try {
             const h = location.hash.substr(1, location.hash.length)
@@ -474,6 +525,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
 
           filteredData.value.Models.forEach(model => {
             lines.push(`    %% table name: ${model.TableName}`)
+            lines.push(`    %% table comment: ${model.TableComment}`)
             lines.push(`    ${model.ModelName.replace(/:/g, '-')} {`)
 
             if (!isHideColumns.value) {
@@ -520,7 +572,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
         const filterText = Vue.ref('')
 
         const reRender = () => {
-          mermaid.initialize({theme: 'dark'})
+          mermaid.initialize({theme: 'dark', maxTextSize: 99999999})
           mermaid.init()
           graph.value = mermaid.mermaidAPI.render("mermaid-erd", mermaidErd.value);
           document.getElementById('preview').innerHTML = graph.value
@@ -644,6 +696,14 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           tab,
           updateHash,
           isHideColumns,
+          zoomStyle,
+          zoomArea,
+          zoomIn,
+          zoomOut,
+          moveUp,
+          moveDown,
+          moveLeft,
+          moveRight
         }
       }
     }
