@@ -474,7 +474,7 @@
         const filterText = Vue.ref('')
 
         const reRender = () => {
-          mermaid.initialize({theme: 'dark'})
+          mermaid.initialize({theme: 'dark', maxTextSize: 99999999})
           mermaid.init()
           graph.value = mermaid.mermaidAPI.render("mermaid-erd", mermaidErd.value);
           document.getElementById('preview').innerHTML = graph.value
