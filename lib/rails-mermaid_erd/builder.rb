@@ -14,8 +14,10 @@ class RailsMermaidErd::Builder
         next if defined_model.name.include?("HABTM_")
         next if defined_model.table_name.blank?
 
+        table_name = defined_model.table_name
         model = {
-          TableName: defined_model.table_name,
+          TableName: table_name,
+          TableComment: ::ActiveRecord::Base.connection.table_comment(table_name.to_sym) || "",
           ModelName: defined_model.name,
           IsModelExist: true,
           Columns: []
@@ -91,12 +93,12 @@ class RailsMermaidErd::Builder
 
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
           if reverse_relation
-            if (::Rails.application.config.active_record.belongs_to_required_by_default && reflection.options[:optional]) || (!::Rails.application.config.active_record.belongs_to_required_by_default && !reflection.options[:requried])
+            if (::Rails.application.config.active_record.belongs_to_required_by_default && reflection.options[:optional]) || (!::Rails.application.config.active_record.belongs_to_required_by_default && !reflection.options[:required])
               reverse_relation[:LeftValue] = "|o"
             end
             reverse_relation[:Comment] = "#{reverse_relation[:Comment]}, BT:#{reflection.name}"
           else
-            right_value = if (::Rails.application.config.active_record.belongs_to_required_by_default && reflection.options[:optional]) || (!::Rails.application.config.active_record.belongs_to_required_by_default && !reflection.options[:requried])
+            right_value = if (::Rails.application.config.active_record.belongs_to_required_by_default && reflection.options[:optional]) || (!::Rails.application.config.active_record.belongs_to_required_by_default && !reflection.options[:required])
               "o|"
             else
               "||"
