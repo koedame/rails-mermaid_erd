@@ -228,7 +228,7 @@
           <button @click="tab = 'erd'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'erd' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["erd"]}}</button>
           <button @click="tab = 'code'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'code' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["code"]}}</button>
         </div>
-        <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
+        <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden" @mousedown="startDrag" @mousemove="doDrag">
           <div class="absolute inset-0" :style="zoomStyle" ref="zoomArea">
             <div id="preview"></div>
           </div>
@@ -357,6 +357,7 @@
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
         const isHideColumns = Vue.ref(false)
+        const isDragging = Vue.ref(false)
 
         const scale = Vue.ref(1)
         const posX = Vue.ref(0)
@@ -388,6 +389,23 @@
         const moveDown = () => move(0, 10)
         const moveLeft = () => move(-10, 0)
         const moveRight = () => move(10, 0)
+
+        const startDrag = () => {
+          isDragging.value = true
+        }
+
+        const stopDrag = () => {
+          isDragging.value = false
+          document.onselectstart = () => true
+        }
+
+        const doDrag = (event) => {
+          document.onselectstart = () => false
+          if (!!isDragging.value) {
+            posX.value += event.movementX
+            posY.value += event.movementY
+          }
+        }
 
         const restoreFromHash = () => {
           try {
@@ -615,6 +633,10 @@
           reRender()
         })
 
+        window.addEventListener('mouseup', () => {
+          stopDrag()
+        }, false);
+
         window.addEventListener('hashchange', () => {
           restoreFromHash()
           reRender()
@@ -653,6 +675,8 @@
           zoomArea,
           zoomIn,
           zoomOut,
+          startDrag,
+          doDrag,
           moveUp,
           moveDown,
           moveLeft,
