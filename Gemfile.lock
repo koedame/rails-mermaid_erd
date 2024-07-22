@@ -135,7 +135,7 @@ GEM
     nokogiri (1.16.6-x86_64-linux)
       racc (~> 1.4)
     parallel (1.25.1)
-    parser (3.3.3.0)
+    parser (3.3.4.0)
       ast (~> 2.4.1)
       racc
     pg (1.5.4)
@@ -189,7 +189,7 @@ GEM
       io-console (~> 0.5)
     reverse_markdown (2.1.1)
       nokogiri
-    rexml (3.3.0)
+    rexml (3.3.2)
       strscan
     rspec-core (3.12.2)
       rspec-support (~> 3.12.0)
@@ -247,7 +247,7 @@ GEM
       thor (~> 1.0)
       tilt (~> 2.0)
       yard (~> 0.9, >= 0.9.24)
-    standard (1.39.0)
+    standard (1.39.2)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.0)
       rubocop (~> 1.64.0)
