@@ -22,6 +22,7 @@ module RailsMermaidErd
     version = VERSION
     app_name = ::Rails.application.class.try(:parent_name) || ::Rails.application.class.try(:module_parent_name)
     logo = File.read(File.expand_path("./assets/logo.svg", __dir__))
+    configuration = RailsMermaidErd.configuration
     erb = ERB.new(File.read(File.expand_path("./templates/index.html.erb", __dir__)))
     result_html = erb.result(binding)
 

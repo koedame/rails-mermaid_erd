@@ -1,3 +1,4 @@
 # result path
 # default "mermaid_erd/index.html"
 result_path: doc/erd.html
+all_models_selected: false
