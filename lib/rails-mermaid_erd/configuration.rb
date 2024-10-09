@@ -15,7 +15,14 @@ class RailsMermaidErd::Configuration
       config = config.merge(custom_config)
     end
 
-    @result_path = config[:result_path]
     @all_models_selected = config[:all_models_selected]
+    @result_path = config[:result_path]
+  end
+
+  def to_json
+    {
+      allModelsSelected: @all_models_selected,
+      resultPath: @result_path
+    }.to_json
   end
 end
