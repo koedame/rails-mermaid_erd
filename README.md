@@ -64,6 +64,7 @@ The setting items are as follows.
 | --- | --- | --- |
 | `result_path` | Destination of generated files. | `mermaid_erd/index.html` |
 | `models_list` | A method that would return a list of active record models | `::ActiveRecord::Base.descendants.sort_by(&:name)` |
+| `hide_columns` | Hide columns by default for readability purpose | `false` |
 
 <!--
 TODO:
