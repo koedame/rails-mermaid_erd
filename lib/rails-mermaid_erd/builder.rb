@@ -150,17 +150,20 @@ class RailsMermaidErd::Builder
 
     # Doc: https://guides.rubyonrails.org/association_basics.html
     def get_reflection_model_name(reflection)
-      if reflection.options[:class_name]
-        reflection.options[:class_name].to_s.classify
-      elsif reflection.options[:through]
+      if reflection.is_a?(ActiveRecord::Reflection::ThroughReflection)
         if reflection.options[:source]
           reflection.options[:source].to_s.classify
+        elsif reflection.options[:source_type]
+          reflection.options[:source_type].to_s.classify
         else
-          reflection.class_name
+          reflection.name.to_s.classify
         end
+      elsif reflection.options[:class_name]
+        reflection.options[:class_name]
       else
         reflection.class_name
       end
     end
+
   end
 end
