@@ -21,13 +21,23 @@ The editor is a single HTML file, so the entire editor can be shared.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "rails-mermaid_erd", group: :development
+gem "rails-mermaid_erd", group: :development, require: false
 ```
 
 And then execute:
 
 ```bash
 $ bundle install
+```
+
+Add this line to your application's Rakefile:
+
+```ruby
+begin
+  require "rails-mermaid_erd"
+rescue LoadError
+  # Do nothing.
+end
 ```
 
 ## Usage

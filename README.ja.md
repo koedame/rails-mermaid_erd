@@ -21,13 +21,23 @@ ERDは自由自在に生成できます。
 導入したいRailsアプリケーションのGemfileに以下の行を追加してください。
 
 ```ruby
-gem "rails-mermaid_erd", group: :development
+gem "rails-mermaid_erd", group: :development, require: false
 ```
 
 次に、以下のコマンドを実行してGemをインストールします。
 
 ```bash
 $ bundle install
+```
+
+次に、Rakefileに以下の行を追加してください。
+
+```ruby
+begin
+  require "rails-mermaid_erd"
+rescue LoadError
+  # Do nothing.
+end
 ```
 
 ## 使い方
