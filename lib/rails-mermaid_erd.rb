@@ -11,7 +11,7 @@ module RailsMermaidErd
 
   class << self
     def configuration
-      @configuration ||= RailsMermaidErd::Configuration.new
+      @configuration ||= RailsMermaidErd::Configuration.new(ENV['CONFIG_FILE'] )
     end
   end
 
