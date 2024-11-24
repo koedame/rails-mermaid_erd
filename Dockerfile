@@ -5,5 +5,6 @@ RUN apk add --no-cache \
       git \
       postgresql-dev \
       chromium \
-      chromium-chromedriver
+      chromium-chromedriver \
+      libc6-compat
 
