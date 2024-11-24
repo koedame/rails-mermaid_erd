@@ -4,8 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    working_dir: /workspace
     volumes:
-      - .:/app
+      - .:/workspace
       - bundle_data:/usr/local/bundle
 
   db:
