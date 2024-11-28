@@ -1,11 +1,12 @@
 require "yaml"
 
 class RailsMermaidErd::Configuration
-  attr_accessor :result_path
+  attr_accessor :result_path, :ignore
 
   def initialize
     config = {
-      result_path: "mermaid_erd/index.html"
+      result_path: "mermaid_erd/index.html",
+      ignore: []
     }
 
     config_file = Rails.root.join("config/mermaid_erd.yml")
@@ -15,5 +16,6 @@ class RailsMermaidErd::Configuration
     end
 
     @result_path = config[:result_path]
+    @ignore = config[:ignore]
   end
 end
