@@ -620,6 +620,18 @@
           reRender()
         }, false);
 
+        window.addEventListener("keyup", function (event) {
+          event.preventDefault();
+          switch (event.code) {
+            case "Equal": zoomIn(); break
+            case "Minus": zoomOut(); break
+            case "ArrowLeft": case "KeyA": moveLeft(); break
+            case "ArrowRight": case "KeyD": moveRight(); break
+            case "ArrowUp": case "KeyW": moveUp(); break
+            case "ArrowDown": case "KeyS": moveDown(); break
+          }
+        });
+
         return {
           filteredModelList,
           filterText,
