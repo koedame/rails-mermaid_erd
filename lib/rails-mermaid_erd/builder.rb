@@ -13,6 +13,7 @@ class RailsMermaidErd::Builder
         next unless defined_model.table_exists?
         next if defined_model.name.include?("HABTM_")
         next if defined_model.table_name.blank?
+        next if RailsMermaidErd.configuration.ignore.select { |i| Regexp.new(i).match(defined_model.table_name) }.present?
 
         table_name = defined_model.table_name
         model = {
