@@ -63,6 +63,20 @@ If you share this file, it can be used by those who do not have a Ruby on Rails 
 
 It would be very smart to generate it automatically using CI.
 
+
+#### Performance
+For bigger rails applications, to avoid increasing app startup time, you can add `require: false` to the gemfile -
+```
+gem "rails-mermaid_erd", group: :development, require: false
+```
+
+
+And open the heavy mermaid_erd/index.html file in Google Chrome directly for more a responsive experience - 
+```
+bundle exec ruby -r rails-mermaid_erd -S rails mermaid_erd && open -a "Google Chrome" mermaid_erd/index.html
+```
+
+
 ## Configuration
 
 `./config/mermaid_erd.yml` to customize the configuration.
