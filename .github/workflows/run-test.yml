@@ -1,47 +1,47 @@
-name: Run Test
+name: test
+
 on:
-  pull_request:
   push:
     branches:
-      - develop
       - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
 
 jobs:
-  run-test:
+  test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Restore Cache
-        uses: actions/cache@v4
-        id: bundle_cache_id
-        env:
-          cache-name: cache-bundle
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
         with:
-          path: ./vendor/bundle
-          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-gem-${{ env.cache-name }}-
-            ${{ runner.os }}-gem-
-            ${{ runner.os }}-
+            ${{ runner.os }}-buildx-
 
-      - name: Up Docker Container
-        run: docker compose -f docker-compose.ci.yml up -d
+      - name: Start containers
+        run: docker compose -f compose.ci.yml up -d
 
-      - name: Install Packages
-        shell: bash
+      - name: Install dependencies
         run: |
-          docker compose -f docker-compose.ci.yml exec app bundle install --jobs=16
-          docker compose -f docker-compose.ci.yml exec app bundle clean --force
+          docker compose -f compose.ci.yml exec app bundle install --jobs=16
+          docker compose -f compose.ci.yml exec app bundle clean --force
 
-      - name: Setup DB
+      - name: Setup database
         run: |
-          docker compose -f docker-compose.ci.yml exec app sh -c "cd ./spec/dummy && bundle exec rails db:setup"
+          docker compose -f compose.ci.yml exec app sh -c "cd ./spec/dummy && bundle exec rails db:setup"
 
-      - name: Run Test
-        run: docker compose -f docker-compose.ci.yml exec app bundle exec rspec
+      - name: Run tests
+        run: docker compose -f compose.ci.yml exec app bundle exec rspec
 
-      - name: Down Docker Container
-        run: docker compose -f docker-compose.ci.yml down
+      - name: Stop containers
+        run: docker compose -f compose.ci.yml down
