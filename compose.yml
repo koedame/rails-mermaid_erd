@@ -8,6 +8,13 @@ services:
     volumes:
       - .:/workspace
       - bundle_data:/usr/local/bundle
+    command: /bin/sh
+    tty: true
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      RAILS_ENV: test
 
   db:
     container_name: rails-mermaid-erd-db
