@@ -156,6 +156,11 @@ GitHub Actions automates the following checks:
 2. Follow StandardRb coding conventions
 3. Update documentation
 4. Update CHANGELOG.md
+5. Use English for all development communications:
+   - Pull Request titles and descriptions
+   - Issue titles and descriptions
+   - Commit messages
+   - Code comments and documentation
 
 ## Troubleshooting
 
