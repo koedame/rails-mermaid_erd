@@ -230,7 +230,7 @@
         </div>
         <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
           <div class="absolute inset-0" :style="zoomStyle" ref="zoomArea">
-            <div id="preview"></div>
+            <div id="preview" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }"></div>
           </div>
 
           <div class="absolute bottom-0 right-0 p-4 space-x-4 flex">
@@ -362,6 +362,155 @@
         const posX = Vue.ref(0)
         const posY = Vue.ref(0)
         const zoomArea = Vue.ref(null)
+        // Manage space key press state
+        const isSpacePressed = Vue.ref(false)
+        // Manage dragging state
+        const isDragging = Vue.ref(false)
+        let startX = 0
+        let startY = 0
+        // Record distance between two touch points
+        let lastTouchDistance = 0
+        // Record mouse position
+        let lastMouseX = 0
+        let lastMouseY = 0
+
+        // Calculate distance between two touch points
+        const getDistance = (touches) => {
+          return Math.hypot(
+            touches[0].clientX - touches[1].clientX,
+            touches[0].clientY - touches[1].clientY
+          )
+        }
+
+        // Calculate center point of two touch positions
+        const getTouchCenter = (touches) => {
+          return {
+            x: (touches[0].clientX + touches[1].clientX) / 2,
+            y: (touches[0].clientY + touches[1].clientY) / 2
+          }
+        }
+
+        // Handle touch start
+        const handleTouchStart = (e) => {
+          if (e.touches.length === 2) {
+            e.preventDefault()
+            lastTouchDistance = getDistance(e.touches)
+          }
+        }
+
+        // Handle touch move (pinch in/out for zoom)
+        const handleTouchMove = (e) => {
+          if (e.touches.length === 2) {
+            e.preventDefault()
+            const preview = document.getElementById('preview')
+            if (!preview.contains(e.target)) {
+              return
+            }
+
+            const newDistance = getDistance(e.touches)
+            const delta = (newDistance - lastTouchDistance) * 0.01
+            lastTouchDistance = newDistance
+
+            const center = getTouchCenter(e.touches)
+            const rect = preview.getBoundingClientRect()
+            const touchX = center.x - rect.left
+            const touchY = center.y - rect.top
+
+            const x = touchX / scale.value - posX.value
+            const y = touchY / scale.value - posY.value
+
+            const newScale = Math.min(Math.max(scale.value + delta, 0.5), 3)
+            if (newScale === scale.value) return
+
+            posX.value = touchX / newScale - x
+            posY.value = touchY / newScale - y
+            scale.value = newScale
+          }
+        }
+
+        // Handle touch end
+        const handleTouchEnd = (e) => {
+          if (e.touches.length < 2) {
+            lastTouchDistance = 0
+          }
+        }
+
+        // Handle key down (space key for drag mode toggle)
+        const handleKeyDown = (e) => {
+          if (e.code === 'Space' && !isSpacePressed.value) {
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+              return
+            }
+            isSpacePressed.value = true
+            e.preventDefault()
+          }
+        }
+
+        // Handle key up
+        const handleKeyUp = (e) => {
+          if (e.code === 'Space') {
+            isSpacePressed.value = false
+            isDragging.value = false
+          }
+        }
+
+        // Handle mouse down (start dragging)
+        const handleMouseDown = (e) => {
+          if (isSpacePressed.value || e.button === 1) {
+            isDragging.value = true
+            lastMouseX = e.clientX
+            lastMouseY = e.clientY
+            e.preventDefault()
+          }
+        }
+
+        // Handle mouse move (movement while dragging)
+        const handleMouseMove = (e) => {
+          if (isDragging.value) {
+            const dx = (e.clientX - lastMouseX) / scale.value
+            const dy = (e.clientY - lastMouseY) / scale.value
+            posX.value += dx
+            posY.value += dy
+            lastMouseX = e.clientX
+            lastMouseY = e.clientY
+            e.preventDefault()
+          }
+        }
+
+        // Handle mouse up (end dragging)
+        const handleMouseUp = (e) => {
+          if (e.button === 1) {
+            e.preventDefault()
+          }
+          isDragging.value = false
+        }
+
+        // Handle mouse wheel (zoom)
+        const handleWheel = (e) => {
+          const preview = document.getElementById('preview')
+          if (!preview.contains(e.target)) {
+            return
+          }
+
+          e.preventDefault()
+
+          const rect = preview.getBoundingClientRect()
+          const mouseX = e.clientX - rect.left
+          const mouseY = e.clientY - rect.top
+
+          // Calculate relative coordinates based on mouse position
+          const x = mouseX / scale.value - posX.value
+          const y = mouseY / scale.value - posY.value
+
+          // Change scale
+          const delta = e.deltaY < 0 ? 0.1 : -0.1
+          const newScale = Math.min(Math.max(scale.value + delta, 0.5), 3)
+
+          // Calculate new position with new scale
+          posX.value = mouseX / newScale - x
+          posY.value = mouseY / newScale - y
+          scale.value = newScale
+        }
 
         const zoomStyle = Vue.computed(() => {
           return {
@@ -613,6 +762,28 @@
           setLanguage(window.navigator.language)
           restoreFromHash()
           reRender()
+
+          window.addEventListener('keydown', handleKeyDown)
+          window.addEventListener('keyup', handleKeyUp)
+          window.addEventListener('mousedown', handleMouseDown)
+          window.addEventListener('mousemove', handleMouseMove)
+          window.addEventListener('mouseup', handleMouseUp)
+          window.addEventListener('wheel', handleWheel, { passive: false })
+          window.addEventListener('touchstart', handleTouchStart, { passive: false })
+          window.addEventListener('touchmove', handleTouchMove, { passive: false })
+          window.addEventListener('touchend', handleTouchEnd)
+        })
+
+        Vue.onUnmounted(() => {
+          window.removeEventListener('keydown', handleKeyDown)
+          window.removeEventListener('keyup', handleKeyUp)
+          window.removeEventListener('mousedown', handleMouseDown)
+          window.removeEventListener('mousemove', handleMouseMove)
+          window.removeEventListener('mouseup', handleMouseUp)
+          window.removeEventListener('wheel', handleWheel)
+          window.removeEventListener('touchstart', handleTouchStart)
+          window.removeEventListener('touchmove', handleTouchMove)
+          window.removeEventListener('touchend', handleTouchEnd)
         })
 
         window.addEventListener('hashchange', () => {
@@ -656,7 +827,9 @@
           moveUp,
           moveDown,
           moveLeft,
-          moveRight
+          moveRight,
+          isSpacePressed,
+          isDragging
         }
       }
     }
