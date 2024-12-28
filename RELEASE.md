@@ -23,7 +23,7 @@ bundle exec rspec
 cd /workspace/spec/dummy
 RAILS_ENV=test bundle exec rails mermaid_erd
 cp -f /workspace/spec/dummy/mermaid_erd/index.html /workspace/docs/example.html
-chromium-browser --headless --disable-gpu --no-sandbox --window-size=1200,800 --hide-scrollbars --screenshot="/workspace/docs/screen_shot.png" /workspace/spec/dummy/mermaid_erd/index.html
+chromium-browser --headless --disable-gpu --no-sandbox --window-size=1280,800 --hide-scrollbars --screenshot="/workspace/docs/screen_shot.png" /workspace/spec/dummy/mermaid_erd/index.html
 ```
 
 in host machine:
