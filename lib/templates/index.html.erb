@@ -279,6 +279,8 @@
   <script src="https://unpkg.com/vue@3.2.40/dist/vue.global.js"></script>
 
   <script>window.SCHEMA_DATA=<%= result.to_json %></script>
+  <script>window.CONFIG_DATA=<%= configuration.to_json %></script>
+
   <script>
     window.i18n = {
       en: {
@@ -379,12 +381,13 @@
           ...window.SCHEMA_DATA,
           Models: window.SCHEMA_DATA.Models.sort((a, b) => a.ModelName < b.ModelName ? -1 : 1)
         }
+        const configData = { ...window.CONFIG_DATA }
         const selectModels = Vue.ref([])
         const isPreviewRelations = Vue.ref(false)
         const isShowRelationComment = Vue.ref(false)
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
-        const isHideColumns = Vue.ref(false)
+        const isHideColumns = Vue.ref(window.CONFIG_DATA.hide_columns)
 
         const scale = Vue.ref(1)
         const posX = Vue.ref(0)
@@ -590,7 +593,7 @@
           isShowRelationComment.value = false
           isShowKey.value = false
           isShowComment.value = false
-          isHideColumns.value = false
+          isHideColumns.value = window.CONFIG_DATA.hide_columns
           updateHash()
         }
 

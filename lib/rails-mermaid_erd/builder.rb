@@ -9,7 +9,8 @@ class RailsMermaidErd::Builder
       }
 
       ::Rails.application.eager_load!
-      ::ActiveRecord::Base.descendants.sort_by(&:name).each do |defined_model|
+
+      eval(RailsMermaidErd.configuration.models_list).each do |defined_model|
         next unless defined_model.table_exists?
         next if defined_model.name.include?("HABTM_")
         next if defined_model.table_name.blank?
@@ -149,17 +150,20 @@ class RailsMermaidErd::Builder
 
     # Doc: https://guides.rubyonrails.org/association_basics.html
     def get_reflection_model_name(reflection)
-      if reflection.options[:class_name]
-        reflection.options[:class_name].to_s.classify
-      elsif reflection.options[:through]
+      if reflection.is_a?(ActiveRecord::Reflection::ThroughReflection)
         if reflection.options[:source]
           reflection.options[:source].to_s.classify
+        elsif reflection.options[:source_type]
+          reflection.options[:source_type].to_s.classify
         else
-          reflection.class_name
+          reflection.name.to_s.classify
         end
+      elsif reflection.options[:class_name]
+        reflection.options[:class_name]
       else
         reflection.class_name
       end
     end
+
   end
 end
