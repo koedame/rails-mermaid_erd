@@ -233,6 +233,19 @@
             <div id="preview" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }"></div>
           </div>
 
+          <div class="absolute bottom-0 left-1/2 -translate-x-1/2 p-4">
+            <div class="bg-gray-800 text-white text-[10px] px-3 py-1.5 rounded inline-flex items-center space-x-6">
+              <div class="inline-flex items-center">
+                <span class="font-medium">{{i18n[language]["controls"]["movement"]}}:</span>
+                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["space_drag"]}} / {{i18n[language]["controls"]["middle_drag"]}}</span>
+              </div>
+              <div class="inline-flex items-center">
+                <span class="font-medium">{{i18n[language]["controls"]["zoom"]}}:</span>
+                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["mouse_wheel"]}} / {{i18n[language]["controls"]["pinch"]}}</span>
+              </div>
+            </div>
+          </div>
+
           <div class="absolute bottom-0 right-0 p-4 space-x-4 flex">
             <div class="space-x-2 flex items-center">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomIn">+</button>
@@ -247,7 +260,6 @@
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveRight">→</button>
             </div>
           </div>
-
         </div>
         <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs min-h-[calc(100vh-56px-32px-56px)] border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
       </div>
@@ -302,6 +314,14 @@
           erd: 'ERD',
           code: 'Code',
         },
+        controls: {
+          movement: 'Movement',
+          zoom: 'Zoom',
+          space_drag: 'Space + Mouse Drag',
+          middle_drag: 'Middle Click + Drag',
+          mouse_wheel: 'Mouse Wheel',
+          pinch: 'Pinch In/Out',
+        }
       },
       ja: {
         actions: {
@@ -336,6 +356,14 @@
           erd: 'ER図',
           code: 'コード',
         },
+        controls: {
+          movement: '移動方法',
+          zoom: '拡大/縮小',
+          space_drag: 'スペースキー + マウスドラッグ',
+          middle_drag: '中クリック + ドラッグ',
+          mouse_wheel: 'マウスホイール',
+          pinch: 'ピンチイン/アウト',
+        }
       }
     }
   </script>
