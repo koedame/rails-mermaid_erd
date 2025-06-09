@@ -277,7 +277,20 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
         </div>
         <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
           <div class="absolute inset-0" :style="zoomStyle" ref="zoomArea">
-            <div id="preview"></div>
+            <div id="preview" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }"></div>
+          </div>
+
+          <div class="absolute bottom-0 left-1/2 -translate-x-1/2 p-4">
+            <div class="bg-gray-800 text-white text-[10px] px-3 py-1.5 rounded inline-flex items-center space-x-6">
+              <div class="inline-flex items-center">
+                <span class="font-medium">{{i18n[language]["controls"]["movement"]}}:</span>
+                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["space_drag"]}} / {{i18n[language]["controls"]["middle_drag"]}}</span>
+              </div>
+              <div class="inline-flex items-center">
+                <span class="font-medium">{{i18n[language]["controls"]["zoom"]}}:</span>
+                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["mouse_wheel"]}} / {{i18n[language]["controls"]["pinch"]}}</span>
+              </div>
+            </div>
           </div>
 
           <div class="absolute bottom-0 right-0 p-4 space-x-4 flex">
@@ -294,7 +307,6 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveRight">→</button>
             </div>
           </div>
-
         </div>
         <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs min-h-[calc(100vh-56px-32px-56px)] border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
       </div>
@@ -303,7 +315,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
     <footer class="bg-gray-100">
       <p class="text-center text-xs text-gray-600 py-2">
         <a href="https://github.com/koedame/rails-mermaid_erd" class="hover:text-gray-400" target="_blank" rel="noopener noreferrer">
-          Rails Mermaid ERD v0.5.1
+          Rails Mermaid ERD v0.6.0
         </a>
       </p>
     </footer>
@@ -349,6 +361,14 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           erd: 'ERD',
           code: 'Code',
         },
+        controls: {
+          movement: 'Movement',
+          zoom: 'Zoom',
+          space_drag: 'Space + Mouse Drag',
+          middle_drag: 'Middle Click + Drag',
+          mouse_wheel: 'Mouse Wheel',
+          pinch: 'Pinch In/Out',
+        }
       },
       ja: {
         actions: {
@@ -383,6 +403,14 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           erd: 'ER図',
           code: 'コード',
         },
+        controls: {
+          movement: '移動方法',
+          zoom: '拡大/縮小',
+          space_drag: 'スペースキー + マウスドラッグ',
+          middle_drag: '中クリック + ドラッグ',
+          mouse_wheel: 'マウスホイール',
+          pinch: 'ピンチイン/アウト',
+        }
       }
     }
   </script>
@@ -409,6 +437,155 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
         const posX = Vue.ref(0)
         const posY = Vue.ref(0)
         const zoomArea = Vue.ref(null)
+        // Manage space key press state
+        const isSpacePressed = Vue.ref(false)
+        // Manage dragging state
+        const isDragging = Vue.ref(false)
+        let startX = 0
+        let startY = 0
+        // Record distance between two touch points
+        let lastTouchDistance = 0
+        // Record mouse position
+        let lastMouseX = 0
+        let lastMouseY = 0
+
+        // Calculate distance between two touch points
+        const getDistance = (touches) => {
+          return Math.hypot(
+            touches[0].clientX - touches[1].clientX,
+            touches[0].clientY - touches[1].clientY
+          )
+        }
+
+        // Calculate center point of two touch positions
+        const getTouchCenter = (touches) => {
+          return {
+            x: (touches[0].clientX + touches[1].clientX) / 2,
+            y: (touches[0].clientY + touches[1].clientY) / 2
+          }
+        }
+
+        // Handle touch start
+        const handleTouchStart = (e) => {
+          if (e.touches.length === 2) {
+            e.preventDefault()
+            lastTouchDistance = getDistance(e.touches)
+          }
+        }
+
+        // Handle touch move (pinch in/out for zoom)
+        const handleTouchMove = (e) => {
+          if (e.touches.length === 2) {
+            e.preventDefault()
+            const preview = document.getElementById('preview')
+            if (!preview.contains(e.target)) {
+              return
+            }
+
+            const newDistance = getDistance(e.touches)
+            const delta = (newDistance - lastTouchDistance) * 0.01
+            lastTouchDistance = newDistance
+
+            const center = getTouchCenter(e.touches)
+            const rect = preview.getBoundingClientRect()
+            const touchX = center.x - rect.left
+            const touchY = center.y - rect.top
+
+            const x = touchX / scale.value - posX.value
+            const y = touchY / scale.value - posY.value
+
+            const newScale = Math.min(Math.max(scale.value + delta, 0.5), 3)
+            if (newScale === scale.value) return
+
+            posX.value = touchX / newScale - x
+            posY.value = touchY / newScale - y
+            scale.value = newScale
+          }
+        }
+
+        // Handle touch end
+        const handleTouchEnd = (e) => {
+          if (e.touches.length < 2) {
+            lastTouchDistance = 0
+          }
+        }
+
+        // Handle key down (space key for drag mode toggle)
+        const handleKeyDown = (e) => {
+          if (e.code === 'Space' && !isSpacePressed.value) {
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+              return
+            }
+            isSpacePressed.value = true
+            e.preventDefault()
+          }
+        }
+
+        // Handle key up
+        const handleKeyUp = (e) => {
+          if (e.code === 'Space') {
+            isSpacePressed.value = false
+            isDragging.value = false
+          }
+        }
+
+        // Handle mouse down (start dragging)
+        const handleMouseDown = (e) => {
+          if (isSpacePressed.value || e.button === 1) {
+            isDragging.value = true
+            lastMouseX = e.clientX
+            lastMouseY = e.clientY
+            e.preventDefault()
+          }
+        }
+
+        // Handle mouse move (movement while dragging)
+        const handleMouseMove = (e) => {
+          if (isDragging.value) {
+            const dx = (e.clientX - lastMouseX) / scale.value
+            const dy = (e.clientY - lastMouseY) / scale.value
+            posX.value += dx
+            posY.value += dy
+            lastMouseX = e.clientX
+            lastMouseY = e.clientY
+            e.preventDefault()
+          }
+        }
+
+        // Handle mouse up (end dragging)
+        const handleMouseUp = (e) => {
+          if (e.button === 1) {
+            e.preventDefault()
+          }
+          isDragging.value = false
+        }
+
+        // Handle mouse wheel (zoom)
+        const handleWheel = (e) => {
+          const preview = document.getElementById('preview')
+          if (!preview.contains(e.target)) {
+            return
+          }
+
+          e.preventDefault()
+
+          const rect = preview.getBoundingClientRect()
+          const mouseX = e.clientX - rect.left
+          const mouseY = e.clientY - rect.top
+
+          // Calculate relative coordinates based on mouse position
+          const x = mouseX / scale.value - posX.value
+          const y = mouseY / scale.value - posY.value
+
+          // Change scale
+          const delta = e.deltaY < 0 ? 0.1 : -0.1
+          const newScale = Math.min(Math.max(scale.value + delta, 0.5), 3)
+
+          // Calculate new position with new scale
+          posX.value = mouseX / newScale - x
+          posY.value = mouseY / newScale - y
+          scale.value = newScale
+        }
 
         const zoomStyle = Vue.computed(() => {
           return {
@@ -660,6 +837,28 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           setLanguage(window.navigator.language)
           restoreFromHash()
           reRender()
+
+          window.addEventListener('keydown', handleKeyDown)
+          window.addEventListener('keyup', handleKeyUp)
+          window.addEventListener('mousedown', handleMouseDown)
+          window.addEventListener('mousemove', handleMouseMove)
+          window.addEventListener('mouseup', handleMouseUp)
+          window.addEventListener('wheel', handleWheel, { passive: false })
+          window.addEventListener('touchstart', handleTouchStart, { passive: false })
+          window.addEventListener('touchmove', handleTouchMove, { passive: false })
+          window.addEventListener('touchend', handleTouchEnd)
+        })
+
+        Vue.onUnmounted(() => {
+          window.removeEventListener('keydown', handleKeyDown)
+          window.removeEventListener('keyup', handleKeyUp)
+          window.removeEventListener('mousedown', handleMouseDown)
+          window.removeEventListener('mousemove', handleMouseMove)
+          window.removeEventListener('mouseup', handleMouseUp)
+          window.removeEventListener('wheel', handleWheel)
+          window.removeEventListener('touchstart', handleTouchStart)
+          window.removeEventListener('touchmove', handleTouchMove)
+          window.removeEventListener('touchend', handleTouchEnd)
         })
 
         window.addEventListener('hashchange', () => {
@@ -703,7 +902,9 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           moveUp,
           moveDown,
           moveLeft,
-          moveRight
+          moveRight,
+          isSpacePressed,
+          isDragging
         }
       }
     }

@@ -7,3 +7,4 @@ gemspec
 gem "bump"
 gem "rake"
 gem "solargraph"
+gem "nio4r", "~> 2.7.0"
