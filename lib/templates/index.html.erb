@@ -25,6 +25,7 @@
             <select v-model="language" @change="setLanguage(language)" class="text-xs border-0 rounded py-1 pl-3 pr-8 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-600">
               <option value="en">English</option>
               <option value="ja">Japanese - 日本語</option>
+              <option value="pt-BR">Portuguese - Português</option>
             </select>
             <a href="https://github.com/koedame/rails-mermaid_erd" class="text-white hover:text-red-200" target="_blank" rel="noopener noreferrer">
               <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -363,6 +364,48 @@
           middle_drag: '中クリック + ドラッグ',
           mouse_wheel: 'マウスホイール',
           pinch: 'ピンチイン/アウト',
+        }
+      },
+      "pt-BR": {
+        actions: {
+          title: 'Ações',
+          reset: 'Resetar',
+          copy_mermaid_code: 'Copiar Código Mermaid',
+          copied_mermaid_code: 'Código Mermaid Copiado',
+          copy_markdown_code: 'Copiar Código Markdown',
+          copied_markdown_code: 'Código Markdown Copiado',
+          copy_url: 'Copiar Link para Compartilhar',
+          copied_url: 'Link Copiado para Compartilhar',
+          download_svg_file: 'Baixar Arquivo SVG',
+          download_png_file: 'Baixar Arquivo PNG',
+        },
+        options: {
+          title: 'Opções',
+          preview_relationships: 'Pré-visualizar Relacionamentos',
+          show_relationship_comment: 'Mostrar Comentário de Relacionamento',
+          show_key: 'Mostrar Chave',
+          show_column_comment: 'Mostrar Comentário da Coluna',
+          hide_columns: 'Esconder Colunas',
+        },
+        models: {
+          title: 'Modelos',
+          select: 'Selecionar',
+          all: 'Todos',
+          none: 'Nenhum',
+          filter: 'Filtrar',
+          no_model_file: 'Nenhum Arquivo de Modelo',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'Código',
+        },
+        controls: {
+          movement: 'Movimento',
+          zoom: 'Zoom',
+          space_drag: 'Espaço + Arrastar Mouse',
+          middle_drag: 'Clique do Meio + Arrastar',
+          mouse_wheel: 'Roda do Mouse',
+          pinch: 'Pinçar In/Out',
         }
       }
     }
