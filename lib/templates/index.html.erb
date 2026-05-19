@@ -215,6 +215,12 @@
             <span>{{i18n[language]["models"]["no_model_file"]}}</span>
           </div>
 
+          <!--
+            `max-h-[480px]` must match `VIRTUAL_LIST_VIEWPORT_PX` in setup() —
+            the JS uses 480 as the assumed viewport height before the first
+            scroll event arrives, and a mismatch would over- or under-render
+            rows. If you change one, change both.
+          -->
           <div
             ref="virtualListContainer"
             @scroll.passive="virtualListScroll"
@@ -259,10 +265,20 @@
             <img v-show="isSnapshotMode && snapshotDataUrl" :src="snapshotDataUrl" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }" alt="ERD snapshot" draggable="false" style="user-select: none; -webkit-user-drag: none;" />
           </div>
 
-          <div v-if="selectModels.length === 0" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div v-if="isEmptySelection" class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="bg-gray-800/80 text-white text-sm px-4 py-3 rounded inline-flex flex-col items-center space-y-1 pointer-events-auto">
               <span class="font-medium">{{i18n[language]["empty"]["title"]}}</span>
               <span class="text-white/70 text-xs">{{i18n[language]["empty"]["hint"]}}</span>
+            </div>
+          </div>
+
+          <div v-if="renderError" class="absolute top-0 left-0 right-0 p-4 pointer-events-none">
+            <div class="bg-red-900/90 text-white text-xs px-3 py-2 rounded inline-flex items-start space-x-2 pointer-events-auto" role="alert">
+              <svg class="w-4 h-4 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              <span>{{renderError}}</span>
+              <button @click="renderError = ''" class="text-white/80 hover:text-white" :aria-label="i18n[language]['errors']['dismiss']">✕</button>
             </div>
           </div>
 
@@ -350,6 +366,11 @@
           title: 'No models selected',
           hint: 'Pick models from the sidebar to render the ERD.',
         },
+        errors: {
+          render_failed: 'Mermaid failed to render the current selection. Check the browser console for details.',
+          snapshot_failed: 'Could not bake the snapshot image. Falling back to the SVG render.',
+          dismiss: 'Dismiss',
+        },
         tab: {
           erd: 'ERD',
           code: 'Code',
@@ -399,6 +420,11 @@
           title: 'モデルが選択されていません',
           hint: 'サイドバーからモデルを選択して ER 図を描画します。',
         },
+        errors: {
+          render_failed: 'Mermaid の描画に失敗しました。詳細はブラウザのコンソールを確認してください。',
+          snapshot_failed: 'スナップショット画像の生成に失敗しました。SVG 表示に戻します。',
+          dismiss: '閉じる',
+        },
         tab: {
           erd: 'ER図',
           code: 'コード',
@@ -439,6 +465,10 @@
         // SVG transforms well enough that the default stays SVG.
         const isSnapshotMode = Vue.ref(false)
         const snapshotDataUrl = Vue.ref('')
+        // Surfaced render failure: Mermaid throws on invalid input, snapshot
+        // baking can fail on OOM, etc. Without a visible signal the user just
+        // sees a stale (or empty) preview — so we expose it on the overlay.
+        const renderError = Vue.ref('')
 
         const MIN_SCALE = 0.1
         const MAX_SCALE = 5
@@ -675,9 +705,18 @@
         const moveRight = () => move(PAN_STEP_PX, 0)
 
         const restoreFromHash = () => {
+          // A completely empty hash is the normal "first visit" state, not a
+          // parse failure — silently fall through to `reset()`. Anything else
+          // that fails to parse is likely a shared link the user copy-pasted
+          // and now can't restore from; surface a warning so they have a
+          // breadcrumb instead of just "my settings disappeared."
+          const raw = location.hash.substr(1)
+          if (!raw) {
+            reset()
+            return
+          }
           try {
-            const h = location.hash.substr(1, location.hash.length)
-            const parsedData = JSON.parse(atob(h))
+            const parsedData = JSON.parse(atob(raw))
             selectModels.value = parsedData.selectModels || []
             isPreviewRelations.value = !!parsedData.isPreviewRelations
             isShowRelationComment.value = !!parsedData.isShowRelationComment
@@ -685,7 +724,8 @@
             isShowComment.value = !!parsedData.isShowComment
             isHideColumns.value = !!parsedData.isHideColumns
             isSnapshotMode.value = !!parsedData.isSnapshotMode
-          } catch {
+          } catch (err) {
+            console.warn('mermaid_erd: could not restore from URL hash, resetting to defaults.', err)
             reset()
           }
         }
@@ -828,36 +868,68 @@
           er: { useMaxWidth: false }
         })
 
+        // Convenience: do `selectModels.length === 0` once. The reRender
+        // short-circuit and the empty-state overlay (template line ~258) both
+        // gate on this, so any future change to "what counts as empty?" only
+        // needs to update one place.
+        const isEmptySelection = Vue.computed(() => filteredData.value.Models.length === 0)
+
+        // The set of refs that actually affect the rendered diagram. Toggling
+        // `isSnapshotMode` does NOT belong here — when the user flips snapshot
+        // on/off we want to skip re-parsing Mermaid and just re-rasterise the
+        // existing SVG.
+        const computeRenderKey = () => JSON.stringify([
+          [...selectModels.value].sort(),
+          isPreviewRelations.value,
+          isShowRelationComment.value,
+          isShowKey.value,
+          isShowComment.value,
+          isHideColumns.value
+        ])
+        let lastRenderKey = null
+
         // Track the in-flight render so a late-completing render can't
         // overwrite a more recent one when the user toggles options rapidly.
         let renderToken = 0
-        // Hold the last requested `mermaidErd` payload so the debounced flush
-        // renders the up-to-date source, not whichever snapshot it captured.
         const reRender = async () => {
           const myToken = ++renderToken
           const source = mermaidErd.value
+          const key = computeRenderKey()
+          const renderAffectingChanged = key !== lastRenderKey
+          lastRenderKey = key
+
           // Empty selection short-circuits Mermaid (it would render a header-
           // only diagram, but skipping the call avoids the parser cost on big
           // schemas where the user just landed on an empty default view).
-          if (filteredData.value.Models.length === 0) {
+          if (isEmptySelection.value) {
             graph.value = ''
             snapshotDataUrl.value = ''
+            renderError.value = ''
             const target = document.getElementById('preview')
             if (target) target.innerHTML = ''
             return
           }
+
+          // Snapshot-only toggles re-bake the existing SVG without re-parsing.
+          // This is the single biggest reason snapshot mode feels instant on
+          // schemas where mermaid.render itself takes seconds.
+          if (!renderAffectingChanged && graph.value) {
+            await syncSnapshot(myToken)
+            return
+          }
+
           let svg
           try {
             const result = await mermaid.render('mermaid-erd', source)
             svg = result.svg
           } catch (err) {
-            // Surface parse errors in the console without breaking the page.
             console.error('mermaid_erd: failed to render diagram', err)
+            renderError.value = i18n[language.value]['errors']['render_failed']
             return
           }
-          // Discard if a newer render has been queued in the meantime.
           if (myToken !== renderToken) return
           graph.value = svg
+          renderError.value = ''
           const target = document.getElementById('preview')
           if (!target) return
           target.innerHTML = svg
@@ -868,27 +940,53 @@
           }
         }
 
+        // Sync the snapshot image to whatever's currently in `graph.value`,
+        // without going back through Mermaid.
+        const syncSnapshot = async (myToken) => {
+          if (isSnapshotMode.value) {
+            const target = document.getElementById('preview')
+            if (target && target.querySelector('svg')) {
+              await bakeSnapshot(target, myToken)
+            }
+          } else {
+            snapshotDataUrl.value = ''
+          }
+        }
+
+        // Encode UTF-8 text to base64 without the deprecated `unescape` pattern.
+        const utf8ToBase64 = (str) => {
+          const bytes = new TextEncoder().encode(str)
+          let binary = ''
+          for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+          return btoa(binary)
+        }
+
         // Rasterise the rendered SVG into a PNG data URL and swap it into the
         // preview element. Pan/zoom now transforms a single bitmap instead of
         // a deep SVG tree — the biggest single win on Safari/Firefox for
         // hundreds-of-models schemas (#169).
+        //
+        // On any failure we set `isSnapshotMode = false` so the toggle in the
+        // sidebar stays in sync with what the user actually sees (otherwise
+        // the SVG silently reappears while the checkbox stays ticked — exactly
+        // the "fallback masks the real problem" pattern called out in review).
         const bakeSnapshot = (target, myToken) => {
           return new Promise((resolve) => {
-            const svgNode = target.querySelector('svg')
-            if (!svgNode) {
+            const fail = (reason) => {
+              console.error(`mermaid_erd: snapshot bake failed (${reason})`)
+              snapshotDataUrl.value = ''
+              isSnapshotMode.value = false
+              renderError.value = i18n[language.value]['errors']['snapshot_failed']
               resolve()
-              return
             }
+            const svgNode = target.querySelector('svg')
+            if (!svgNode) return fail('no SVG node in preview')
             const width = svgNode.viewBox?.baseVal?.width || svgNode.width?.baseVal?.value || svgNode.getBoundingClientRect().width
             const height = svgNode.viewBox?.baseVal?.height || svgNode.height?.baseVal?.value || svgNode.getBoundingClientRect().height
-            if (!width || !height) {
-              resolve()
-              return
-            }
+            if (!width || !height) return fail('SVG has no dimensions')
             const svgData = new XMLSerializer().serializeToString(svgNode)
             const img = new Image()
             img.onload = () => {
-              // Bail if the user toggled / re-rendered while we were rasterising.
               if (myToken !== renderToken || !isSnapshotMode.value) {
                 resolve()
                 return
@@ -905,17 +1003,14 @@
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
               try {
                 snapshotDataUrl.value = canvas.toDataURL('image/png')
+                renderError.value = ''
               } catch (err) {
-                console.error('mermaid_erd: failed to bake snapshot', err)
-                snapshotDataUrl.value = ''
+                return fail(`canvas.toDataURL threw: ${err.message}`)
               }
               resolve()
             }
-            img.onerror = () => {
-              console.error('mermaid_erd: failed to rasterise SVG')
-              resolve()
-            }
-            img.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(svgData)))
+            img.onerror = () => fail('Image failed to load rasterised SVG')
+            img.src = 'data:image/svg+xml;charset=utf-8;base64,' + utf8ToBase64(svgData)
           })
         }
 
@@ -982,7 +1077,7 @@
             a.setAttribute("download", "mermaid_erd.png");
             a.dispatchEvent(new MouseEvent("click"));
           }
-          image.src = "data:image/svg+xml;charset=utf-8;base64," + btoa(unescape(encodeURIComponent(svgData)));
+          image.src = "data:image/svg+xml;charset=utf-8;base64," + utf8ToBase64(svgData);
         }
 
         const filteredModelList = Vue.computed(() => {
@@ -1122,6 +1217,8 @@
           isShowKey,
           isSnapshotMode,
           snapshotDataUrl,
+          isEmptySelection,
+          renderError,
           language,
           mermaidErd,
           onChange,

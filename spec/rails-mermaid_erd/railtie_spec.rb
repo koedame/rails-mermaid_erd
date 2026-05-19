@@ -1,4 +1,5 @@
 require "spec_helper"
+require "rake"
 
 # Issue #169: Bundler auto-requires the gem on every Rails boot. The rake task
 # definition needs to stay off the boot path so web, console, and job processes
@@ -16,6 +17,16 @@ describe RailsMermaidErd::Railtie do
     rake_blocks = described_class.instance_variable_get(:@rake_tasks)
     expect(rake_blocks).to be_a(Array)
     expect(rake_blocks).not_to be_empty
+  end
+
+  it "loads the bundled tasks file when its rake_tasks block runs" do
+    # Defence in depth: the block being present is meaningless if the path it
+    # loads is wrong. Calling the block in isolation proves we ship the file
+    # we claim to ship — if a future refactor renames lib/tasks/mermaid_erd.rake
+    # without updating the railtie, this catches it.
+    rake_blocks = described_class.instance_variable_get(:@rake_tasks)
+    expect { rake_blocks.first.call }.not_to raise_error
+    expect(Rake::Task.task_defined?("mermaid_erd")).to be true
   end
 end
 

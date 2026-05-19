@@ -46,18 +46,22 @@ describe "rake mermaid_erd" do
   describe "issue #169 performance hardening" do
     # The default `reset()` must not pre-select every model; otherwise opening
     # the page on a hundreds-of-models schema lays out the full diagram before
-    # the user has any chance to narrow it down.
+    # the user has any chance to narrow it down. We assert the behavioural
+    # intent (empty default, no `Models.forEach` push) rather than a brittle
+    # source-shape match.
     it "defaults the model selection to an empty list" do
-      expect(generated_html).to match(/const reset = \(\) => \{\s*selectModels\.value = \[\]\s*isPreviewRelations/m)
-      expect(generated_html).not_to match(/const reset = \(\) => \{\s*selectModels\.value = \[\]\s*schemaData\.Models\.forEach/m)
+      expect(generated_html).to include("selectModels.value = []")
+      expect(generated_html).not_to match(/schemaData\.Models\.forEach\([^)]*\)\s*=>\s*\{\s*selectModels\.value\.push/)
     end
 
     # mermaid.initialize repeats theme + parser setup; doing it on every render
-    # was wasted work. Confirm we now call it once at module level.
-    it "initializes Mermaid once outside reRender" do
-      re_render_block = generated_html[/const reRender = async \(\) => \{[\s\S]*?\n        \}/]
-      expect(re_render_block).not_to be_nil
-      expect(re_render_block).not_to include("mermaid.initialize")
+    # was wasted work. Confirm we now call it exactly once and that the call
+    # precedes the reRender definition (i.e. lives at module level).
+    it "initializes Mermaid exactly once at module level" do
+      expect(generated_html.scan("mermaid.initialize(").count).to eq(1)
+      init_offset = generated_html.index("mermaid.initialize(")
+      re_render_offset = generated_html.index("const reRender = async")
+      expect(init_offset).to be < re_render_offset
     end
 
     it "pins Mermaid securityLevel to strict and disables htmlLabels" do
@@ -67,10 +71,14 @@ describe "rake mermaid_erd" do
 
     # Rapid toggles (multi-click on the sidebar, scrubbing options) must collapse
     # into a single render — otherwise back-to-back mermaid.render calls block
-    # the main thread on large schemas.
+    # the main thread on large schemas. The hashchange handler must dispatch
+    # via the debounced path, NOT call `reRender()` directly.
     it "debounces re-renders behind scheduleReRender" do
       expect(generated_html).to include("scheduleReRender")
-      expect(generated_html).to match(/hashchange.*scheduleReRender/m)
+      hashchange_listener = generated_html[/addEventListener\('hashchange',\s*\(\)\s*=>\s*\{[^}]*\}/m]
+      expect(hashchange_listener).not_to be_nil
+      expect(hashchange_listener).to include("scheduleReRender")
+      expect(hashchange_listener).not_to match(/\breRender\(\)/)
     end
 
     # The opt-in snapshot mode replaces the SVG with a rasterised PNG for the
@@ -85,6 +93,37 @@ describe "rake mermaid_erd" do
     it "virtualises the sidebar model list above a threshold" do
       expect(generated_html).to include("isVirtualizingModels")
       expect(generated_html).to include("virtualListVisibleModels")
+    end
+
+    # Empty selection is the new default — both i18n locales must surface the
+    # "pick a model" hint. CLAUDE.md keeps en/ja in sync explicitly, so this
+    # guards against a translator drop.
+    it "ships the empty-selection hint in both en and ja" do
+      expect(generated_html).to include("No models selected")
+      expect(generated_html).to include("モデルが選択されていません")
+    end
+
+    # Surfaced render failure: when Mermaid can't parse the diagram, the user
+    # used to see a stale preview with no feedback. We now expose an i18n'd
+    # banner. This locks both locales in place.
+    it "ships the render-failure banner strings in both en and ja" do
+      expect(generated_html).to include("Mermaid failed to render")
+      expect(generated_html).to include("Mermaid の描画に失敗しました")
+    end
+
+    # I/O errors from FileUtils / File.write used to bubble up as raw
+    # `Errno::EACCES` / `Errno::ENOSPC`, which left the user guessing which
+    # config key controlled the path. Confirm the rescue re-raises with the
+    # `result_path` hint instead.
+    it "re-raises filesystem failures with an actionable hint" do
+      tmp_path = Rails.root.join("tmp/mermaid_erd_io_spec.html")
+      allow(RailsMermaidErd.configuration).to receive(:result_path).and_return(tmp_path.relative_path_from(Rails.root).to_s)
+      # Force File.write to raise the kind of error users hit in production
+      # (permission denied on read-only mounts, no space left on the volume).
+      allow(File).to receive(:write).and_raise(Errno::EACCES.new(tmp_path.to_s))
+
+      Rake::Task["mermaid_erd"].reenable
+      expect { Rake::Task["mermaid_erd"].invoke }.to raise_error(/result_path/)
     end
   end
 
