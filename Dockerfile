@@ -1,4 +1,4 @@
-FROM ruby:alpine
+FROM ruby:3.4-alpine
 
 RUN apk add --no-cache \
       alpine-sdk \
