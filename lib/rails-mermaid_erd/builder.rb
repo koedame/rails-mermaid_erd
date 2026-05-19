@@ -89,6 +89,13 @@ class RailsMermaidErd::Builder
         end
 
         defined_model.reflect_on_all_associations(:belongs_to).each do |reflection|
+          # Polymorphic `belongs_to` has no concrete target class — the target is
+          # decided at row level by the `*_type` column. Emitting an edge to the
+          # macro name (e.g. `"Imageable"`) would render an orphan node with no
+          # columns; the polymorphic parents express the relationship via their
+          # `has_many ..., as: :foo` reflections instead.
+          next if reflection.polymorphic?
+
           reflection_model_name = get_reflection_model_name(reflection)
 
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
@@ -152,8 +159,16 @@ class RailsMermaidErd::Builder
       if reflection.options[:class_name]
         reflection.options[:class_name].to_s.classify
       elsif reflection.options[:through]
-        if reflection.options[:source]
+        # `:source_type` is the authoritative class hint for a polymorphic
+        # `:source`, so it takes precedence over `:source` when both are set.
+        if reflection.options[:source_type]
+          reflection.options[:source_type].to_s.classify
+        elsif reflection.options[:source]
           reflection.options[:source].to_s.classify
+        elsif reflection.source_reflection.nil?
+          # `:through` targets a polymorphic `belongs_to` without `:source_type`;
+          # Rails can't resolve a single class. Fall back to its `:source` default.
+          reflection.name.to_s.classify
         else
           reflection.class_name
         end
