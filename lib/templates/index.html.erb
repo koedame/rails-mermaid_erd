@@ -386,6 +386,15 @@
         const isShowComment = Vue.ref(false)
         const isHideColumns = Vue.ref(false)
 
+        const MIN_SCALE = 0.1
+        const MAX_SCALE = 5
+        // Wheel delta in pixels → zoom factor. Exponential keeps each step perceptually uniform
+        // across the whole range, and lets trackpad (small deltas) and mouse-wheel (large deltas)
+        // share the same code path.
+        const WHEEL_ZOOM_SENSITIVITY = 0.0015
+        const BUTTON_ZOOM_FACTOR = 1.2
+        const PAN_STEP_PX = 60
+
         const scale = Vue.ref(1)
         const posX = Vue.ref(0)
         const posY = Vue.ref(0)
@@ -401,6 +410,36 @@
         // Record mouse position
         let lastMouseX = 0
         let lastMouseY = 0
+
+        const clampScale = (s) => Math.min(Math.max(s, MIN_SCALE), MAX_SCALE)
+
+        // Apply zoom by `factor` anchored at the given client coordinates so the world point
+        // currently under (clientX, clientY) stays under it after the scale change.
+        // The transform is `translate(tx, ty) scale(s)` with origin (0,0), so tx/ty are screen
+        // pixels relative to the untransformed container's top-left.
+        const zoomAt = (clientX, clientY, factor) => {
+          const container = zoomArea.value && zoomArea.value.parentElement
+          if (!container) return
+          const newScale = clampScale(scale.value * factor)
+          if (newScale === scale.value) return
+          const rect = container.getBoundingClientRect()
+          const cx = clientX - rect.left
+          const cy = clientY - rect.top
+          const ratio = newScale / scale.value
+          posX.value = cx + (posX.value - cx) * ratio
+          posY.value = cy + (posY.value - cy) * ratio
+          scale.value = newScale
+        }
+
+        const zoomCentered = (factor) => {
+          const container = zoomArea.value && zoomArea.value.parentElement
+          if (!container) {
+            scale.value = clampScale(scale.value * factor)
+            return
+          }
+          const rect = container.getBoundingClientRect()
+          zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor)
+        }
 
         // Calculate distance between two touch points
         const getDistance = (touches) => {
@@ -426,7 +465,9 @@
           }
         }
 
-        // Handle touch move (pinch in/out for zoom)
+        // Handle touch move (pinch in/out for zoom). Uses the ratio of touch-point distances —
+        // matches platform pinch gesture conventions (each pinch unit scales by the same factor
+        // regardless of starting spread).
         const handleTouchMove = (e) => {
           if (e.touches.length === 2) {
             e.preventDefault()
@@ -436,23 +477,12 @@
             }
 
             const newDistance = getDistance(e.touches)
-            const delta = (newDistance - lastTouchDistance) * 0.01
+            if (lastTouchDistance > 0 && newDistance > 0) {
+              const center = getTouchCenter(e.touches)
+              const factor = newDistance / lastTouchDistance
+              zoomAt(center.x, center.y, factor)
+            }
             lastTouchDistance = newDistance
-
-            const center = getTouchCenter(e.touches)
-            const rect = preview.getBoundingClientRect()
-            const touchX = center.x - rect.left
-            const touchY = center.y - rect.top
-
-            const x = touchX / scale.value - posX.value
-            const y = touchY / scale.value - posY.value
-
-            const newScale = Math.min(Math.max(scale.value + delta, 0.5), 3)
-            if (newScale === scale.value) return
-
-            posX.value = touchX / newScale - x
-            posY.value = touchY / newScale - y
-            scale.value = newScale
           }
         }
 
@@ -492,13 +522,12 @@
           }
         }
 
-        // Handle mouse move (movement while dragging)
+        // Handle mouse move (movement while dragging). Translates are in screen pixels because
+        // the transform applies `scale` after `translate`, so no scale compensation is needed.
         const handleMouseMove = (e) => {
           if (isDragging.value) {
-            const dx = (e.clientX - lastMouseX) / scale.value
-            const dy = (e.clientY - lastMouseY) / scale.value
-            posX.value += dx
-            posY.value += dy
+            posX.value += e.clientX - lastMouseX
+            posY.value += e.clientY - lastMouseY
             lastMouseX = e.clientX
             lastMouseY = e.clientY
             e.preventDefault()
@@ -513,58 +542,37 @@
           isDragging.value = false
         }
 
-        // Handle mouse wheel (zoom)
+        // Handle mouse wheel (zoom). Exponential factor derived from wheel delta gives smooth,
+        // device-agnostic zooming and anchors the zoom at the cursor.
         const handleWheel = (e) => {
           const preview = document.getElementById('preview')
-          if (!preview.contains(e.target)) {
+          if (!preview || !preview.contains(e.target)) {
             return
           }
-
           e.preventDefault()
-
-          const rect = preview.getBoundingClientRect()
-          const mouseX = e.clientX - rect.left
-          const mouseY = e.clientY - rect.top
-
-          // Calculate relative coordinates based on mouse position
-          const x = mouseX / scale.value - posX.value
-          const y = mouseY / scale.value - posY.value
-
-          // Change scale
-          const delta = e.deltaY < 0 ? 0.1 : -0.1
-          const newScale = Math.min(Math.max(scale.value + delta, 0.5), 3)
-
-          // Calculate new position with new scale
-          posX.value = mouseX / newScale - x
-          posY.value = mouseY / newScale - y
-          scale.value = newScale
+          const factor = Math.exp(-e.deltaY * WHEEL_ZOOM_SENSITIVITY)
+          zoomAt(e.clientX, e.clientY, factor)
         }
 
         const zoomStyle = Vue.computed(() => {
           return {
-            transform: `scale(${scale.value}) translate(${posX.value}px, ${posY.value}px)`,
-            transformOrigin: 'top left'
+            transform: `translate(${posX.value}px, ${posY.value}px) scale(${scale.value})`,
+            transformOrigin: '0 0'
           }
         })
 
-        const zoomIn = () => {
-          scale.value = Math.min(scale.value + 0.1, 3)
+        const zoomIn = () => zoomCentered(BUTTON_ZOOM_FACTOR)
+        const zoomOut = () => zoomCentered(1 / BUTTON_ZOOM_FACTOR)
+
+        const move = (dxPx, dyPx) => {
+          posX.value += dxPx
+          posY.value += dyPx
         }
 
-        const zoomOut = () => {
-          scale.value = Math.max(scale.value - 0.1, 0.5)
-        }
-
-        const move = (dx, dy) => {
-          const step = 10 / scale.value
-          posX.value += dx * step
-          posY.value += dy * step
-        }
-
-        const moveUp = () => move(0, -10)
-        const moveDown = () => move(0, 10)
-        const moveLeft = () => move(-10, 0)
-        const moveRight = () => move(10, 0)
+        const moveUp = () => move(0, -PAN_STEP_PX)
+        const moveDown = () => move(0, PAN_STEP_PX)
+        const moveLeft = () => move(-PAN_STEP_PX, 0)
+        const moveRight = () => move(PAN_STEP_PX, 0)
 
         const restoreFromHash = () => {
           try {
