@@ -8,7 +8,7 @@ A Ruby gem that adds a `mermaid_erd` Rake task to a host Rails app. The task int
 
 ## Commands
 
-All commands run inside the dev container (`docker compose exec devcontainer ...`) unless noted. PostgreSQL is required for tests because `Builder` calls `ActiveRecord::Schema.foreign_keys` and `connection.table_comment`.
+All commands run inside the dev container (`docker compose exec devcontainer ...`) unless noted. The dummy app and CI both run on PostgreSQL 14 (`pg` is the only DB driver wired into the dev container), so the test DB must be Postgres.
 
 ```bash
 # First-time setup (after `docker compose up -d`):
@@ -33,12 +33,10 @@ CI (`.github/workflows/run-test.yml`, `coding-style-check.yml`) uses `compose.ci
 
 ## Architecture
 
-The runtime split is small but worth keeping straight:
-
 - **`lib/rails-mermaid_erd.rb`** — declares the `mermaid_erd` Rake task. It calls `Builder.model_data`, then evaluates `lib/templates/index.html.erb` with `version`, `app_name`, `logo`, and `result` (the schema dump) in scope, and writes the rendered HTML to the path from `Configuration#result_path`. ERB binding is the entire integration contract between Ruby and the front-end.
 
 - **`lib/rails-mermaid_erd/builder.rb`** — the only nontrivial Ruby. Calls `Rails.application.eager_load!`, walks `ActiveRecord::Base.descendants`, and emits `{Models: [...], Relations: [...]}`. Two things to know before touching it:
-  1. **Relation deduplication is direction-aware.** For each model it iterates `has_many`, `has_and_belongs_to_many`, `belongs_to`, `has_one` and checks `Relations` for a reverse pair (matching `LeftModelName`/`RightModelName` and the `Line` style `--` vs `..`). If found, it *merges* (appends the new association name into `Comment`, possibly upgrades cardinality glyphs like `||` → `|o` for optional `belongs_to`). If not, it appends a new tuple. The `Line: ".."` vs `"--"` distinction is how `through:` associations stay separate from direct ones.
+  1. **Relation deduplication is direction-aware, but the `Line`-style filter is selective.** For each model it iterates `has_many`, `has_and_belongs_to_many`, `belongs_to`, `has_one` and looks up a reverse pair in `Relations` by matching `LeftModelName`/`RightModelName`. The `has_many` and `has_one` branches *also* filter on `Line` style (`".."` for `through:`, `"--"` otherwise — `builder.rb:48-54, 120-126`), so direct and `through:` associations don't collapse into each other. The `belongs_to` (`builder.rb:94`) and `has_and_belongs_to_many` (`builder.rb:76`) branches match on names only — don't add a `Line` filter there, it would break HABTM and BT-vs-pre-existing-HM merges. When a reverse pair is found, the entry is *merged* (the new association name is appended to `Comment`, and cardinality glyphs may upgrade `||` → `|o` for optional `belongs_to`).
   2. **Model name resolution** goes through `get_reflection_model_name`, which honors `class_name:`, then `through:` + `source:`, else falls back to `reflection.class_name`. The dummy app deliberately exercises all three (`Author` is `users`, `comment_posts` is `has_many :through`, `images` uses `class_name: "UserImage"`).
 
   HABTM join tables emitted by Rails with `HABTM_` in the name and tables that don't exist yet are skipped — don't add filtering elsewhere.
@@ -57,7 +55,7 @@ Detailed in `docs/DEVELOPMENT.md` ("Contributing" section). Highlights to apply 
 
 - **Language**: every PR title, PR body, issue, commit message, code comment, and `/docs` file is written in **English**. The README is the only bilingual artifact (`README.md` + `README.ja.md` — update both together). UI strings in `lib/templates/index.html.erb` have paired `en`/`ja` entries in the `window.i18n` block; keep them in sync.
 - **Branches**: `feature/<kebab-case>` for work, `release/vX.Y.Z` for releases. Target `develop` for everything except the release `→ main` PR.
-- **Commit messages**: English, imperative mood, single subject line. **No Conventional Commits prefixes** (`feat:`/`fix:` are not used here). Examples from history: `Add zoom and drag mouse controls`, `Migrate to Docker Compose V2`, `Fix a typo`. Version-bump commits are bare `vX.Y.Z`.
+- **Commit messages**: English, imperative mood, single subject line. **No Conventional Commits prefixes** (`feat:`/`fix:` are not used here). Examples from history: `Add zoom and drag mouse controls`, `Fix a typo`, `Avoid unnecessary loading on Rails boot`. Version-bump commits use the bare subject `vX.Y.Z`, hand-written after `bundle exec bump <level> --no-commit` (see `RELEASE.md`) so the bump can be grouped with the regenerated `docs/example.html` and `docs/screen_shot.png`.
 - **PR titles**: same imperative-English style as commits. Release PRs use the fixed title `Release/vX.Y.Z`.
 - **PR bodies**: empty bodies are acceptable for small PRs (the merged history confirms this). For non-trivial changes, use the `### Motivation / Background` + `### Detail` structure modeled by [PR #84](https://github.com/koedame/rails-mermaid_erd/pull/84). Attach screenshots for UI changes.
 

@@ -37,7 +37,12 @@ cp -f /workspace/spec/dummy/mermaid_erd/index.html /workspace/docs/example.html
 chromium-browser --headless --disable-gpu --no-sandbox --window-size=1280,800 --hide-scrollbars --screenshot="/workspace/docs/screen_shot.png" /workspace/spec/dummy/mermaid_erd/index.html
 ```
 
-Commit the bump, the regenerated `docs/example.html`, and the new `docs/screen_shot.png` with the message `vX.Y.Z` (matching prior history: `v0.6.0`, `v0.5.1`, …).
+Stage the bump, the regenerated demo, and the screenshot, then commit them together with the message `vX.Y.Z` (matching prior history: `v0.6.0`, `v0.5.1`, …):
+
+```bash
+git add lib/rails-mermaid_erd/version.rb docs/example.html docs/screen_shot.png
+git commit -m "vX.Y.Z"
+```
 
 ### 3. Open the two release PRs
 
