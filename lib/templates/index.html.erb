@@ -250,7 +250,7 @@
             <div class="space-x-2 flex items-center">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomIn">+</button>
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomOut">-</button>
-              <button :title="i18n[language]['controls']['reset_view']" class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="resetView">⌂</button>
+              <button :title="i18n[language]['controls']['reset_view']" :aria-label="i18n[language]['controls']['reset_view']" class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="resetView">⌂</button>
             </div>
             <div class="flex items-center space-x-2">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveLeft">←</button>
@@ -588,11 +588,15 @@
           if (e.deltaY === 0) return
           e.preventDefault()
           // Normalise non-pixel deltaMode (Firefox defaults to line mode); otherwise the
-          // exp() factor collapses to ~1.0 and the wheel feels unresponsive.
+          // exp() factor collapses to ~1.0 and the wheel feels unresponsive. For page mode,
+          // scale against the zoomable area's own height — page-mode events are rare, but
+          // when they fire we want a step proportional to the surface being zoomed, not the
+          // whole document viewport.
+          const pageHeightPx = (viewport.value && viewport.value.clientHeight) || window.innerHeight
           const pixelDeltaY = e.deltaMode === 1
             ? e.deltaY * WHEEL_LINE_HEIGHT_PX
             : e.deltaMode === 2
-              ? e.deltaY * window.innerHeight
+              ? e.deltaY * pageHeightPx
               : e.deltaY
           zoomAt(e.clientX, e.clientY, Math.exp(-pixelDeltaY * WHEEL_ZOOM_SENSITIVITY))
         }
