@@ -1,3 +1,8 @@
 # result path
 # default "mermaid_erd/index.html"
 result_path: doc/erd.html
+
+# Exclude tables whose names match any of the following regular expressions.
+ignore_tables:
+  - "\\Aaudit_"
+  - "\\Aschema_migrations\\z"
