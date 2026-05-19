@@ -8,22 +8,27 @@ class RailsMermaidErd::Builder
 
       ::Rails.application.eager_load!
 
-      # Compile each `ignore_tables` entry once. `Regexp.new` raises
-      # `RegexpError` on invalid patterns — let it propagate so the rake task
-      # output points at the offending pattern instead of failing silently.
-      ignore_patterns = RailsMermaidErd.configuration.ignore_tables.map { |pattern| Regexp.new(pattern) }
+      # Compile each `ignore_tables` entry once. Wrap `RegexpError` so the
+      # rake-task output names the offending YAML entry rather than just the
+      # underlying parser message.
+      ignore_patterns = RailsMermaidErd.configuration.ignore_tables.map do |pattern|
+        Regexp.new(pattern)
+      rescue RegexpError => e
+        raise ArgumentError, "config/mermaid_erd.yml: invalid `ignore_tables` pattern #{pattern.inspect}: #{e.message}"
+      end
 
-      # Compute the set of class names whose `table_name` matches an ignore
-      # pattern. We need this *before* the main loop so we can also drop
-      # outgoing reflections that point at an ignored model — otherwise the
-      # generated diagram would render orphan nodes for the ignored tables.
+      # Class names whose `table_name` matches an ignore pattern. Resolved
+      # *before* the main loop so we can also drop outgoing reflections that
+      # point at an ignored model — otherwise the diagram would render orphan
+      # nodes for the ignored tables. A Hash gives O(1) `key?` lookups without
+      # pulling in `set` (which is autoloaded on Ruby 3.2+ but not earlier).
       ignored_model_names = compute_ignored_model_names(ignore_patterns)
 
       ::ActiveRecord::Base.descendants.sort_by(&:name).each do |defined_model|
         next unless defined_model.table_exists?
         next if defined_model.name.include?("HABTM_")
         next if defined_model.table_name.blank?
-        next if ignored_model_names.include?(defined_model.name)
+        next if ignored_model_names.key?(defined_model.name)
 
         table_name = defined_model.table_name
         model = {
@@ -55,7 +60,7 @@ class RailsMermaidErd::Builder
 
         defined_model.reflect_on_all_associations(:has_many).each do |reflection|
           reflection_model_name = get_reflection_model_name(reflection)
-          next if ignored_model_names.include?(reflection_model_name)
+          next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r|
             if reflection.options[:through]
@@ -84,7 +89,7 @@ class RailsMermaidErd::Builder
 
         defined_model.reflect_on_all_associations(:has_and_belongs_to_many).each do |reflection|
           reflection_model_name = get_reflection_model_name(reflection)
-          next if ignored_model_names.include?(reflection_model_name)
+          next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
           if reverse_relation
@@ -110,7 +115,7 @@ class RailsMermaidErd::Builder
           next if reflection.polymorphic?
 
           reflection_model_name = get_reflection_model_name(reflection)
-          next if ignored_model_names.include?(reflection_model_name)
+          next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
           if reverse_relation
@@ -137,7 +142,7 @@ class RailsMermaidErd::Builder
 
         defined_model.reflect_on_all_associations(:has_one).each do |reflection|
           reflection_model_name = get_reflection_model_name(reflection)
-          next if ignored_model_names.include?(reflection_model_name)
+          next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r|
             if reflection.options[:through]
@@ -169,17 +174,20 @@ class RailsMermaidErd::Builder
       result
     end
 
-    # Returns the set of class names whose underlying table matches an entry
-    # from `ignore_tables`. Skips classes that wouldn't have been emitted
-    # anyway (no table, or table-less STI bases) so an `ignore_tables` entry
-    # like `^_legacy_` never accidentally trips on a parent class.
+    # Returns a Hash keyed by class names whose underlying table matches an
+    # entry from `ignore_tables`. Mirrors the guard rails on the main loop
+    # (`table_exists?`, HABTM scaffolding, blank `table_name`) so that adding
+    # an `ignore_tables` entry can't crash the rake task on hosts with
+    # abstract STI bases or descendants whose backing table isn't created yet.
     def compute_ignored_model_names(ignore_patterns)
-      return ::Set.new if ignore_patterns.empty?
+      return {} if ignore_patterns.empty?
 
-      ::ActiveRecord::Base.descendants.each_with_object(::Set.new) do |defined_model, acc|
+      ::ActiveRecord::Base.descendants.each_with_object({}) do |defined_model, acc|
+        next unless defined_model.table_exists?
+        next if defined_model.name.include?("HABTM_")
         table_name = defined_model.table_name
         next if table_name.blank?
-        acc << defined_model.name if ignore_patterns.any? { |pattern| pattern.match?(table_name) }
+        acc[defined_model.name] = true if ignore_patterns.any? { |pattern| pattern.match?(table_name) }
       end
     end
 

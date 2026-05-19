@@ -5,7 +5,8 @@ result_path: doc/erd.html
 # Tables whose `table_name` matches any of the regular expressions below are
 # excluded from the generated ERD, along with any relations that point at them.
 # Patterns are compiled with `Regexp.new`, so escape backslashes (`\\A`, `\\z`)
-# inside the YAML string. Default: [].
+# inside the YAML string. Tables that have no ActiveRecord model class are
+# already absent from the diagram and don't need to be listed here. Default: [].
 ignore_tables:
-  - "\\Aar_internal_metadata\\z"
-  - "\\Aschema_migrations\\z"
+  - "\\Aaudit_"
+  - "_legacy\\z"
