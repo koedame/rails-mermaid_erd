@@ -46,7 +46,7 @@ Note: The initial build may take several minutes as it needs to install system d
 docker compose exec -w /workspace/spec/dummy devcontainer bundle exec rails db:setup RAILS_ENV=test
 ```
 
-`db:setup` runs `db:schema:load`, which matches what `.github/workflows/run-test.yml` does in CI. Use the same command in `CLAUDE.md` and `RELEASE.md`.
+`db:setup` runs `db:schema:load`, which matches what `.github/workflows/run-test.yml` does in CI.
 
 4. Run tests to verify the setup
 ```bash

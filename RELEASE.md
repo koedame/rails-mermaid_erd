@@ -40,9 +40,11 @@ chromium-browser --headless --disable-gpu --no-sandbox --window-size=1280,800 --
 Stage the bump, the regenerated demo, and the screenshot, then commit them together with the message `vX.Y.Z` (matching prior history: `v0.6.0`, `v0.5.1`, …):
 
 ```bash
-git add lib/rails-mermaid_erd/version.rb docs/example.html docs/screen_shot.png
+git add lib/rails-mermaid_erd/version.rb Gemfile.lock docs/example.html docs/screen_shot.png
 git commit -m "vX.Y.Z"
 ```
+
+`Gemfile.lock` updates because the gemspec version flows into it on `bundle install`. Past release commits (`v0.6.0`, `v0.5.1`, `v0.5.0`) all include the same four paths.
 
 ### 3. Open the two release PRs
 
