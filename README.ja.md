@@ -57,7 +57,8 @@ $ bundle exec rake mermaid_erd
 mermaid_erd
 ```
 
-`<app_root>/mermaid_erd/index.html` はシングルHTMLファイルです。
+`<app_root>/mermaid_erd/index.html` は自己完結したシングル HTML ファイルです。Tailwind / Mermaid / Vue を含むすべてのフロントエンド依存は HTML 内にインライン展開されているため、CDN への接続が無いオフライン環境や厳格なプロキシ下でも動作します。バンドルが同梱されている都合上、ファイルサイズは約 4 MB 程度になります。
+
 このファイルを共有すれば、Ruby on Rails環境が無くても使用できます。サーバーにアップロードすれば、同じURLを共有することもできます。
 CIと連携して生成から共有までを自動化するのはとても有効な手段です。
 
