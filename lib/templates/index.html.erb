@@ -228,7 +228,7 @@
           <button @click="tab = 'erd'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'erd' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["erd"]}}</button>
           <button @click="tab = 'code'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'code' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["code"]}}</button>
         </div>
-        <div v-show="tab === 'erd'" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
+        <div v-show="tab === 'erd'" ref="viewport" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
           <div class="absolute inset-0" :style="zoomStyle" ref="zoomArea">
             <div id="preview" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }"></div>
           </div>
@@ -250,6 +250,7 @@
             <div class="space-x-2 flex items-center">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomIn">+</button>
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomOut">-</button>
+              <button :title="i18n[language]['controls']['reset_view']" class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="resetView">⌂</button>
             </div>
             <div class="flex items-center space-x-2">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveLeft">←</button>
@@ -321,6 +322,7 @@
           middle_drag: 'Middle Click + Drag',
           mouse_wheel: 'Mouse Wheel',
           pinch: 'Pinch In/Out',
+          reset_view: 'Reset View',
         }
       },
       ja: {
@@ -363,6 +365,7 @@
           middle_drag: '中クリック + ドラッグ',
           mouse_wheel: 'マウスホイール',
           pinch: 'ピンチイン/アウト',
+          reset_view: 'ビューをリセット',
         }
       }
     }
@@ -394,35 +397,55 @@
         const WHEEL_ZOOM_SENSITIVITY = 0.0015
         const BUTTON_ZOOM_FACTOR = 1.2
         const PAN_STEP_PX = 60
+        // Approximate pixels-per-line / pixels-per-page for wheel events that don't report
+        // DOM_DELTA_PIXEL. Firefox defaults to DOM_DELTA_LINE (deltaMode === 1, e.g. ±3 per detent)
+        // — without normalisation, exp(-3 * 0.0015) ≈ 0.9955 produces almost no visible zoom.
+        const WHEEL_LINE_HEIGHT_PX = 16
 
         const scale = Vue.ref(1)
         const posX = Vue.ref(0)
         const posY = Vue.ref(0)
+        // `zoomArea` is the transformed inner element; `viewport` is its untransformed parent
+        // and the only stable reference frame for cursor-anchored zoom maths.
         const zoomArea = Vue.ref(null)
+        const viewport = Vue.ref(null)
         // Manage space key press state
         const isSpacePressed = Vue.ref(false)
         // Manage dragging state
         const isDragging = Vue.ref(false)
-        let startX = 0
-        let startY = 0
         // Record distance between two touch points
         let lastTouchDistance = 0
         // Record mouse position
         let lastMouseX = 0
         let lastMouseY = 0
 
-        const clampScale = (s) => Math.min(Math.max(s, MIN_SCALE), MAX_SCALE)
+        // Reject non-finite scale candidates so a single bad input (NaN deltaY, divide-by-zero
+        // factor, …) can't poison every subsequent transform with NaN.
+        const clampScale = (s) => {
+          if (!Number.isFinite(s)) return scale.value
+          return Math.min(Math.max(s, MIN_SCALE), MAX_SCALE)
+        }
 
         // Apply zoom by `factor` anchored at the given client coordinates so the world point
         // currently under (clientX, clientY) stays under it after the scale change.
-        // The transform is `translate(tx, ty) scale(s)` with origin (0,0), so tx/ty are screen
-        // pixels relative to the untransformed container's top-left.
+        // The transform is `translate(tx, ty) scale(s)` with origin (0,0): `translate` runs
+        // before `scale` (CSS applies transforms right-to-left), so tx/ty are screen pixels
+        // relative to the untransformed viewport's top-left.
         const zoomAt = (clientX, clientY, factor) => {
-          const container = zoomArea.value && zoomArea.value.parentElement
-          if (!container) return
+          if (!Number.isFinite(factor) || factor <= 0) return
+          if (!Number.isFinite(scale.value) || scale.value <= 0) {
+            // Recover from a previously corrupted state instead of silently propagating NaN.
+            scale.value = 1
+            posX.value = 0
+            posY.value = 0
+            return
+          }
           const newScale = clampScale(scale.value * factor)
-          if (newScale === scale.value) return
+          if (!Number.isFinite(newScale) || newScale === scale.value) return
+          const container = viewport.value
+          if (!container) return
           const rect = container.getBoundingClientRect()
+          if (rect.width === 0 || rect.height === 0) return
           const cx = clientX - rect.left
           const cy = clientY - rect.top
           const ratio = newScale / scale.value
@@ -432,13 +455,17 @@
         }
 
         const zoomCentered = (factor) => {
-          const container = zoomArea.value && zoomArea.value.parentElement
-          if (!container) {
-            scale.value = clampScale(scale.value * factor)
-            return
-          }
+          const container = viewport.value
+          if (!container) return
           const rect = container.getBoundingClientRect()
+          if (rect.width === 0 || rect.height === 0) return
           zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor)
+        }
+
+        const resetView = () => {
+          scale.value = 1
+          posX.value = 0
+          posY.value = 0
         }
 
         // Calculate distance between two touch points
@@ -462,6 +489,11 @@
           if (e.touches.length === 2) {
             e.preventDefault()
             lastTouchDistance = getDistance(e.touches)
+          } else {
+            // Any non-2-touch state invalidates the baseline — otherwise a stale distance
+            // from a previous gesture leaks into the next pinch (e.g. 1→2→3→2 finger
+            // transitions on iOS) and produces a discontinuous jump on the first frame.
+            lastTouchDistance = 0
           }
         }
 
@@ -469,24 +501,27 @@
         // matches platform pinch gesture conventions (each pinch unit scales by the same factor
         // regardless of starting spread).
         const handleTouchMove = (e) => {
-          if (e.touches.length === 2) {
-            e.preventDefault()
-            const preview = document.getElementById('preview')
-            if (!preview.contains(e.target)) {
-              return
-            }
-
-            const newDistance = getDistance(e.touches)
-            if (lastTouchDistance > 0 && newDistance > 0) {
-              const center = getTouchCenter(e.touches)
-              const factor = newDistance / lastTouchDistance
-              zoomAt(center.x, center.y, factor)
-            }
-            lastTouchDistance = newDistance
+          if (e.touches.length !== 2) {
+            // Invalidate the pinch baseline as soon as we leave the 2-finger state, so the next
+            // 2-finger frame is treated as a fresh start instead of comparing to a stale distance.
+            lastTouchDistance = 0
+            return
           }
+          const preview = document.getElementById('preview')
+          // Gate preventDefault on the cursor being over the diagram, so 2-finger gestures on
+          // surrounding UI (sidebar, footer) still trigger their default browser behaviour.
+          if (!preview || !preview.contains(e.target)) return
+          e.preventDefault()
+          const newDistance = getDistance(e.touches)
+          if (lastTouchDistance > 0 && newDistance > 0) {
+            const center = getTouchCenter(e.touches)
+            zoomAt(center.x, center.y, newDistance / lastTouchDistance)
+          }
+          lastTouchDistance = newDistance
         }
 
-        // Handle touch end
+        // Handle touch end. Any drop below 2 active touches invalidates the pinch baseline so
+        // a re-pinch starts fresh.
         const handleTouchEnd = (e) => {
           if (e.touches.length < 2) {
             lastTouchDistance = 0
@@ -523,7 +558,8 @@
         }
 
         // Handle mouse move (movement while dragging). Translates are in screen pixels because
-        // the transform applies `scale` after `translate`, so no scale compensation is needed.
+        // `translate` runs before `scale` in the transform (CSS applies transforms right-to-left),
+        // so the scale factor never multiplies the translate — no compensation needed.
         const handleMouseMove = (e) => {
           if (isDragging.value) {
             posX.value += e.clientX - lastMouseX
@@ -546,12 +582,19 @@
         // device-agnostic zooming and anchors the zoom at the cursor.
         const handleWheel = (e) => {
           const preview = document.getElementById('preview')
-          if (!preview || !preview.contains(e.target)) {
-            return
-          }
+          if (!preview || !preview.contains(e.target)) return
+          // Pure horizontal trackpad swipes (deltaY === 0) shouldn't be swallowed — the user is
+          // navigating, not zooming. Returning without preventDefault lets the browser handle it.
+          if (e.deltaY === 0) return
           e.preventDefault()
-          const factor = Math.exp(-e.deltaY * WHEEL_ZOOM_SENSITIVITY)
-          zoomAt(e.clientX, e.clientY, factor)
+          // Normalise non-pixel deltaMode (Firefox defaults to line mode); otherwise the
+          // exp() factor collapses to ~1.0 and the wheel feels unresponsive.
+          const pixelDeltaY = e.deltaMode === 1
+            ? e.deltaY * WHEEL_LINE_HEIGHT_PX
+            : e.deltaMode === 2
+              ? e.deltaY * window.innerHeight
+              : e.deltaY
+          zoomAt(e.clientX, e.clientY, Math.exp(-pixelDeltaY * WHEEL_ZOOM_SENSITIVITY))
         }
 
         const zoomStyle = Vue.computed(() => {
@@ -858,8 +901,10 @@
           isHideColumns,
           zoomStyle,
           zoomArea,
+          viewport,
           zoomIn,
           zoomOut,
+          resetView,
           moveUp,
           moveDown,
           moveLeft,
