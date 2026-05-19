@@ -1,5 +1,3 @@
-require "yaml"
-
 class RailsMermaidErd::Builder
   class << self
     def model_data
