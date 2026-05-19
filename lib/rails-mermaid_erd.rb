@@ -22,6 +22,9 @@ module RailsMermaidErd
     version = VERSION
     app_name = ::Rails.application.class.try(:parent_name) || ::Rails.application.class.try(:module_parent_name)
     logo = File.read(File.expand_path("./assets/logo.svg", __dir__))
+    tailwindcss_js = File.read(File.expand_path("./templates/vendor/tailwindcss.js", __dir__))
+    mermaid_js = File.read(File.expand_path("./templates/vendor/mermaid.min.js", __dir__))
+    vue_js = File.read(File.expand_path("./templates/vendor/vue.global.prod.min.js", __dir__))
     erb = ERB.new(File.read(File.expand_path("./templates/index.html.erb", __dir__)))
     result_html = erb.result(binding)
 
