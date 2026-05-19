@@ -139,28 +139,70 @@ The test suite includes coverage reporting via SimpleCov. The coverage report wi
 This project is released under the MIT License.
 
 ## Contributing
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Create a Pull Request
+
+The `develop` branch is the default integration branch; `main` only ever moves on release. All feature work targets `develop`.
+
+### Branch naming
+Pick the prefix that matches the change:
+
+| Purpose      | Pattern                  | Example                                |
+| ------------ | ------------------------ | -------------------------------------- |
+| New feature  | `feature/<kebab-case>`   | `feature/improve-erd-viewer-operation` |
+| Release      | `release/vX.Y.Z`         | `release/v0.6.0`                       |
+| Dependabot   | (auto-generated)         | `dependabot/bundler/rails-8.0.1`       |
+
+Outside contributors occasionally use bare slugs (e.g. `typo`, `readme-require-false`); maintainers keep the `feature/` prefix.
+
+### Commit messages
+- **English, imperative mood, single subject line.** No body unless truly needed.
+- **No Conventional Commits prefix** (`feat:`, `fix:`, …) — the history doesn't use them. The one `docs:` example in `git log` is the exception, not the rule.
+- Examples drawn from merged history:
+  - `Add zoom and drag mouse controls`
+  - `Migrate to Docker Compose V2` (PR title) → underlying commits `Rename compose files for Docker Compose V2`, `Update GitHub Actions workflows for Docker Compose V2`, `Remove .devcontainer`
+  - `Fix a typo`
+  - `Avoid unnecessary loading on Rails boot`
+  - `Support Apple Silicon (ARM64)`
+- Version-bump commits are plain `vX.Y.Z` (e.g. `v0.6.0`) — produced by `bundle exec bump`.
+
+### Pull requests
+- **Title**: same imperative-English convention as commits. The PR title is what reviewers and changelog readers see, so make it specific (`Add zoom and drag mouse controls`, not `Update viewer`).
+- **Base branch**: `develop` for everything except the release `→ main` PR (see `RELEASE.md`).
+- **Body**: small PRs ship with an empty body; that is accepted practice here. For anything non-trivial, follow the structure used in PR #84 ([Add table comments to SCHEMA_DATA.Models](https://github.com/koedame/rails-mermaid_erd/pull/84)):
+  ```markdown
+  ### Motivation / Background
+  <why this change is needed — link Rails docs / issues if relevant>
+
+  ### Detail
+  <what changed and any design notes a reviewer needs>
+  ```
+  For UI-affecting changes, attach a screenshot or short clip (PR #95 is an example).
+- **One PR ≈ one concern.** Multi-step refactors like #136 list the bullets in the body but stay scoped to a single theme.
+
+### Natural language
+All public-facing development artifacts are written in **English**:
+- Pull Request titles and descriptions
+- Issue titles and descriptions
+- Commit messages
+- Code comments, identifier names, and documentation under `/docs`
+
+The README is bilingual (`README.md` / `README.ja.md`); when you change one, update the other in the same PR. UI strings in `lib/templates/index.html.erb` live in the `window.i18n` block and must be kept in sync between `en` and `ja`.
 
 ## CI/CD
-GitHub Actions automates the following checks:
-- Test execution
-- Code style verification
-- Version management
+Two GitHub Actions workflows gate every push and PR to `main` / `develop`:
+
+| Workflow                              | What it runs                                                     |
+| ------------------------------------- | ---------------------------------------------------------------- |
+| `.github/workflows/run-test.yml`      | `bundle exec rspec` against the dummy app on PostgreSQL 14       |
+| `.github/workflows/coding-style-check.yml` | `bundle exec standardrb` (StandardRb)                       |
+
+Both use `compose.ci.yml` (not `compose.yml`). A third workflow, `codeql-analysis.yml`, runs CodeQL on a schedule. Dependabot keeps Bundler and GitHub Actions versions current — its PRs are merged once CI is green.
 
 ## Development Best Practices
-1. Write tests before modifying code
-2. Follow StandardRb coding conventions
-3. Update documentation
-4. Update CHANGELOG.md
-5. Use English for all development communications:
-   - Pull Request titles and descriptions
-   - Issue titles and descriptions
-   - Commit messages
-   - Code comments and documentation
+1. Add or extend tests in `spec/` before changing `Builder` behavior. The dummy app's models (`spec/dummy/app/models/*.rb`) are the contract — extend them to cover new association cases.
+2. Run `bundle exec standardrb` (or `--fix`) before pushing; CI fails on style violations.
+3. Update documentation in the same PR as the code change, including the bilingual README pair when relevant.
+4. Keep PRs focused on a single concern; split unrelated refactors into separate branches.
+5. Write all development communication in English (see [Natural language](#natural-language)).
 
 ## Troubleshooting
 
