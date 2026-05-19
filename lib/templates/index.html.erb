@@ -369,6 +369,8 @@
         errors: {
           render_failed: 'Mermaid failed to render the current selection. Check the browser console for details.',
           snapshot_failed: 'Could not bake the snapshot image. Falling back to the SVG render.',
+          download_failed: 'Download failed. Check the browser console for details.',
+          copy_failed: 'Copy to clipboard failed. Browsers require a recent user gesture and a secure context.',
           dismiss: 'Dismiss',
         },
         tab: {
@@ -423,6 +425,8 @@
         errors: {
           render_failed: 'Mermaid の描画に失敗しました。詳細はブラウザのコンソールを確認してください。',
           snapshot_failed: 'スナップショット画像の生成に失敗しました。SVG 表示に戻します。',
+          download_failed: 'ダウンロードに失敗しました。詳細はブラウザのコンソールを確認してください。',
+          copy_failed: 'クリップボードへのコピーに失敗しました。ブラウザはユーザー操作直後かつセキュアな環境を要求します。',
           dismiss: '閉じる',
         },
         tab: {
@@ -784,16 +788,23 @@
         }
 
         isCopiedUrl = Vue.ref(false)
-        const onCopyUrl = () => {
-          navigator.clipboard.writeText(location.href);
-          isCopiedUrl.value = true
-
-          setTimeout(() => {
-            if (isCopiedUrl) {
-              isCopiedUrl.value = false
-            }
-          }, 1000)
+        // Clipboard writes can reject — Safari without a user gesture, insecure
+        // contexts, sandboxed iframes. Treat the rejection as a real failure
+        // instead of silently flashing "Copied" while nothing actually landed.
+        const clipboardWrite = (text, copiedRef) => {
+          const flashCopied = () => {
+            copiedRef.value = true
+            setTimeout(() => { copiedRef.value = false }, 1000)
+          }
+          const writePromise = navigator.clipboard && navigator.clipboard.writeText
+            ? navigator.clipboard.writeText(text)
+            : Promise.reject(new Error('navigator.clipboard.writeText unavailable'))
+          writePromise.then(flashCopied).catch((err) => {
+            console.error('mermaid_erd: clipboard write failed', err)
+            renderError.value = i18n[language.value]['errors']['copy_failed']
+          })
         }
+        const onCopyUrl = () => clipboardWrite(location.href, isCopiedUrl)
 
         const mermaidErd = Vue.computed(() => {
           const lines = []
@@ -896,7 +907,6 @@
           const source = mermaidErd.value
           const key = computeRenderKey()
           const renderAffectingChanged = key !== lastRenderKey
-          lastRenderKey = key
 
           // Empty selection short-circuits Mermaid (it would render a header-
           // only diagram, but skipping the call avoids the parser cost on big
@@ -905,6 +915,7 @@
             graph.value = ''
             snapshotDataUrl.value = ''
             renderError.value = ''
+            lastRenderKey = key
             const target = document.getElementById('preview')
             if (target) target.innerHTML = ''
             return
@@ -912,7 +923,9 @@
 
           // Snapshot-only toggles re-bake the existing SVG without re-parsing.
           // This is the single biggest reason snapshot mode feels instant on
-          // schemas where mermaid.render itself takes seconds.
+          // schemas where mermaid.render itself takes seconds. We only take
+          // this branch when the last render actually succeeded (graph.value
+          // populated) — otherwise we fall through and retry mermaid.render.
           if (!renderAffectingChanged && graph.value) {
             await syncSnapshot(myToken)
             return
@@ -923,6 +936,9 @@
             const result = await mermaid.render('mermaid-erd', source)
             svg = result.svg
           } catch (err) {
+            // Deliberately do NOT update lastRenderKey on failure — otherwise
+            // the next attempt with the same selection would short-circuit
+            // and the user would be unable to retry without changing options.
             console.error('mermaid_erd: failed to render diagram', err)
             renderError.value = i18n[language.value]['errors']['render_failed']
             return
@@ -930,6 +946,7 @@
           if (myToken !== renderToken) return
           graph.value = svg
           renderError.value = ''
+          lastRenderKey = key
           const target = document.getElementById('preview')
           if (!target) return
           target.innerHTML = svg
@@ -954,11 +971,19 @@
         }
 
         // Encode UTF-8 text to base64 without the deprecated `unescape` pattern.
+        // Returns null on failure so callers can surface the error explicitly —
+        // a thrown btoa error inside an img.onload handler would hang the
+        // surrounding Promise forever.
         const utf8ToBase64 = (str) => {
-          const bytes = new TextEncoder().encode(str)
-          let binary = ''
-          for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
-          return btoa(binary)
+          try {
+            const bytes = new TextEncoder().encode(str)
+            let binary = ''
+            for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+            return btoa(binary)
+          } catch (err) {
+            console.error('mermaid_erd: utf8ToBase64 failed', err)
+            return null
+          }
         }
 
         // Rasterise the rendered SVG into a PNG data URL and swap it into the
@@ -972,7 +997,15 @@
         // the "fallback masks the real problem" pattern called out in review).
         const bakeSnapshot = (target, myToken) => {
           return new Promise((resolve) => {
+            // Token-guarded failure surface. A stale render's late-arriving
+            // img.onerror used to clobber the *current* render's UI state
+            // (renderError, isSnapshotMode); the token check at the top keeps
+            // late failures from leaking into a fresher cycle.
             const fail = (reason) => {
+              if (myToken !== renderToken) {
+                resolve()
+                return
+              }
               console.error(`mermaid_erd: snapshot bake failed (${reason})`)
               snapshotDataUrl.value = ''
               isSnapshotMode.value = false
@@ -985,32 +1018,37 @@
             const height = svgNode.viewBox?.baseVal?.height || svgNode.height?.baseVal?.value || svgNode.getBoundingClientRect().height
             if (!width || !height) return fail('SVG has no dimensions')
             const svgData = new XMLSerializer().serializeToString(svgNode)
+            const svgBase64 = utf8ToBase64(svgData)
+            if (svgBase64 === null) return fail('failed to base64-encode SVG')
             const img = new Image()
             img.onload = () => {
               if (myToken !== renderToken || !isSnapshotMode.value) {
                 resolve()
                 return
               }
-              const canvas = document.createElement('canvas')
-              // Cap the bitmap at a sane max so very large diagrams don't blow
-              // out GPU texture limits (~16k px on most browsers). We still
-              // preserve aspect ratio so layout matches the SVG.
-              const MAX_DIMENSION = 8192
-              const ratio = Math.min(1, MAX_DIMENSION / Math.max(width, height))
-              canvas.width = Math.max(1, Math.floor(width * ratio))
-              canvas.height = Math.max(1, Math.floor(height * ratio))
-              const ctx = canvas.getContext('2d')
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+              // Single try/catch covers drawImage AND toDataURL: a synchronous
+              // throw from either inside img.onload would leave this Promise
+              // pending forever, hanging the calling reRender's await.
               try {
+                const canvas = document.createElement('canvas')
+                // Cap the bitmap at a sane max so very large diagrams don't blow
+                // out GPU texture limits (~16k px on most browsers). We still
+                // preserve aspect ratio so layout matches the SVG.
+                const MAX_DIMENSION = 8192
+                const ratio = Math.min(1, MAX_DIMENSION / Math.max(width, height))
+                canvas.width = Math.max(1, Math.floor(width * ratio))
+                canvas.height = Math.max(1, Math.floor(height * ratio))
+                const ctx = canvas.getContext('2d')
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
                 snapshotDataUrl.value = canvas.toDataURL('image/png')
                 renderError.value = ''
               } catch (err) {
-                return fail(`canvas.toDataURL threw: ${err.message}`)
+                return fail(`canvas operation failed: ${err.message}`)
               }
               resolve()
             }
             img.onerror = () => fail('Image failed to load rasterised SVG')
-            img.src = 'data:image/svg+xml;charset=utf-8;base64,' + utf8ToBase64(svgData)
+            img.src = 'data:image/svg+xml;charset=utf-8;base64,' + svgBase64
           })
         }
 
@@ -1027,57 +1065,66 @@
           }, RE_RENDER_DEBOUNCE_MS)
         }
 
-        const onCopyMermaid = () => {
-          navigator.clipboard.writeText(mermaidErd.value);
-          isCopiedMermaid.value = true
+        const onCopyMermaid = () => clipboardWrite(mermaidErd.value, isCopiedMermaid)
 
-          setTimeout(() => {
-            if (isCopiedMermaid) {
-              isCopiedMermaid.value = false
-            }
-          }, 1000)
-        }
+        const onCopyMarkdown = () => clipboardWrite(`\`\`\`mermaid\n${mermaidErd.value}\n\`\`\`\n`, isCopiedMarkdown)
 
-        const onCopyMarkdown = () => {
-          navigator.clipboard.writeText(`\`\`\`mermaid\n${mermaidErd.value}\n\`\`\`\n`);
-          isCopiedMarkdown.value = true
-
-          setTimeout(() => {
-            if (isCopiedMarkdown) {
-              isCopiedMarkdown.value = false
-            }
-          }, 1000)
+        // Surface download failures (empty selection, post-error state) via the
+        // same `renderError` banner the render path uses — silently producing a
+        // 0-byte file used to look like a broken Download button.
+        const failDownload = (reason, err) => {
+          if (err) console.error(`mermaid_erd: download failed (${reason})`, err)
+          else console.error(`mermaid_erd: download failed (${reason})`)
+          renderError.value = i18n[language.value]['errors']['download_failed']
         }
 
         const onDownloadSvg = () => {
-          const svgBlob = new Blob([graph.value], { type: 'image/svg+xml;charset=utf-8' });
-          const svgUrl = URL.createObjectURL(svgBlob);
-
-          const a = document.createElement("a");
-          a.href = svgUrl;
-          a.setAttribute("download", "mermaid_erd.svg");
-          a.dispatchEvent(new MouseEvent("click"));
-
-          URL.revokeObjectURL(svgUrl);
+          if (!graph.value) return failDownload('no rendered SVG to export')
+          try {
+            const svgBlob = new Blob([graph.value], { type: 'image/svg+xml;charset=utf-8' })
+            const svgUrl = URL.createObjectURL(svgBlob)
+            const a = document.createElement('a')
+            a.href = svgUrl
+            a.setAttribute('download', 'mermaid_erd.svg')
+            a.dispatchEvent(new MouseEvent('click'))
+            URL.revokeObjectURL(svgUrl)
+          } catch (err) {
+            failDownload('SVG export threw', err)
+          }
         }
 
         const onDownloadPng = () => {
-          const svg = document.querySelector("#preview > svg");
-          const svgData = new XMLSerializer().serializeToString(svg);
-          const canvas = document.createElement("canvas");
-          canvas.width = svg.width.baseVal.value;
-          canvas.height = svg.height.baseVal.value;
-
-          const ctx = canvas.getContext("2d");
-          const image = new Image;
-          image.onload = () => {
-            ctx.drawImage(image, 0, 0);
-            const a = document.createElement("a");
-            a.href = canvas.toDataURL("image/png");
-            a.setAttribute("download", "mermaid_erd.png");
-            a.dispatchEvent(new MouseEvent("click"));
+          const svg = document.querySelector('#preview > svg')
+          if (!svg) return failDownload('no rendered SVG to export')
+          let svgBase64, width, height
+          try {
+            const svgData = new XMLSerializer().serializeToString(svg)
+            svgBase64 = utf8ToBase64(svgData)
+            if (svgBase64 === null) return failDownload('SVG base64 encoding failed')
+            width = svg.width.baseVal.value
+            height = svg.height.baseVal.value
+            if (!width || !height) return failDownload('SVG has no dimensions')
+          } catch (err) {
+            return failDownload('PNG export setup threw', err)
           }
-          image.src = "data:image/svg+xml;charset=utf-8;base64," + utf8ToBase64(svgData);
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          const image = new Image
+          image.onload = () => {
+            try {
+              ctx.drawImage(image, 0, 0)
+              const a = document.createElement('a')
+              a.href = canvas.toDataURL('image/png')
+              a.setAttribute('download', 'mermaid_erd.png')
+              a.dispatchEvent(new MouseEvent('click'))
+            } catch (err) {
+              failDownload('canvas operation threw', err)
+            }
+          }
+          image.onerror = () => failDownload('Image failed to load rasterised SVG')
+          image.src = 'data:image/svg+xml;charset=utf-8;base64,' + svgBase64
         }
 
         const filteredModelList = Vue.computed(() => {
