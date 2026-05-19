@@ -179,6 +179,18 @@
                 <span :class="`text-xs ${ isHideColumns ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_column_comment"]}}</span>
               </label>
             </div>
+
+            <div class="min-w-0 flex-1 text-sm">
+              <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded" :title="i18n[language]['options']['snapshot_mode_hint']">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  v-model="isSnapshotMode"
+                  @change="updateHash"
+                />
+                <span class="text-xs text-gray-900">{{i18n[language]["options"]["snapshot_mode"]}}</span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -196,29 +208,42 @@
             <button @click="onUnselectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["none"]}}</button>
           </div>
 
-          <div class="space-y-1">
-            <div class="inline-flex items-center text-xs text-gray-700" v-if="isExistsNoModelTable">
-              <svg class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-              </svg>
-              <span>{{i18n[language]["models"]["no_model_file"]}}</span>
-            </div>
+          <div class="inline-flex items-center text-xs text-gray-700 mb-1" v-if="isExistsNoModelTable">
+            <svg class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            <span>{{i18n[language]["models"]["no_model_file"]}}</span>
+          </div>
 
-            <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded" v-for="model in filteredModelList">
+          <div
+            ref="virtualListContainer"
+            @scroll.passive="virtualListScroll"
+            :class="['model-list', isVirtualizingModels ? 'overflow-y-auto max-h-[480px]' : '']"
+          >
+            <div :style="virtualListTopSpacerStyle"></div>
+
+            <label
+              v-for="model in virtualListVisibleModels"
+              :key="model.ModelName"
+              class="relative flex items-center cursor-pointer hover:bg-gray-100 rounded"
+              style="height: 24px;"
+            >
               <div class="min-w-0 flex-1 text-xs text-gray-900 inline-flex items-center">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600 shrink-0"
                   :value="model.ModelName"
                   :checked="selectModels.includes(model.ModelName)"
                   @change="onChange"
                 />
-                <svg v-if="!model.IsModelExist" class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <svg v-if="!model.IsModelExist" class="text-orange-900 mr-1 h-3 w-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
-                <span>{{model.ModelName}}</span>
+                <span class="truncate">{{model.ModelName}}</span>
               </div>
             </label>
+
+            <div :style="virtualListBottomSpacerStyle"></div>
           </div>
         </div>
       </div>
@@ -230,7 +255,15 @@
         </div>
         <div v-show="tab === 'erd'" ref="viewport" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
           <div class="absolute inset-0" :style="zoomStyle" ref="zoomArea">
-            <div id="preview" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }"></div>
+            <div v-show="!isSnapshotMode || !snapshotDataUrl" id="preview" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }"></div>
+            <img v-show="isSnapshotMode && snapshotDataUrl" :src="snapshotDataUrl" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }" alt="ERD snapshot" draggable="false" style="user-select: none; -webkit-user-drag: none;" />
+          </div>
+
+          <div v-if="selectModels.length === 0" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="bg-gray-800/80 text-white text-sm px-4 py-3 rounded inline-flex flex-col items-center space-y-1 pointer-events-auto">
+              <span class="font-medium">{{i18n[language]["empty"]["title"]}}</span>
+              <span class="text-white/70 text-xs">{{i18n[language]["empty"]["hint"]}}</span>
+            </div>
           </div>
 
           <div class="absolute bottom-0 left-1/2 -translate-x-1/2 p-4">
@@ -302,6 +335,8 @@
           show_key: 'Show Key',
           show_column_comment: 'Show Column Comment',
           hide_columns: 'Hide Columns',
+          snapshot_mode: 'Snapshot Mode',
+          snapshot_mode_hint: 'Rasterise the diagram after each render. Pan and zoom become much faster on Safari and Firefox at the cost of text selection.',
         },
         models: {
           title: 'Models',
@@ -310,6 +345,10 @@
           none: 'None',
           filter: 'Filter',
           no_model_file: 'No Model File',
+        },
+        empty: {
+          title: 'No models selected',
+          hint: 'Pick models from the sidebar to render the ERD.',
         },
         tab: {
           erd: 'ERD',
@@ -345,6 +384,8 @@
           show_key: 'キーを表示',
           show_column_comment: 'コメントを表示',
           hide_columns: 'カラムを非表示',
+          snapshot_mode: 'スナップショットモード',
+          snapshot_mode_hint: '描画後に図を画像化します。Safari / Firefox での拡大縮小やパン操作が高速になりますが、テキスト選択はできなくなります。',
         },
         models: {
           title: 'モデル',
@@ -353,6 +394,10 @@
           none: 'なし',
           filter: '絞り込み',
           no_model_file: 'モデル未定義',
+        },
+        empty: {
+          title: 'モデルが選択されていません',
+          hint: 'サイドバーからモデルを選択して ER 図を描画します。',
         },
         tab: {
           erd: 'ER図',
@@ -388,6 +433,12 @@
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
         const isHideColumns = Vue.ref(false)
+        // Snapshot mode bakes the rendered SVG into a raster image so pan/zoom
+        // transforms a single <img> instead of relaying out hundreds of <g>
+        // elements. Safari and Firefox get the biggest win; Chromium handles
+        // SVG transforms well enough that the default stays SVG.
+        const isSnapshotMode = Vue.ref(false)
+        const snapshotDataUrl = Vue.ref('')
 
         const MIN_SCALE = 0.1
         const MAX_SCALE = 5
@@ -507,10 +558,11 @@
             lastTouchDistance = 0
             return
           }
-          const preview = document.getElementById('preview')
           // Gate preventDefault on the cursor being over the diagram, so 2-finger gestures on
           // surrounding UI (sidebar, footer) still trigger their default browser behaviour.
-          if (!preview || !preview.contains(e.target)) return
+          // Use `viewport` (the parent of both the SVG and the snapshot <img>) so snapshot mode
+          // keeps working — `#preview` is hidden while the snapshot is on screen.
+          if (!viewport.value || !viewport.value.contains(e.target)) return
           e.preventDefault()
           const newDistance = getDistance(e.touches)
           if (lastTouchDistance > 0 && newDistance > 0) {
@@ -581,8 +633,9 @@
         // Handle mouse wheel (zoom). Exponential factor derived from wheel delta gives smooth,
         // device-agnostic zooming and anchors the zoom at the cursor.
         const handleWheel = (e) => {
-          const preview = document.getElementById('preview')
-          if (!preview || !preview.contains(e.target)) return
+          // Use `viewport` rather than `#preview` so snapshot mode (which swaps `#preview` for
+          // an <img> sibling under the same viewport) keeps responding to wheel zoom.
+          if (!viewport.value || !viewport.value.contains(e.target)) return
           // Pure horizontal trackpad swipes (deltaY === 0) shouldn't be swallowed — the user is
           // navigating, not zooming. Returning without preventDefault lets the browser handle it.
           if (e.deltaY === 0) return
@@ -631,21 +684,24 @@
             isShowKey.value = !!parsedData.isShowKey
             isShowComment.value = !!parsedData.isShowComment
             isHideColumns.value = !!parsedData.isHideColumns
+            isSnapshotMode.value = !!parsedData.isSnapshotMode
           } catch {
             reset()
           }
         }
 
+        // Default to NO models selected. Issue #169: on schemas with hundreds of
+        // models, rendering the full diagram up front made Safari/Firefox crawl
+        // — and most users only want a focused slice anyway. Users can still
+        // bulk-select via the "All" button in the sidebar.
         const reset = () => {
           selectModels.value = []
-          schemaData.Models.forEach((model) => {
-            selectModels.value.push(model.ModelName)
-          })
           isPreviewRelations.value = false
           isShowRelationComment.value = false
           isShowKey.value = false
           isShowComment.value = false
           isHideColumns.value = false
+          isSnapshotMode.value = false
           updateHash()
         }
 
@@ -657,6 +713,7 @@
             isShowKey: isShowKey.value,
             isShowComment: isShowComment.value,
             isHideColumns: isHideColumns.value,
+            isSnapshotMode: isSnapshotMode.value,
           }))
         }
 
@@ -756,11 +813,123 @@
 
         const filterText = Vue.ref('')
 
+        // Mermaid initialise is non-trivial — it parses theme CSS and seeds an
+        // internal config. Doing it on every reRender (the previous behaviour)
+        // wasted work on schemas that re-render frequently. Init once here.
+        // `securityLevel: 'strict'` is also the Mermaid 10+ default, but pin it
+        // explicitly so a future upstream change can't silently regress to
+        // 'loose' (which would eval user-supplied labels as HTML).
+        mermaid.initialize({
+          theme: 'dark',
+          maxTextSize: 99999999,
+          startOnLoad: false,
+          securityLevel: 'strict',
+          flowchart: { htmlLabels: false },
+          er: { useMaxWidth: false }
+        })
+
+        // Track the in-flight render so a late-completing render can't
+        // overwrite a more recent one when the user toggles options rapidly.
+        let renderToken = 0
+        // Hold the last requested `mermaidErd` payload so the debounced flush
+        // renders the up-to-date source, not whichever snapshot it captured.
         const reRender = async () => {
-          mermaid.initialize({theme: 'dark', maxTextSize: 99999999, startOnLoad: false})
-          const { svg } = await mermaid.render("mermaid-erd", mermaidErd.value)
+          const myToken = ++renderToken
+          const source = mermaidErd.value
+          // Empty selection short-circuits Mermaid (it would render a header-
+          // only diagram, but skipping the call avoids the parser cost on big
+          // schemas where the user just landed on an empty default view).
+          if (filteredData.value.Models.length === 0) {
+            graph.value = ''
+            snapshotDataUrl.value = ''
+            const target = document.getElementById('preview')
+            if (target) target.innerHTML = ''
+            return
+          }
+          let svg
+          try {
+            const result = await mermaid.render('mermaid-erd', source)
+            svg = result.svg
+          } catch (err) {
+            // Surface parse errors in the console without breaking the page.
+            console.error('mermaid_erd: failed to render diagram', err)
+            return
+          }
+          // Discard if a newer render has been queued in the meantime.
+          if (myToken !== renderToken) return
           graph.value = svg
-          document.getElementById('preview').innerHTML = svg
+          const target = document.getElementById('preview')
+          if (!target) return
+          target.innerHTML = svg
+          if (isSnapshotMode.value) {
+            await bakeSnapshot(target, myToken)
+          } else {
+            snapshotDataUrl.value = ''
+          }
+        }
+
+        // Rasterise the rendered SVG into a PNG data URL and swap it into the
+        // preview element. Pan/zoom now transforms a single bitmap instead of
+        // a deep SVG tree — the biggest single win on Safari/Firefox for
+        // hundreds-of-models schemas (#169).
+        const bakeSnapshot = (target, myToken) => {
+          return new Promise((resolve) => {
+            const svgNode = target.querySelector('svg')
+            if (!svgNode) {
+              resolve()
+              return
+            }
+            const width = svgNode.viewBox?.baseVal?.width || svgNode.width?.baseVal?.value || svgNode.getBoundingClientRect().width
+            const height = svgNode.viewBox?.baseVal?.height || svgNode.height?.baseVal?.value || svgNode.getBoundingClientRect().height
+            if (!width || !height) {
+              resolve()
+              return
+            }
+            const svgData = new XMLSerializer().serializeToString(svgNode)
+            const img = new Image()
+            img.onload = () => {
+              // Bail if the user toggled / re-rendered while we were rasterising.
+              if (myToken !== renderToken || !isSnapshotMode.value) {
+                resolve()
+                return
+              }
+              const canvas = document.createElement('canvas')
+              // Cap the bitmap at a sane max so very large diagrams don't blow
+              // out GPU texture limits (~16k px on most browsers). We still
+              // preserve aspect ratio so layout matches the SVG.
+              const MAX_DIMENSION = 8192
+              const ratio = Math.min(1, MAX_DIMENSION / Math.max(width, height))
+              canvas.width = Math.max(1, Math.floor(width * ratio))
+              canvas.height = Math.max(1, Math.floor(height * ratio))
+              const ctx = canvas.getContext('2d')
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+              try {
+                snapshotDataUrl.value = canvas.toDataURL('image/png')
+              } catch (err) {
+                console.error('mermaid_erd: failed to bake snapshot', err)
+                snapshotDataUrl.value = ''
+              }
+              resolve()
+            }
+            img.onerror = () => {
+              console.error('mermaid_erd: failed to rasterise SVG')
+              resolve()
+            }
+            img.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(svgData)))
+          })
+        }
+
+        // Debounce reRender so rapid toggles (e.g. clicking "All", or scrubbing
+        // option checkboxes) don't issue back-to-back mermaid.render calls —
+        // each render is O(models × relations) in the parser.
+        let reRenderTimer = null
+        const RE_RENDER_DEBOUNCE_MS = 100
+        const scheduleReRender = () => {
+          if (reRenderTimer) clearTimeout(reRenderTimer)
+          reRenderTimer = setTimeout(() => {
+            reRenderTimer = null
+            reRender()
+          }, RE_RENDER_DEBOUNCE_MS)
         }
 
         const onCopyMermaid = () => {
@@ -831,6 +1000,69 @@
           return filteredModelList.value.some((model) => !model.IsModelExist)
         })
 
+        // Sidebar virtualisation.
+        //
+        // For schemas with hundreds of models the sidebar's v-for was creating a
+        // <label> + <input> + (sometimes) <svg> per row. The browser then paid
+        // layout cost for every row whether it was on screen or not. The fix is
+        // a windowed list: render only the rows currently inside the scroll
+        // viewport, plus a small buffer.
+        //
+        // Item height has to be a constant for the maths to work — bind
+        // .virtual-list-item below to `height: ${VIRTUAL_LIST_ITEM_HEIGHT_PX}px`
+        // and resist adding wrap/multi-line content.
+        const VIRTUAL_LIST_ITEM_HEIGHT_PX = 24
+        const VIRTUAL_LIST_BUFFER_ROWS = 8
+        const VIRTUAL_LIST_THRESHOLD = 80
+        const VIRTUAL_LIST_VIEWPORT_PX = 480
+        const virtualListContainer = Vue.ref(null)
+        const virtualListScrollTop = Vue.ref(0)
+        const virtualListClientHeight = Vue.ref(VIRTUAL_LIST_VIEWPORT_PX)
+
+        const isVirtualizingModels = Vue.computed(() => filteredModelList.value.length > VIRTUAL_LIST_THRESHOLD)
+
+        const virtualListVisibleRange = Vue.computed(() => {
+          const total = filteredModelList.value.length
+          if (!isVirtualizingModels.value) {
+            return { start: 0, end: total }
+          }
+          const viewport = virtualListClientHeight.value || VIRTUAL_LIST_VIEWPORT_PX
+          const visibleCount = Math.ceil(viewport / VIRTUAL_LIST_ITEM_HEIGHT_PX)
+          const start = Math.max(0, Math.floor(virtualListScrollTop.value / VIRTUAL_LIST_ITEM_HEIGHT_PX) - VIRTUAL_LIST_BUFFER_ROWS)
+          const end = Math.min(total, start + visibleCount + VIRTUAL_LIST_BUFFER_ROWS * 2)
+          return { start, end }
+        })
+
+        const virtualListVisibleModels = Vue.computed(() => {
+          const { start, end } = virtualListVisibleRange.value
+          return filteredModelList.value.slice(start, end)
+        })
+
+        const virtualListTopSpacerStyle = Vue.computed(() => {
+          if (!isVirtualizingModels.value) return { display: 'none' }
+          return { height: `${virtualListVisibleRange.value.start * VIRTUAL_LIST_ITEM_HEIGHT_PX}px` }
+        })
+
+        const virtualListBottomSpacerStyle = Vue.computed(() => {
+          if (!isVirtualizingModels.value) return { display: 'none' }
+          const total = filteredModelList.value.length
+          const trailing = total - virtualListVisibleRange.value.end
+          return { height: `${Math.max(0, trailing) * VIRTUAL_LIST_ITEM_HEIGHT_PX}px` }
+        })
+
+        const virtualListScroll = (e) => {
+          virtualListScrollTop.value = e.target.scrollTop
+          virtualListClientHeight.value = e.target.clientHeight
+        }
+
+        // Filtering shrinks the list — reset scroll so the window doesn't sit
+        // past the new end (which would render zero visible rows with a tall
+        // empty spacer above).
+        Vue.watch(filterText, () => {
+          virtualListScrollTop.value = 0
+          if (virtualListContainer.value) virtualListContainer.value.scrollTop = 0
+        })
+
         const setLanguage = (l) => {
           if (Object.keys(window.i18n).includes(l)) {
             language.value = l
@@ -845,6 +1077,8 @@
           setLanguage(window.navigator.language)
           restoreFromHash()
           reRender()
+          // After first render, any subsequent option/selection change is
+          // pushed through the hashchange path, which is debounced.
 
           window.addEventListener('keydown', handleKeyDown)
           window.addEventListener('keyup', handleKeyUp)
@@ -871,7 +1105,7 @@
 
         window.addEventListener('hashchange', () => {
           restoreFromHash()
-          reRender()
+          scheduleReRender()
         }, false);
 
         return {
@@ -886,6 +1120,8 @@
           isShowRelationComment,
           isShowComment,
           isShowKey,
+          isSnapshotMode,
+          snapshotDataUrl,
           language,
           mermaidErd,
           onChange,
@@ -914,7 +1150,13 @@
           moveLeft,
           moveRight,
           isSpacePressed,
-          isDragging
+          isDragging,
+          virtualListContainer,
+          virtualListScroll,
+          virtualListTopSpacerStyle,
+          virtualListBottomSpacerStyle,
+          virtualListVisibleModels,
+          isVirtualizingModels
         }
       }
     }

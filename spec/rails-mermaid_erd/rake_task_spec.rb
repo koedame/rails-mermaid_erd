@@ -42,6 +42,52 @@ describe "rake mermaid_erd" do
     expect(generated_html).to match(/var Vue\s*=/)                # Vue 3 global build
   end
 
+  # Issue #169 — performance contract for large schemas:
+  describe "issue #169 performance hardening" do
+    # The default `reset()` must not pre-select every model; otherwise opening
+    # the page on a hundreds-of-models schema lays out the full diagram before
+    # the user has any chance to narrow it down.
+    it "defaults the model selection to an empty list" do
+      expect(generated_html).to match(/const reset = \(\) => \{\s*selectModels\.value = \[\]\s*isPreviewRelations/m)
+      expect(generated_html).not_to match(/const reset = \(\) => \{\s*selectModels\.value = \[\]\s*schemaData\.Models\.forEach/m)
+    end
+
+    # mermaid.initialize repeats theme + parser setup; doing it on every render
+    # was wasted work. Confirm we now call it once at module level.
+    it "initializes Mermaid once outside reRender" do
+      re_render_block = generated_html[/const reRender = async \(\) => \{[\s\S]*?\n        \}/]
+      expect(re_render_block).not_to be_nil
+      expect(re_render_block).not_to include("mermaid.initialize")
+    end
+
+    it "pins Mermaid securityLevel to strict and disables htmlLabels" do
+      expect(generated_html).to include("securityLevel: 'strict'")
+      expect(generated_html).to include("htmlLabels: false")
+    end
+
+    # Rapid toggles (multi-click on the sidebar, scrubbing options) must collapse
+    # into a single render — otherwise back-to-back mermaid.render calls block
+    # the main thread on large schemas.
+    it "debounces re-renders behind scheduleReRender" do
+      expect(generated_html).to include("scheduleReRender")
+      expect(generated_html).to match(/hashchange.*scheduleReRender/m)
+    end
+
+    # The opt-in snapshot mode replaces the SVG with a rasterised PNG for the
+    # pan/zoom interaction — the biggest single win on Safari/Firefox.
+    it "exposes an opt-in snapshot mode" do
+      expect(generated_html).to include("isSnapshotMode")
+      expect(generated_html).to include("snapshotDataUrl")
+      expect(generated_html).to include("bakeSnapshot")
+    end
+
+    # Virtualisation keeps the sidebar DOM bounded for hundreds-of-models schemas.
+    it "virtualises the sidebar model list above a threshold" do
+      expect(generated_html).to include("isVirtualizingModels")
+      expect(generated_html).to include("virtualListVisibleModels")
+    end
+  end
+
   # Regression guard: a table/column comment containing `</script>` must not
   # close the SCHEMA_DATA script tag early. ActiveSupport's default JSON
   # encoder escapes `<` and `>` as `<`/`>` (controlled by

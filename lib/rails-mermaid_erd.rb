@@ -1,17 +1,17 @@
-require "erb"
-require "fileutils"
-require "rake"
-require "rake/dsl_definition"
 require_relative "rails-mermaid_erd/version"
-require_relative "rails-mermaid_erd/configuration"
-require_relative "rails-mermaid_erd/builder"
 
 module RailsMermaidErd
-  extend Rake::DSL
+  # Resolve `Builder` and `Configuration` lazily so requiring this file from
+  # Bundler's auto-require on every Rails boot (web, console, jobs) only pays
+  # for the Railtie declaration below. The actual classes — plus their
+  # transitive `yaml` require — load on first reference, which in practice
+  # means "when the rake task runs."
+  autoload :Builder, "rails-mermaid_erd/builder"
+  autoload :Configuration, "rails-mermaid_erd/configuration"
 
   class << self
     def configuration
-      @configuration ||= RailsMermaidErd::Configuration.new
+      @configuration ||= Configuration.new
     end
 
     # File.read with a domain-specific error when the bundled asset is missing,
@@ -27,24 +27,6 @@ module RailsMermaidErd
             "try `gem pristine rails-mermaid_erd` or reinstall the gem."
     end
   end
-
-  desc "Generate Mermaid ERD."
-  task mermaid_erd: :environment do
-    result = RailsMermaidErd::Builder.model_data
-
-    version = VERSION
-    app_name = ::Rails.application.class.try(:parent_name) || ::Rails.application.class.try(:module_parent_name)
-    logo = RailsMermaidErd.read_gem_asset("./assets/logo.svg")
-    tailwindcss_js = RailsMermaidErd.read_gem_asset("./templates/vendor/tailwindcss.js")
-    mermaid_js = RailsMermaidErd.read_gem_asset("./templates/vendor/mermaid.min.js")
-    vue_js = RailsMermaidErd.read_gem_asset("./templates/vendor/vue.global.prod.min.js")
-    erb = ERB.new(RailsMermaidErd.read_gem_asset("./templates/index.html.erb"))
-    result_html = erb.result(binding)
-
-    result_dir = Rails.root.join(File.dirname(RailsMermaidErd.configuration.result_path))
-    FileUtils.mkdir_p(result_dir)
-
-    result_file = Rails.root.join(RailsMermaidErd.configuration.result_path)
-    File.write(result_file, result_html)
-  end
 end
+
+require_relative "rails-mermaid_erd/railtie" if defined?(Rails::Railtie)
