@@ -1,9 +1,9 @@
-FROM ruby:alpine
+FROM ruby:3.4-alpine
 
 ENV APP /app
 
 WORKDIR $APP
 
-RUN apk add --no-cache alpine-sdk git postgresql-dev
+RUN apk add --no-cache alpine-sdk git postgresql-dev yaml-dev
 
 RUN bundle config set path 'vendor/bundle'
