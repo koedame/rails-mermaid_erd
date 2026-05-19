@@ -58,7 +58,8 @@ This file is not required for Git management, so you can add it to `.gitignore` 
 mermaid_erd
 ```
 
-`<app_root>/mermaid_erd/index.html` is a single HTML file.
+`<app_root>/mermaid_erd/index.html` is a single self-contained HTML file. All front-end dependencies (Tailwind, Mermaid, Vue) are inlined, so it works offline and behind strict corporate proxies — no CDN access is needed at view time. The file is roughly 4 MB because the bundles ship inside it.
+
 If you share this file, it can be used by those who do not have a Ruby on Rails environment. Or, you can upload the file to a web server and share it with the same URL.
 
 It would be very smart to generate it automatically using CI.
