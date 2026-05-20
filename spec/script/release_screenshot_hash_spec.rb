@@ -31,9 +31,7 @@ describe "script/release_screenshot_hash.rb" do
   end
 
   it "survives a TableComment containing literal `}</script>`" do
-    # Reproduces the failure mode the brace-walker exists to handle: Ruby's
-    # to_json does not escape `</script>` inside string values, so a naive
-    # `\{.*?\}\s*<\/script>` regex would truncate mid-string.
+    # Ruby's to_json does not escape `</script>` inside string values.
     html = schema_html([
       {"ModelName" => "Post", "TableName" => "posts", "TableComment" => "user wrote: }</script>", "Columns" => []},
       {"ModelName" => "Tag", "TableName" => "tags", "Columns" => []}

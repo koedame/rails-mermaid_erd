@@ -3,8 +3,7 @@
 
 # Build the URL hash that the front-end's restoreFromHash() expects, pre-seeded
 # with every model in the generated schema. Used by RELEASE.md so the release
-# screenshot captures the rendered ERD instead of the "No models selected"
-# placeholder (the default since #169).
+# screenshot captures the rendered ERD instead of the empty-selection default.
 #
 # Usage:
 #   ruby script/release_screenshot_hash.rb <path-to-generated-index.html>
