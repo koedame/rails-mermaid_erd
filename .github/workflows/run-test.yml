@@ -19,45 +19,39 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Rails 5.2 (Ruby 2.5-2.7 supported; we test on 2.7)
           - { ruby: "2.7", gemfile: rails_5_2 }
 
-          # Rails 6.0 (Ruby 2.5-3.0)
           - { ruby: "2.7", gemfile: rails_6_0 }
           - { ruby: "3.0", gemfile: rails_6_0 }
 
-          # Rails 6.1 (Ruby 2.5-3.2)
           - { ruby: "2.7", gemfile: rails_6_1 }
           - { ruby: "3.0", gemfile: rails_6_1 }
           - { ruby: "3.1", gemfile: rails_6_1 }
           - { ruby: "3.2", gemfile: rails_6_1 }
+          - { ruby: "3.3", gemfile: rails_6_1 }
 
-          # Rails 7.0 (Ruby 2.7-3.3)
           - { ruby: "2.7", gemfile: rails_7_0 }
           - { ruby: "3.0", gemfile: rails_7_0 }
           - { ruby: "3.1", gemfile: rails_7_0 }
           - { ruby: "3.2", gemfile: rails_7_0 }
           - { ruby: "3.3", gemfile: rails_7_0 }
 
-          # Rails 7.1 (Ruby 2.7-3.4; we drop 2.7 here since 7.0 covers it)
+          # Ruby 2.7 / 3.0 already exercised by rails_7_0 row above.
           - { ruby: "3.1", gemfile: rails_7_1 }
           - { ruby: "3.2", gemfile: rails_7_1 }
           - { ruby: "3.3", gemfile: rails_7_1 }
           - { ruby: "3.4", gemfile: rails_7_1 }
 
-          # Rails 7.2 (Ruby 3.1+)
           - { ruby: "3.1", gemfile: rails_7_2 }
           - { ruby: "3.2", gemfile: rails_7_2 }
           - { ruby: "3.3", gemfile: rails_7_2 }
           - { ruby: "3.4", gemfile: rails_7_2 }
 
-          # Rails 8.0 (Ruby 3.2+)
           - { ruby: "3.2", gemfile: rails_8_0 }
           - { ruby: "3.3", gemfile: rails_8_0 }
           - { ruby: "3.4", gemfile: rails_8_0 }
           - { ruby: "4.0", gemfile: rails_8_0 }
 
-          # Rails 8.1 (Ruby 3.2+)
           - { ruby: "3.2", gemfile: rails_8_1 }
           - { ruby: "3.3", gemfile: rails_8_1 }
           - { ruby: "3.4", gemfile: rails_8_1 }
@@ -89,15 +83,52 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Fail loudly if the matrix label points at a Gemfile that doesn't exist
+      # (typo in `matrix.gemfile` or a deleted appraisal). Without this, Bundler
+      # may fall back to the repo-root Gemfile and silently run the suite
+      # against the wrong Rails version while reporting the matrix label.
+      - name: Verify BUNDLE_GEMFILE exists
+        run: test -f "$BUNDLE_GEMFILE" || { echo "Missing $BUNDLE_GEMFILE"; exit 1; }
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      # Guard against a regenerated gemfile resolving to a Rails version that
+      # doesn't match the matrix label (e.g., an Appraisals edit that drifts
+      # from the matrix.include list).
+      - name: Verify resolved Rails matches matrix label
+        run: |
+          expected=$(echo '${{ matrix.gemfile }}' | sed 's/^rails_//;s/_/./')
+          actual=$(bundle exec ruby -e 'require "rails"; print Rails::VERSION::STRING')
+          case "$actual" in
+            "$expected".*) echo "OK: Rails $actual matches $expected.x" ;;
+            *) echo "MISMATCH: matrix label '${{ matrix.gemfile }}' expects Rails $expected.x but resolved $actual" >&2; exit 1 ;;
+          esac
+
       - name: Setup database
         working-directory: spec/dummy
-        run: bundle exec rails db:setup
+        run: bundle exec rails db:create db:schema:load
 
       - name: Run tests
         run: bundle exec rspec
+
+  # Single check that branch protection can require — succeeds only when
+  # every matrix leg above succeeded. Without this, branch protection would
+  # have to enumerate all matrix-cell names individually and rot whenever
+  # the matrix changes.
+  test-matrix-result:
+    name: test matrix result
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report aggregated result
+        run: |
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "One or more matrix legs failed (result: ${{ needs.test.result }})"
+            exit 1
+          fi
+          echo "All matrix legs passed."

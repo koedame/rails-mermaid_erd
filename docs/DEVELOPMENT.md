@@ -5,8 +5,8 @@ Rails Mermaid ERD is a Ruby gem that generates Mermaid format ER diagrams from R
 
 ## Technology Stack
 ### Backend
-- Ruby on Rails (>= 5.2; CI matrix covers 5.2 / 6.0 / 6.1 / 7.0 / 7.1 / 7.2 / 8.0 / 8.1)
-- Ruby (>= 2.7; CI matrix covers 2.7 / 3.0 / 3.1 / 3.2 / 3.3 / 3.4 / 4.0 where each Rails supports it)
+- Ruby on Rails (`rails-mermaid_erd.gemspec` declares `>= 5.2`; CI matrix covers 5.2 / 6.0 / 6.1 / 7.0 / 7.1 / 7.2 / 8.0 / 8.1)
+- Ruby (no `required_ruby_version` in the gemspec; CI matrix floor is 2.7 and exercises 2.7 / 3.0 / 3.1 / 3.2 / 3.3 / 3.4 / 4.0 where each Rails supports it)
 - PostgreSQL 14 (Test database)
 
 ### Frontend
@@ -83,7 +83,7 @@ If all tests pass and you see a coverage report, your development environment is
 ## Docker Configuration
 The project includes Docker files for **local development only** (CI runs natively on GitHub Actions with `ruby/setup-ruby`):
 - `compose.yml`: Main development environment configuration
-  - `devcontainer`: Ruby development environment (Alpine Linux based, pinned to a single Ruby version)
+  - `devcontainer`: Ruby development environment (Alpine Linux based, pinned to the Ruby version declared in `Dockerfile`)
   - `db`: PostgreSQL 14 database for testing
 - `Dockerfile`: Development container definition
 
@@ -202,7 +202,7 @@ Three GitHub Actions workflows run on each contribution:
 CI uses `ruby/setup-ruby` and a `services.postgres` container directly — no `compose.ci.yml`. Dependabot watches three ecosystems — Docker, Bundler, and GitHub Actions (see `.github/dependabot.yml`) — and its PRs are merged once CI is green.
 
 ### Matrix testing with Appraisal
-The supported Ruby × Rails matrix is declared in `Appraisals` at the repo root. Each appraisal produces a separate `gemfiles/*.gemfile` (committed) and lockfile (committed). CI iterates all combinations declared in `.github/workflows/run-test.yml`.
+The supported Ruby × Rails matrix is declared in `Appraisals` at the repo root. Each appraisal produces a separate `gemfiles/*.gemfile` (committed). The per-Rails `*.gemfile.lock` files are **gitignored** (a single lockfile cannot satisfy every Ruby in a row's range, so CI resolves them fresh on each job). CI iterates all combinations declared in `.github/workflows/run-test.yml`.
 
 Local commands inside the dev container:
 
