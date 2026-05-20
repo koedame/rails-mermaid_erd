@@ -3,23 +3,23 @@ require "base64"
 require "json"
 require "tempfile"
 
-SCRIPT_PATH = File.expand_path("../../script/release_screenshot_hash.rb", __dir__)
-
-def run_script(input)
-  Tempfile.create(["schema", ".html"]) do |f|
-    f.write(input)
-    f.flush
-    out = `ruby #{SCRIPT_PATH.shellescape} #{f.path.shellescape} 2>&1`
-    [out, $?.success?]
-  end
-end
-
-def schema_html(models)
-  schema = {"Models" => models, "Relations" => []}
-  %(<html><body><script>window.SCHEMA_DATA=#{schema.to_json}</script></body></html>)
-end
-
 describe "script/release_screenshot_hash.rb" do
+  let(:script_path) { File.expand_path("../../script/release_screenshot_hash.rb", __dir__) }
+
+  def run_script(input)
+    Tempfile.create(["schema", ".html"]) do |f|
+      f.write(input)
+      f.flush
+      out = `ruby #{script_path.shellescape} #{f.path.shellescape} 2>&1`
+      [out, $?.success?]
+    end
+  end
+
+  def schema_html(models)
+    schema = {"Models" => models, "Relations" => []}
+    %(<html><body><script>window.SCHEMA_DATA=#{schema.to_json}</script></body></html>)
+  end
+
   it "emits a base64 hash containing every model name" do
     html = schema_html([
       {"ModelName" => "Post", "TableName" => "posts", "Columns" => []},
