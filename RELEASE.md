@@ -34,7 +34,20 @@ bundle exec rspec
 cd /workspace/spec/dummy
 RAILS_ENV=test bundle exec rails mermaid_erd
 cp -f /workspace/spec/dummy/mermaid_erd/index.html /workspace/docs/example.html
-chromium-browser --headless --disable-gpu --no-sandbox --window-size=1280,800 --hide-scrollbars --screenshot="/workspace/docs/screen_shot.png" /workspace/spec/dummy/mermaid_erd/index.html
+
+# Build a URL hash that pre-selects every model, so the screenshot shows the
+# rendered ERD instead of the "No models selected" placeholder (default since
+# #169). The hash format mirrors `updateHash()` in lib/templates/index.html.erb.
+HASH=$(ruby -rjson -rbase64 -e '
+  html = File.read("/workspace/spec/dummy/mermaid_erd/index.html")
+  data = JSON.parse(html[/window\.SCHEMA_DATA\s*=\s*(\{.*?\})\s*<\/script>/m, 1])
+  print Base64.strict_encode64({ selectModels: data["Models"].map { _1["ModelName"] } }.to_json)
+')
+chromium-browser --headless --disable-gpu --no-sandbox \
+  --window-size=1280,800 --hide-scrollbars \
+  --virtual-time-budget=10000 \
+  --screenshot="/workspace/docs/screen_shot.png" \
+  "file:///workspace/spec/dummy/mermaid_erd/index.html#${HASH}"
 ```
 
 Stage the bump, the regenerated demo, and the screenshot, then commit them together with the message `vX.Y.Z` (matching prior history: `v0.6.0`, `v0.5.1`, …):
