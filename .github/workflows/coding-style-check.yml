@@ -15,23 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Install dependencies
-        run: |
-          docker compose -f compose.ci.yml run --rm app bundle install --jobs=16
-          docker compose -f compose.ci.yml run --rm app bundle clean --force
+          ruby-version: "3.4"
+          bundler-cache: true
 
       - name: Run standardrb
-        run: docker compose -f compose.ci.yml run --rm app bundle exec standardrb
+        run: bundle exec standardrb

@@ -1,5 +1,3 @@
-require "yaml"
-
 class RailsMermaidErd::Builder
   class << self
     def model_data
@@ -9,10 +7,28 @@ class RailsMermaidErd::Builder
       }
 
       ::Rails.application.eager_load!
+
+      # Compile each `ignore_tables` entry once. Wrap `RegexpError` so the
+      # rake-task output names the offending YAML entry rather than just the
+      # underlying parser message.
+      ignore_patterns = RailsMermaidErd.configuration.ignore_tables.map do |pattern|
+        Regexp.new(pattern)
+      rescue RegexpError => e
+        raise ArgumentError, "config/mermaid_erd.yml: invalid `ignore_tables` pattern #{pattern.inspect}: #{e.message}"
+      end
+
+      # Class names whose `table_name` matches an ignore pattern. Resolved
+      # *before* the main loop so we can also drop outgoing reflections that
+      # point at an ignored model — otherwise the diagram would render orphan
+      # nodes for the ignored tables. A Hash gives O(1) `key?` lookups without
+      # pulling in `set` (which is autoloaded on Ruby 3.2+ but not earlier).
+      ignored_model_names = compute_ignored_model_names(ignore_patterns)
+
       ::ActiveRecord::Base.descendants.sort_by(&:name).each do |defined_model|
         next unless defined_model.table_exists?
         next if defined_model.name.include?("HABTM_")
         next if defined_model.table_name.blank?
+        next if ignored_model_names.key?(defined_model.name)
 
         table_name = defined_model.table_name
         model = {
@@ -44,6 +60,7 @@ class RailsMermaidErd::Builder
 
         defined_model.reflect_on_all_associations(:has_many).each do |reflection|
           reflection_model_name = get_reflection_model_name(reflection)
+          next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r|
             if reflection.options[:through]
@@ -72,6 +89,7 @@ class RailsMermaidErd::Builder
 
         defined_model.reflect_on_all_associations(:has_and_belongs_to_many).each do |reflection|
           reflection_model_name = get_reflection_model_name(reflection)
+          next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
           if reverse_relation
@@ -89,7 +107,15 @@ class RailsMermaidErd::Builder
         end
 
         defined_model.reflect_on_all_associations(:belongs_to).each do |reflection|
+          # Polymorphic `belongs_to` has no concrete target class — the target is
+          # decided at row level by the `*_type` column. Emitting an edge to the
+          # macro name (e.g. `"Imageable"`) would render an orphan node with no
+          # columns; the polymorphic parents express the relationship via their
+          # `has_many ..., as: :foo` reflections instead.
+          next if reflection.polymorphic?
+
           reflection_model_name = get_reflection_model_name(reflection)
+          next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
           if reverse_relation
@@ -116,6 +142,7 @@ class RailsMermaidErd::Builder
 
         defined_model.reflect_on_all_associations(:has_one).each do |reflection|
           reflection_model_name = get_reflection_model_name(reflection)
+          next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r|
             if reflection.options[:through]
@@ -147,13 +174,38 @@ class RailsMermaidErd::Builder
       result
     end
 
+    # Returns a Hash keyed by class names whose underlying table matches an
+    # entry from `ignore_tables`. Mirrors the guard rails on the main loop
+    # (`table_exists?`, HABTM scaffolding, blank `table_name`) so that adding
+    # an `ignore_tables` entry can't crash the rake task on hosts with
+    # abstract STI bases or descendants whose backing table isn't created yet.
+    def compute_ignored_model_names(ignore_patterns)
+      return {} if ignore_patterns.empty?
+
+      ::ActiveRecord::Base.descendants.each_with_object({}) do |defined_model, acc|
+        next unless defined_model.table_exists?
+        next if defined_model.name.include?("HABTM_")
+        table_name = defined_model.table_name
+        next if table_name.blank?
+        acc[defined_model.name] = true if ignore_patterns.any? { |pattern| pattern.match?(table_name) }
+      end
+    end
+
     # Doc: https://guides.rubyonrails.org/association_basics.html
     def get_reflection_model_name(reflection)
       if reflection.options[:class_name]
         reflection.options[:class_name].to_s.classify
       elsif reflection.options[:through]
-        if reflection.options[:source]
+        # `:source_type` is the authoritative class hint for a polymorphic
+        # `:source`, so it takes precedence over `:source` when both are set.
+        if reflection.options[:source_type]
+          reflection.options[:source_type].to_s.classify
+        elsif reflection.options[:source]
           reflection.options[:source].to_s.classify
+        elsif reflection.source_reflection.nil?
+          # `:through` targets a polymorphic `belongs_to` without `:source_type`;
+          # Rails can't resolve a single class. Fall back to its `:source` default.
+          reflection.name.to_s.classify
         else
           reflection.class_name
         end

@@ -58,10 +58,28 @@ This file is not required for Git management, so you can add it to `.gitignore` 
 mermaid_erd
 ```
 
-`<app_root>/mermaid_erd/index.html` is a single HTML file.
+`<app_root>/mermaid_erd/index.html` is a single self-contained HTML file. All front-end dependencies (Tailwind, Mermaid, Vue) are inlined, so it works offline and behind strict corporate proxies — no CDN access is needed at view time. The file is roughly 4 MB because the bundles ship inside it.
+
 If you share this file, it can be used by those who do not have a Ruby on Rails environment. Or, you can upload the file to a web server and share it with the same URL.
 
 It would be very smart to generate it automatically using CI.
+
+## Supported versions
+
+The Ruby × Rails combinations exercised by CI on every push and pull request:
+
+| Rails | Ruby                             |
+| ----- | -------------------------------- |
+| 5.2   | 2.7                              |
+| 6.0   | 2.7, 3.0                         |
+| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
+| 7.1   | 3.1, 3.2, 3.3, 3.4               |
+| 7.2   | 3.1, 3.2, 3.3, 3.4               |
+| 8.0   | 3.2, 3.3, 3.4, 4.0               |
+| 8.1   | 3.2, 3.3, 3.4, 4.0               |
+
+Other combinations may work but are not verified.
 
 ## Configuration
 
@@ -73,6 +91,7 @@ The setting items are as follows.
 | key | description | default |
 | --- | --- | --- |
 | `result_path` | Destination of generated files. | `mermaid_erd/index.html` |
+| `ignore_tables` | Array of regular-expression strings. Tables whose `table_name` matches any pattern are dropped from the generated ERD, along with any relations that point at them. Useful for excluding audit-log models, soft-deleted/legacy tables, or other large noise you don't want to render. Patterns are compiled with `Regexp.new`, so escape backslashes inside YAML strings (e.g. `"\\Aaudit_"`). | `[]` |
 
 <!--
 TODO:

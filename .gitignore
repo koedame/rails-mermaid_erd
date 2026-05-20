@@ -19,3 +19,6 @@ spec/dummy/tmp/
 spec/reports
 tmp
 vendor/bundle
+
+# Appraisal per-Rails lockfiles are resolved fresh per Ruby in CI.
+gemfiles/*.gemfile.lock
