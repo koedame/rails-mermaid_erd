@@ -37,12 +37,13 @@ cp -f /workspace/spec/dummy/mermaid_erd/index.html /workspace/docs/example.html
 
 # Build a URL hash that pre-selects every model, so the screenshot shows the
 # rendered ERD instead of the "No models selected" placeholder (default since
-# #169). The hash format mirrors `updateHash()` in lib/templates/index.html.erb.
-HASH=$(ruby -rjson -rbase64 -e '
-  html = File.read("/workspace/spec/dummy/mermaid_erd/index.html")
-  data = JSON.parse(html[/window\.SCHEMA_DATA\s*=\s*(\{.*?\})\s*<\/script>/m, 1])
-  print Base64.strict_encode64({ selectModels: data["Models"].map { _1["ModelName"] } }.to_json)
-')
+# #169). See script/release_screenshot_hash.rb for details — the script also
+# fails loudly if no models are found, so the release maintainer never silently
+# commits a blank screenshot.
+HASH=$(ruby /workspace/script/release_screenshot_hash.rb /workspace/spec/dummy/mermaid_erd/index.html)
+# --virtual-time-budget advances Chromium's virtual clock then snapshots; it is
+# not a render barrier on Mermaid's async render(). 10s is generous for the
+# dummy schema (12 models) — bump if you ever point this at a much larger app.
 chromium-browser --headless --disable-gpu --no-sandbox \
   --window-size=1280,800 --hide-scrollbars \
   --virtual-time-budget=10000 \
