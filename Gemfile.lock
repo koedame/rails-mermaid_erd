@@ -81,6 +81,10 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
+    appraisal (2.5.0)
+      bundler
+      rake
+      thor (>= 0.14.0)
     ast (2.4.3)
     backport (1.2.0)
     base64 (0.3.0)
@@ -336,6 +340,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  appraisal
   bump
   nio4r (~> 2.7.0)
   pg

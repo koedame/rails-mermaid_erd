@@ -27,9 +27,15 @@ docker compose exec devcontainer bundle exec standardrb --fix
 
 # Exercise the generator end-to-end against the dummy app — writes spec/dummy/mermaid_erd/index.html:
 docker compose exec -w /workspace/spec/dummy devcontainer bundle exec rails mermaid_erd RAILS_ENV=test
+
+# Run rspec against one row of the matrix (Rails 7.2 example):
+docker compose exec -e BUNDLE_GEMFILE=/workspace/gemfiles/rails_7_2.gemfile devcontainer bundle exec rspec
+
+# Regenerate gemfiles/*.gemfile after editing Appraisals at the repo root:
+docker compose exec devcontainer bundle exec appraisal install
 ```
 
-CI (`.github/workflows/run-test.yml`, `coding-style-check.yml`) uses `compose.ci.yml` instead of `compose.yml` — they are not interchangeable (different container names, mount paths, env wiring).
+CI runs natively on GitHub Actions via `ruby/setup-ruby` + `services.postgres` (no `compose.ci.yml` — that file is gone). `compose.yml`/`Dockerfile` are local-dev only and pinned to a single Ruby; the dev container can only exercise matrix rows whose Rails supports that Ruby. The full Ruby × Rails matrix lives in `Appraisals` (repo root) and `.github/workflows/run-test.yml` — keep both in sync. The `gemfiles/*.gemfile` files are committed; their lockfiles are gitignored and resolved fresh per Ruby in CI. Regenerate the gemfiles with `bundle exec appraisal install` after editing `Appraisals`.
 
 ## Architecture
 
