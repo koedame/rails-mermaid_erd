@@ -5,6 +5,18 @@ describe RailsMermaidErd::Builder.model_data do
 
   it "Model includes" do
     expect(result[:Models]).to match_array([{
+      TableName: "audit_logs",
+      TableComment: "",
+      ModelName: "AuditLog",
+      IsModelExist: true,
+      Columns: [
+        {name: "id", type: :integer, key: "PK", comment: nil},
+        {name: "action", type: :string, key: "", comment: nil},
+        {name: "created_at", type: :datetime, key: "", comment: nil},
+        {name: "updated_at", type: :datetime, key: "", comment: nil},
+        {name: "user_id", type: :integer, key: "FK", comment: nil}
+      ]
+    }, {
       TableName: "user_images",
       TableComment: "uploaded image by user",
       ModelName: "UserImage",
@@ -139,6 +151,13 @@ describe RailsMermaidErd::Builder.model_data do
 
   it "Relation includes" do
     expect(result[:Relations]).to match_array([{
+      LeftModelName: "AuditLog",
+      LeftValue: "}o",
+      Line: "--",
+      RightModelName: "Author",
+      RightValue: "||",
+      Comment: "BT:user, HM:audit_logs"
+    }, {
       LeftModelName: "Author",
       LeftValue: "||",
       Line: "--",
