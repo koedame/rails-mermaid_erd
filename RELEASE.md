@@ -40,7 +40,11 @@ cp -f /workspace/spec/dummy/mermaid_erd/index.html /workspace/docs/example.html
 # #169). See script/release_screenshot_hash.rb for details — the script also
 # fails loudly if no models are found, so the release maintainer never silently
 # commits a blank screenshot.
-HASH=$(ruby /workspace/script/release_screenshot_hash.rb /workspace/spec/dummy/mermaid_erd/index.html)
+# The `|| exit 1` is load-bearing: `HASH=$(...)` does NOT propagate the
+# sub-shell's exit status, so without it a failed script (e.g. zero models in
+# the host app) would leave HASH empty and the chromium-browser call below
+# would happily screenshot the empty placeholder.
+HASH=$(ruby /workspace/script/release_screenshot_hash.rb /workspace/spec/dummy/mermaid_erd/index.html) || exit 1
 # --virtual-time-budget advances Chromium's virtual clock then snapshots; it is
 # not a render barrier on Mermaid's async render(). 10s is generous for the
 # dummy schema (12 models) — bump if you ever point this at a much larger app.
