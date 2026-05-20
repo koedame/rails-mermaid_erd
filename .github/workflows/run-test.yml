@@ -12,36 +12,92 @@ on:
 
 jobs:
   test:
+    name: Ruby ${{ matrix.ruby }} / ${{ matrix.gemfile }}
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Rails 5.2 (Ruby 2.5-2.7 supported; we test on 2.7)
+          - { ruby: "2.7", gemfile: rails_5_2 }
+
+          # Rails 6.0 (Ruby 2.5-3.0)
+          - { ruby: "2.7", gemfile: rails_6_0 }
+          - { ruby: "3.0", gemfile: rails_6_0 }
+
+          # Rails 6.1 (Ruby 2.5-3.2)
+          - { ruby: "2.7", gemfile: rails_6_1 }
+          - { ruby: "3.0", gemfile: rails_6_1 }
+          - { ruby: "3.1", gemfile: rails_6_1 }
+          - { ruby: "3.2", gemfile: rails_6_1 }
+
+          # Rails 7.0 (Ruby 2.7-3.3)
+          - { ruby: "2.7", gemfile: rails_7_0 }
+          - { ruby: "3.0", gemfile: rails_7_0 }
+          - { ruby: "3.1", gemfile: rails_7_0 }
+          - { ruby: "3.2", gemfile: rails_7_0 }
+          - { ruby: "3.3", gemfile: rails_7_0 }
+
+          # Rails 7.1 (Ruby 2.7-3.4; we drop 2.7 here since 7.0 covers it)
+          - { ruby: "3.1", gemfile: rails_7_1 }
+          - { ruby: "3.2", gemfile: rails_7_1 }
+          - { ruby: "3.3", gemfile: rails_7_1 }
+          - { ruby: "3.4", gemfile: rails_7_1 }
+
+          # Rails 7.2 (Ruby 3.1+)
+          - { ruby: "3.1", gemfile: rails_7_2 }
+          - { ruby: "3.2", gemfile: rails_7_2 }
+          - { ruby: "3.3", gemfile: rails_7_2 }
+          - { ruby: "3.4", gemfile: rails_7_2 }
+
+          # Rails 8.0 (Ruby 3.2+)
+          - { ruby: "3.2", gemfile: rails_8_0 }
+          - { ruby: "3.3", gemfile: rails_8_0 }
+          - { ruby: "3.4", gemfile: rails_8_0 }
+          - { ruby: "4.0", gemfile: rails_8_0 }
+
+          # Rails 8.1 (Ruby 3.2+)
+          - { ruby: "3.2", gemfile: rails_8_1 }
+          - { ruby: "3.3", gemfile: rails_8_1 }
+          - { ruby: "3.4", gemfile: rails_8_1 }
+          - { ruby: "4.0", gemfile: rails_8_1 }
+
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      RAILS_ENV: test
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Start containers
-        run: docker compose -f compose.ci.yml up -d
-
-      - name: Install dependencies
-        run: |
-          docker compose -f compose.ci.yml exec app bundle install --jobs=16
-          docker compose -f compose.ci.yml exec app bundle clean --force
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
 
       - name: Setup database
-        run: |
-          docker compose -f compose.ci.yml exec app sh -c "cd ./spec/dummy && bundle exec rails db:setup"
+        working-directory: spec/dummy
+        run: bundle exec rails db:setup
 
       - name: Run tests
-        run: docker compose -f compose.ci.yml exec app bundle exec rspec
-
-      - name: Stop containers
-        run: docker compose -f compose.ci.yml down
+        run: bundle exec rspec

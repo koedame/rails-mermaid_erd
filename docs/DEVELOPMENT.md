@@ -5,7 +5,8 @@ Rails Mermaid ERD is a Ruby gem that generates Mermaid format ER diagrams from R
 
 ## Technology Stack
 ### Backend
-- Ruby on Rails (>= 5.2)
+- Ruby on Rails (>= 5.2; CI matrix covers 5.2 / 6.0 / 6.1 / 7.0 / 7.1 / 7.2 / 8.0 / 8.1)
+- Ruby (>= 2.7; CI matrix covers 2.7 / 3.0 / 3.1 / 3.2 / 3.3 / 3.4 / 4.0 where each Rails supports it)
 - PostgreSQL 14 (Test database)
 
 ### Frontend
@@ -80,13 +81,11 @@ If all tests pass and you see a coverage report, your development environment is
 - tzinfo-data (Timezone data)
 
 ## Docker Configuration
-The project includes several Docker-related files:
+The project includes Docker files for **local development only** (CI runs natively on GitHub Actions with `ruby/setup-ruby`):
 - `compose.yml`: Main development environment configuration
-  - `devcontainer`: Ruby development environment (Alpine Linux based)
+  - `devcontainer`: Ruby development environment (Alpine Linux based, pinned to a single Ruby version)
   - `db`: PostgreSQL 14 database for testing
-- `compose.ci.yml`: CI environment configuration
 - `Dockerfile`: Development container definition
-- `Dockerfile.ci`: CI container definition
 
 ### Database Configuration
 The test database is configured with the following credentials:
@@ -194,13 +193,28 @@ The README is bilingual (`README.md` / `README.ja.md`); when you change one, upd
 ## CI/CD
 Three GitHub Actions workflows run on each contribution:
 
-| Workflow                                    | Triggers                                              | What it runs                                                |
-| ------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
-| `.github/workflows/run-test.yml`            | push / PR to `main` or `develop`                      | `bundle exec rspec` against the dummy app on PostgreSQL 14  |
-| `.github/workflows/coding-style-check.yml`  | push / PR to `main` or `develop`                      | `bundle exec standardrb` (StandardRb)                       |
-| `.github/workflows/codeql-analysis.yml`     | push / PR to `develop`, plus a weekly cron            | CodeQL Ruby analysis                                        |
+| Workflow                                    | Triggers                                              | What it runs                                                                                              |
+| ------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/run-test.yml`            | push / PR to `main` or `develop`                      | `bundle exec rspec` against the dummy app on PostgreSQL 14, across a Ruby × Rails matrix (see Appraisals) |
+| `.github/workflows/coding-style-check.yml`  | push / PR to `main` or `develop`                      | `bundle exec standardrb` (StandardRb) on Ruby 3.4                                                         |
+| `.github/workflows/codeql-analysis.yml`     | push / PR to `develop`, plus a weekly cron            | CodeQL Ruby analysis                                                                                      |
 
-The first two use `compose.ci.yml` (not `compose.yml`). Dependabot watches three ecosystems — Docker, Bundler, and GitHub Actions (see `.github/dependabot.yml`) — and its PRs are merged once CI is green.
+CI uses `ruby/setup-ruby` and a `services.postgres` container directly — no `compose.ci.yml`. Dependabot watches three ecosystems — Docker, Bundler, and GitHub Actions (see `.github/dependabot.yml`) — and its PRs are merged once CI is green.
+
+### Matrix testing with Appraisal
+The supported Ruby × Rails matrix is declared in `Appraisals` at the repo root. Each appraisal produces a separate `gemfiles/*.gemfile` (committed) and lockfile (committed). CI iterates all combinations declared in `.github/workflows/run-test.yml`.
+
+Local commands inside the dev container:
+
+```bash
+# Regenerate gemfiles/*.gemfile after editing Appraisals
+docker compose exec devcontainer bundle exec appraisal install
+
+# Run rspec against one appraisal (Rails 7.2 example)
+docker compose exec -e BUNDLE_GEMFILE=/workspace/gemfiles/rails_7_2.gemfile devcontainer bundle exec rspec
+```
+
+The dev container is pinned to a single Ruby version, so only appraisals compatible with that Ruby can be exercised locally; the rest are validated in CI. When adding or removing an appraisal, also update the `matrix.include:` list in `.github/workflows/run-test.yml`.
 
 ## Development Best Practices
 1. Add or extend tests in `spec/` before changing `Builder` behavior. The dummy app's models (`spec/dummy/app/models/*.rb`) are the contract — extend them to cover new association cases.
