@@ -34,7 +34,21 @@ bundle exec rspec
 cd /workspace/spec/dummy
 RAILS_ENV=test bundle exec rails mermaid_erd
 cp -f /workspace/spec/dummy/mermaid_erd/index.html /workspace/docs/example.html
-chromium-browser --headless --disable-gpu --no-sandbox --window-size=1280,800 --hide-scrollbars --screenshot="/workspace/docs/screen_shot.png" /workspace/spec/dummy/mermaid_erd/index.html
+
+# Pre-select every model on load so the screenshot shows the rendered ERD
+# instead of the empty-selection default. See script/release_screenshot_hash.rb;
+# it raises on an empty model list. `|| exit 1` is load-bearing — `HASH=$(...)`
+# does NOT propagate the sub-shell's exit status, so without it a failed script
+# would leave HASH empty and chromium would screenshot the blank placeholder.
+HASH=$(ruby /workspace/script/release_screenshot_hash.rb /workspace/spec/dummy/mermaid_erd/index.html) || exit 1
+# --virtual-time-budget advances Chromium's virtual clock then snapshots; it is
+# not a render barrier on Mermaid's async render(). 10s is generous for the
+# dummy schema; bump if you ever point this at a much larger app.
+chromium-browser --headless --disable-gpu --no-sandbox \
+  --window-size=1280,800 --hide-scrollbars \
+  --virtual-time-budget=10000 \
+  --screenshot="/workspace/docs/screen_shot.png" \
+  "file:///workspace/spec/dummy/mermaid_erd/index.html#${HASH}"
 ```
 
 Stage the bump, the regenerated demo, and the screenshot, then commit them together with the message `vX.Y.Z` (matching prior history: `v0.6.0`, `v0.5.1`, …):
