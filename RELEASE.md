@@ -83,3 +83,25 @@ bundle exec rake release
 ```
 
 `rake release` tags the commit as `vX.Y.Z` and pushes to RubyGems. After release, confirm the new version at https://rubygems.org/gems/rails-mermaid_erd.
+
+### 5. Publish the GitHub Release
+
+`rake release` only pushes the git tag — it does not create the GitHub Releases entry. Create it explicitly so the tag shows up on https://github.com/koedame/rails-mermaid_erd/releases.
+
+The release notes must **never include release-PR rows** — both the modern `Release/vX.Y.Z by …` form and the legacy bare `vX.Y.Z by …` form (used once, for the v0.1.2 row in v0.2.0's notes). They are noise: the release branch is the delivery mechanism, not a change. Because GitHub's auto-generated notes always list those PRs, filter them out before publishing:
+
+```bash
+# 1. Ask the GitHub API for the auto-generated notes for this tag.
+# 2. Drop any release-PR row (both `Release/vX.Y.Z by …` and bare `vX.Y.Z by …`).
+# 3. Publish with the filtered body.
+gh api repos/koedame/rails-mermaid_erd/releases/generate-notes \
+  -f tag_name=vX.Y.Z \
+  -f previous_tag_name=vPREV.Y.Z \
+  --jq .body \
+  | grep -v -E '^\* (Release/)?v[0-9]+\.[0-9]+\.[0-9]+ by ' \
+  > /tmp/release-notes.md
+
+gh release create vX.Y.Z --title vX.Y.Z --notes-file /tmp/release-notes.md --verify-tag
+```
+
+Skim the published page to confirm the body lists only feature/fix/dependency PRs. Historical releases through `v0.7.0` were retroactively cleaned to match this rule — keep them that way.
