@@ -6,6 +6,7 @@ require "fileutils"
 # deep inside the task body where the cause is harder to diagnose.
 require_relative "../rails-mermaid_erd/builder"
 require_relative "../rails-mermaid_erd/configuration"
+require_relative "../rails-mermaid_erd/mermaid_text"
 
 desc "Generate Mermaid ERD."
 task mermaid_erd: :environment do
@@ -33,5 +34,28 @@ task mermaid_erd: :environment do
   rescue SystemCallError => e
     raise "rails-mermaid_erd: could not write ERD to #{result_file} (#{e.class}: #{e.message}). " \
           "Check the `result_path` key in config/mermaid_erd.yml and that the directory is writable."
+  end
+end
+
+namespace :mermaid_erd do
+  desc "Print Mermaid ERD source to stdout."
+  task print: :environment do
+    # Builder calls `ActiveRecord::Schema.foreign_keys`, whose migration-style
+    # `-- foreign_keys(...)` / `-> 0.001s` logging would otherwise land on
+    # stdout and corrupt the piped diagram. Mute it just for the build, and
+    # restore it in `ensure` so an error mid-build can't leak the muted global
+    # into later tasks running in the same process.
+    was_verbose = ActiveRecord::Migration.verbose
+    ActiveRecord::Migration.verbose = false
+    result =
+      begin
+        RailsMermaidErd::Builder.model_data
+      ensure
+        ActiveRecord::Migration.verbose = was_verbose
+      end
+
+    # Stream the raw `erDiagram` text to stdout so it pipes into other tools
+    # (`> er.mmd`, `| mmdc -i - -o er.svg`) without writing the HTML viewer.
+    $stdout.puts RailsMermaidErd::MermaidText.build(result)
   end
 end

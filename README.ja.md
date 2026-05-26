@@ -62,6 +62,18 @@ mermaid_erd
 このファイルを共有すれば、Ruby on Rails環境が無くても使用できます。サーバーにアップロードすれば、同じURLを共有することもできます。
 CIと連携して生成から共有までを自動化するのはとても有効な手段です。
 
+### Mermaid ソースを標準出力する
+
+Rakeタスク `mermaid_erd:print` を実行すると、HTML ビューアを書き出す代わりに `erDiagram` のソースを標準出力します。他のツールへそのままパイプできます。
+
+```bash
+$ bundle exec rails mermaid_erd:print
+$ bundle exec rails mermaid_erd:print > er.mmd
+$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+```
+
+出力はすべてのテーブル・カラム・キー・コメント・リレーションを含む完全な図で、HTML ビューアの詳細表示トグルをすべて有効にした状態に相当します。
+
 ## 動作確認済みバージョン
 
 push / pull request ごとに CI で検証している Ruby × Rails の組み合わせは以下のとおりです。
