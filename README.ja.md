@@ -74,6 +74,10 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 
 出力はすべてのテーブル・カラム・キー・コメント・リレーションを含む完全な図で、HTML ビューアの詳細表示トグルをすべて有効にした状態に相当します。
 
+## 対応言語
+
+ビューア UI は 12 言語に対応しています: English / 日本語 / 简体中文 / 繁體中文 / 한국어 / Español / Français / Deutsch / Italiano / Português (Brasil) / Русский / العربية (右から左)。読み込み時にブラウザの言語(`navigator.language`)を自動判定し、未対応の言語は英語にフォールバックします。右上のセレクタから手動で切り替えることもできます。
+
 ## 動作確認済みバージョン
 
 push / pull request ごとに CI で検証している Ruby × Rails の組み合わせは以下のとおりです。

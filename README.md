@@ -76,6 +76,10 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 
 The output is the full diagram — every table, column, key, comment, and relation — equivalent to the HTML viewer with all of its detail toggles enabled.
 
+## Languages
+
+The viewer UI ships in 12 languages: English, 日本語, 简体中文, 繁體中文, 한국어, Español, Français, Deutsch, Italiano, Português (Brasil), Русский, and العربية (right-to-left). It auto-detects the browser language (`navigator.language`) on load, falls back to English for unsupported locales, and can be switched manually from the selector in the top-right corner.
+
 ## Supported versions
 
 The Ruby × Rails combinations exercised by CI on every push and pull request:

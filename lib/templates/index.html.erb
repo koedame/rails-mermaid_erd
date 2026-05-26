@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <title><%= app_name %> - Rails Mermaid ERD</title>
@@ -23,8 +23,7 @@
           </h1>
           <div class="space-x-4 inline-flex items-center">
             <select v-model="language" @change="setLanguage(language)" class="text-xs border-0 rounded py-1 pl-3 pr-8 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-600">
-              <option value="en">English</option>
-              <option value="ja">Japanese - 日本語</option>
+              <option v-for="loc in locales" :key="loc.code" :value="loc.code">{{ loc.label }}</option>
             </select>
             <a href="https://github.com/koedame/rails-mermaid_erd" class="text-white hover:text-red-200" target="_blank" rel="noopener noreferrer">
               <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -330,6 +329,20 @@
 
   <script>window.SCHEMA_DATA=<%= result.to_json %></script>
   <script>
+    window.locales = [
+      { code: 'en', label: 'English', dir: 'ltr' },
+      { code: 'ja', label: '日本語', dir: 'ltr' },
+      { code: 'zh-CN', label: '简体中文', dir: 'ltr' },
+      { code: 'zh-TW', label: '繁體中文', dir: 'ltr' },
+      { code: 'ko', label: '한국어', dir: 'ltr' },
+      { code: 'es', label: 'Español', dir: 'ltr' },
+      { code: 'fr', label: 'Français', dir: 'ltr' },
+      { code: 'de', label: 'Deutsch', dir: 'ltr' },
+      { code: 'it', label: 'Italiano', dir: 'ltr' },
+      { code: 'pt-BR', label: 'Português (Brasil)', dir: 'ltr' },
+      { code: 'ru', label: 'Русский', dir: 'ltr' },
+      { code: 'ar', label: 'العربية', dir: 'rtl' },
+    ]
     window.i18n = {
       en: {
         actions: {
@@ -441,6 +454,566 @@
           mouse_wheel: 'マウスホイール',
           pinch: 'ピンチイン/アウト',
           reset_view: 'ビューをリセット',
+        }
+      },
+      'zh-CN': {
+        actions: {
+          title: '操作',
+          reset: '重置',
+          copy_mermaid_code: '复制 Mermaid 代码',
+          copied_mermaid_code: '已复制 Mermaid 代码',
+          copy_markdown_code: '复制 Markdown 代码',
+          copied_markdown_code: '已复制 Markdown 代码',
+          copy_url: '复制分享链接',
+          copied_url: '已复制分享链接',
+          download_svg_file: '下载 SVG 文件',
+          download_png_file: '下载 PNG 文件',
+        },
+        options: {
+          title: '选项',
+          preview_relationships: '预览关系',
+          show_relationship_comment: '显示关系注释',
+          show_key: '显示键',
+          show_column_comment: '显示字段注释',
+          hide_columns: '隐藏字段',
+          snapshot_mode: '快照模式',
+          snapshot_mode_hint: '每次渲染后将图表栅格化。在 Safari 和 Firefox 上平移和缩放会快很多，但代价是无法选择文本。',
+        },
+        models: {
+          title: '模型',
+          select: '选择',
+          all: '全部',
+          none: '无',
+          filter: '筛选',
+          no_model_file: '无模型文件',
+        },
+        empty: {
+          title: '未选择模型',
+          hint: '从侧边栏选择模型以渲染 ERD。',
+        },
+        errors: {
+          render_failed: 'Mermaid 渲染当前选择失败。请查看浏览器控制台了解详情。',
+          snapshot_failed: '无法生成快照图像。回退到 SVG 渲染。',
+          download_failed: '下载失败。请查看浏览器控制台了解详情。',
+          copy_failed: '复制到剪贴板失败。浏览器要求近期的用户操作以及安全上下文。',
+          dismiss: '关闭',
+        },
+        tab: {
+          erd: 'ER 图',
+          code: '代码',
+        },
+        controls: {
+          movement: '移动',
+          zoom: '缩放',
+          space_drag: '空格 + 鼠标拖动',
+          middle_drag: '中键 + 拖动',
+          mouse_wheel: '鼠标滚轮',
+          pinch: '双指缩放',
+          reset_view: '重置视图',
+        }
+      },
+      'zh-TW': {
+        actions: {
+          title: '操作',
+          reset: '重設',
+          copy_mermaid_code: '複製 Mermaid 程式碼',
+          copied_mermaid_code: '已複製 Mermaid 程式碼',
+          copy_markdown_code: '複製 Markdown 程式碼',
+          copied_markdown_code: '已複製 Markdown 程式碼',
+          copy_url: '複製分享連結',
+          copied_url: '已複製分享連結',
+          download_svg_file: '下載 SVG 檔案',
+          download_png_file: '下載 PNG 檔案',
+        },
+        options: {
+          title: '選項',
+          preview_relationships: '預覽關聯',
+          show_relationship_comment: '顯示關聯註解',
+          show_key: '顯示鍵',
+          show_column_comment: '顯示欄位註解',
+          hide_columns: '隱藏欄位',
+          snapshot_mode: '快照模式',
+          snapshot_mode_hint: '每次算繪後將圖表點陣化。在 Safari 與 Firefox 上平移與縮放會快很多，但代價是無法選取文字。',
+        },
+        models: {
+          title: '模型',
+          select: '選擇',
+          all: '全部',
+          none: '無',
+          filter: '篩選',
+          no_model_file: '無模型檔案',
+        },
+        empty: {
+          title: '尚未選擇模型',
+          hint: '從側邊欄選擇模型以算繪 ERD。',
+        },
+        errors: {
+          render_failed: 'Mermaid 算繪目前的選擇失敗。請查看瀏覽器主控台以瞭解詳情。',
+          snapshot_failed: '無法產生快照影像。回復為 SVG 算繪。',
+          download_failed: '下載失敗。請查看瀏覽器主控台以瞭解詳情。',
+          copy_failed: '複製到剪貼簿失敗。瀏覽器需要近期的使用者操作以及安全的內容環境。',
+          dismiss: '關閉',
+        },
+        tab: {
+          erd: 'ER 圖',
+          code: '程式碼',
+        },
+        controls: {
+          movement: '移動',
+          zoom: '縮放',
+          space_drag: '空白鍵 + 滑鼠拖曳',
+          middle_drag: '中鍵 + 拖曳',
+          mouse_wheel: '滑鼠滾輪',
+          pinch: '雙指縮放',
+          reset_view: '重設檢視',
+        }
+      },
+      ko: {
+        actions: {
+          title: '작업',
+          reset: '초기화',
+          copy_mermaid_code: 'Mermaid 코드 복사',
+          copied_mermaid_code: 'Mermaid 코드 복사됨',
+          copy_markdown_code: 'Markdown 코드 복사',
+          copied_markdown_code: 'Markdown 코드 복사됨',
+          copy_url: '공유 링크 복사',
+          copied_url: '공유 링크 복사됨',
+          download_svg_file: 'SVG 파일 다운로드',
+          download_png_file: 'PNG 파일 다운로드',
+        },
+        options: {
+          title: '옵션',
+          preview_relationships: '관계 미리보기',
+          show_relationship_comment: '관계 주석 표시',
+          show_key: '키 표시',
+          show_column_comment: '컬럼 주석 표시',
+          hide_columns: '컬럼 숨기기',
+          snapshot_mode: '스냅샷 모드',
+          snapshot_mode_hint: '렌더링할 때마다 다이어그램을 래스터화합니다. Safari와 Firefox에서 이동과 확대/축소가 훨씬 빨라지지만 텍스트를 선택할 수 없게 됩니다.',
+        },
+        models: {
+          title: '모델',
+          select: '선택',
+          all: '전체',
+          none: '없음',
+          filter: '필터',
+          no_model_file: '모델 파일 없음',
+        },
+        empty: {
+          title: '선택된 모델이 없습니다',
+          hint: '사이드바에서 모델을 선택하여 ERD를 렌더링하세요.',
+        },
+        errors: {
+          render_failed: 'Mermaid가 현재 선택을 렌더링하지 못했습니다. 자세한 내용은 브라우저 콘솔을 확인하세요.',
+          snapshot_failed: '스냅샷 이미지를 생성하지 못했습니다. SVG 렌더링으로 대체합니다.',
+          download_failed: '다운로드에 실패했습니다. 자세한 내용은 브라우저 콘솔을 확인하세요.',
+          copy_failed: '클립보드 복사에 실패했습니다. 브라우저는 최근의 사용자 동작과 보안 컨텍스트를 요구합니다.',
+          dismiss: '닫기',
+        },
+        tab: {
+          erd: 'ERD',
+          code: '코드',
+        },
+        controls: {
+          movement: '이동',
+          zoom: '확대/축소',
+          space_drag: '스페이스 + 마우스 드래그',
+          middle_drag: '가운데 클릭 + 드래그',
+          mouse_wheel: '마우스 휠',
+          pinch: '핀치 확대/축소',
+          reset_view: '보기 초기화',
+        }
+      },
+      es: {
+        actions: {
+          title: 'Acciones',
+          reset: 'Restablecer',
+          copy_mermaid_code: 'Copiar código Mermaid',
+          copied_mermaid_code: 'Código Mermaid copiado',
+          copy_markdown_code: 'Copiar código Markdown',
+          copied_markdown_code: 'Código Markdown copiado',
+          copy_url: 'Copiar enlace para compartir',
+          copied_url: 'Enlace para compartir copiado',
+          download_svg_file: 'Descargar archivo SVG',
+          download_png_file: 'Descargar archivo PNG',
+        },
+        options: {
+          title: 'Opciones',
+          preview_relationships: 'Previsualizar relaciones',
+          show_relationship_comment: 'Mostrar comentario de la relación',
+          show_key: 'Mostrar clave',
+          show_column_comment: 'Mostrar comentario de la columna',
+          hide_columns: 'Ocultar columnas',
+          snapshot_mode: 'Modo instantánea',
+          snapshot_mode_hint: 'Rasteriza el diagrama después de cada renderizado. El desplazamiento y el zoom son mucho más rápidos en Safari y Firefox, a costa de no poder seleccionar texto.',
+        },
+        models: {
+          title: 'Modelos',
+          select: 'Seleccionar',
+          all: 'Todos',
+          none: 'Ninguno',
+          filter: 'Filtrar',
+          no_model_file: 'Sin archivo de modelo',
+        },
+        empty: {
+          title: 'Ningún modelo seleccionado',
+          hint: 'Elige modelos en la barra lateral para renderizar el ERD.',
+        },
+        errors: {
+          render_failed: 'Mermaid no pudo renderizar la selección actual. Revisa la consola del navegador para más detalles.',
+          snapshot_failed: 'No se pudo generar la imagen de la instantánea. Volviendo al renderizado SVG.',
+          download_failed: 'La descarga falló. Revisa la consola del navegador para más detalles.',
+          copy_failed: 'No se pudo copiar al portapapeles. Los navegadores requieren una acción reciente del usuario y un contexto seguro.',
+          dismiss: 'Descartar',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'Código',
+        },
+        controls: {
+          movement: 'Movimiento',
+          zoom: 'Zoom',
+          space_drag: 'Espacio + arrastrar con el ratón',
+          middle_drag: 'Clic central + arrastrar',
+          mouse_wheel: 'Rueda del ratón',
+          pinch: 'Pellizcar para acercar/alejar',
+          reset_view: 'Restablecer vista',
+        }
+      },
+      fr: {
+        actions: {
+          title: 'Actions',
+          reset: 'Réinitialiser',
+          copy_mermaid_code: 'Copier le code Mermaid',
+          copied_mermaid_code: 'Code Mermaid copié',
+          copy_markdown_code: 'Copier le code Markdown',
+          copied_markdown_code: 'Code Markdown copié',
+          copy_url: 'Copier le lien de partage',
+          copied_url: 'Lien de partage copié',
+          download_svg_file: 'Télécharger le fichier SVG',
+          download_png_file: 'Télécharger le fichier PNG',
+        },
+        options: {
+          title: 'Options',
+          preview_relationships: 'Aperçu des relations',
+          show_relationship_comment: 'Afficher le commentaire de la relation',
+          show_key: 'Afficher la clé',
+          show_column_comment: 'Afficher le commentaire de la colonne',
+          hide_columns: 'Masquer les colonnes',
+          snapshot_mode: 'Mode instantané',
+          snapshot_mode_hint: 'Pixellise le diagramme après chaque rendu. Le déplacement et le zoom deviennent beaucoup plus rapides sur Safari et Firefox, au prix de la sélection du texte.',
+        },
+        models: {
+          title: 'Modèles',
+          select: 'Sélectionner',
+          all: 'Tous',
+          none: 'Aucun',
+          filter: 'Filtrer',
+          no_model_file: 'Aucun fichier de modèle',
+        },
+        empty: {
+          title: 'Aucun modèle sélectionné',
+          hint: 'Sélectionnez des modèles dans la barre latérale pour afficher l\'ERD.',
+        },
+        errors: {
+          render_failed: 'Mermaid n\'a pas pu afficher la sélection actuelle. Consultez la console du navigateur pour plus de détails.',
+          snapshot_failed: 'Impossible de générer l\'image instantanée. Retour au rendu SVG.',
+          download_failed: 'Le téléchargement a échoué. Consultez la console du navigateur pour plus de détails.',
+          copy_failed: 'La copie dans le presse-papiers a échoué. Les navigateurs exigent une action utilisateur récente et un contexte sécurisé.',
+          dismiss: 'Fermer',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'Code',
+        },
+        controls: {
+          movement: 'Déplacement',
+          zoom: 'Zoom',
+          space_drag: 'Espace + glisser avec la souris',
+          middle_drag: 'Clic du milieu + glisser',
+          mouse_wheel: 'Molette de la souris',
+          pinch: 'Pincer pour zoomer',
+          reset_view: 'Réinitialiser la vue',
+        }
+      },
+      de: {
+        actions: {
+          title: 'Aktionen',
+          reset: 'Zurücksetzen',
+          copy_mermaid_code: 'Mermaid-Code kopieren',
+          copied_mermaid_code: 'Mermaid-Code kopiert',
+          copy_markdown_code: 'Markdown-Code kopieren',
+          copied_markdown_code: 'Markdown-Code kopiert',
+          copy_url: 'Freigabelink kopieren',
+          copied_url: 'Freigabelink kopiert',
+          download_svg_file: 'SVG-Datei herunterladen',
+          download_png_file: 'PNG-Datei herunterladen',
+        },
+        options: {
+          title: 'Optionen',
+          preview_relationships: 'Beziehungen vorschauen',
+          show_relationship_comment: 'Beziehungskommentar anzeigen',
+          show_key: 'Schlüssel anzeigen',
+          show_column_comment: 'Spaltenkommentar anzeigen',
+          hide_columns: 'Spalten ausblenden',
+          snapshot_mode: 'Schnappschussmodus',
+          snapshot_mode_hint: 'Rastert das Diagramm nach jedem Rendern. Verschieben und Zoomen werden in Safari und Firefox deutlich schneller, allerdings auf Kosten der Textauswahl.',
+        },
+        models: {
+          title: 'Modelle',
+          select: 'Auswählen',
+          all: 'Alle',
+          none: 'Keine',
+          filter: 'Filtern',
+          no_model_file: 'Keine Modelldatei',
+        },
+        empty: {
+          title: 'Keine Modelle ausgewählt',
+          hint: 'Wählen Sie Modelle in der Seitenleiste aus, um das ERD darzustellen.',
+        },
+        errors: {
+          render_failed: 'Mermaid konnte die aktuelle Auswahl nicht darstellen. Details finden Sie in der Browser-Konsole.',
+          snapshot_failed: 'Das Schnappschussbild konnte nicht erstellt werden. Es wird auf die SVG-Darstellung zurückgegriffen.',
+          download_failed: 'Download fehlgeschlagen. Details finden Sie in der Browser-Konsole.',
+          copy_failed: 'Kopieren in die Zwischenablage fehlgeschlagen. Browser erfordern eine kürzliche Nutzeraktion und einen sicheren Kontext.',
+          dismiss: 'Schließen',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'Code',
+        },
+        controls: {
+          movement: 'Bewegung',
+          zoom: 'Zoom',
+          space_drag: 'Leertaste + Maus ziehen',
+          middle_drag: 'Mittelklick + Ziehen',
+          mouse_wheel: 'Mausrad',
+          pinch: 'Zwei-Finger-Zoom',
+          reset_view: 'Ansicht zurücksetzen',
+        }
+      },
+      it: {
+        actions: {
+          title: 'Azioni',
+          reset: 'Reimposta',
+          copy_mermaid_code: 'Copia codice Mermaid',
+          copied_mermaid_code: 'Codice Mermaid copiato',
+          copy_markdown_code: 'Copia codice Markdown',
+          copied_markdown_code: 'Codice Markdown copiato',
+          copy_url: 'Copia link di condivisione',
+          copied_url: 'Link di condivisione copiato',
+          download_svg_file: 'Scarica file SVG',
+          download_png_file: 'Scarica file PNG',
+        },
+        options: {
+          title: 'Opzioni',
+          preview_relationships: 'Anteprima relazioni',
+          show_relationship_comment: 'Mostra commento della relazione',
+          show_key: 'Mostra chiave',
+          show_column_comment: 'Mostra commento della colonna',
+          hide_columns: 'Nascondi colonne',
+          snapshot_mode: 'Modalità istantanea',
+          snapshot_mode_hint: 'Rasterizza il diagramma dopo ogni rendering. Lo spostamento e lo zoom diventano molto più veloci su Safari e Firefox, a scapito della selezione del testo.',
+        },
+        models: {
+          title: 'Modelli',
+          select: 'Seleziona',
+          all: 'Tutti',
+          none: 'Nessuno',
+          filter: 'Filtra',
+          no_model_file: 'Nessun file di modello',
+        },
+        empty: {
+          title: 'Nessun modello selezionato',
+          hint: 'Seleziona i modelli dalla barra laterale per visualizzare l\'ERD.',
+        },
+        errors: {
+          render_failed: 'Mermaid non è riuscito a visualizzare la selezione corrente. Controlla la console del browser per i dettagli.',
+          snapshot_failed: 'Impossibile generare l\'immagine istantanea. Ritorno al rendering SVG.',
+          download_failed: 'Download non riuscito. Controlla la console del browser per i dettagli.',
+          copy_failed: 'Copia negli appunti non riuscita. I browser richiedono un\'azione utente recente e un contesto sicuro.',
+          dismiss: 'Chiudi',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'Codice',
+        },
+        controls: {
+          movement: 'Movimento',
+          zoom: 'Zoom',
+          space_drag: 'Spazio + trascina con il mouse',
+          middle_drag: 'Clic centrale + trascina',
+          mouse_wheel: 'Rotellina del mouse',
+          pinch: 'Pizzica per zoomare',
+          reset_view: 'Reimposta vista',
+        }
+      },
+      'pt-BR': {
+        actions: {
+          title: 'Ações',
+          reset: 'Redefinir',
+          copy_mermaid_code: 'Copiar código Mermaid',
+          copied_mermaid_code: 'Código Mermaid copiado',
+          copy_markdown_code: 'Copiar código Markdown',
+          copied_markdown_code: 'Código Markdown copiado',
+          copy_url: 'Copiar link de compartilhamento',
+          copied_url: 'Link de compartilhamento copiado',
+          download_svg_file: 'Baixar arquivo SVG',
+          download_png_file: 'Baixar arquivo PNG',
+        },
+        options: {
+          title: 'Opções',
+          preview_relationships: 'Pré-visualizar relacionamentos',
+          show_relationship_comment: 'Mostrar comentário do relacionamento',
+          show_key: 'Mostrar chave',
+          show_column_comment: 'Mostrar comentário da coluna',
+          hide_columns: 'Ocultar colunas',
+          snapshot_mode: 'Modo instantâneo',
+          snapshot_mode_hint: 'Rasteriza o diagrama após cada renderização. Mover e dar zoom ficam muito mais rápidos no Safari e no Firefox, ao custo da seleção de texto.',
+        },
+        models: {
+          title: 'Modelos',
+          select: 'Selecionar',
+          all: 'Todos',
+          none: 'Nenhum',
+          filter: 'Filtrar',
+          no_model_file: 'Sem arquivo de modelo',
+        },
+        empty: {
+          title: 'Nenhum modelo selecionado',
+          hint: 'Escolha modelos na barra lateral para renderizar o ERD.',
+        },
+        errors: {
+          render_failed: 'O Mermaid não conseguiu renderizar a seleção atual. Verifique o console do navegador para mais detalhes.',
+          snapshot_failed: 'Não foi possível gerar a imagem do instantâneo. Voltando à renderização SVG.',
+          download_failed: 'Falha no download. Verifique o console do navegador para mais detalhes.',
+          copy_failed: 'Falha ao copiar para a área de transferência. Os navegadores exigem uma ação recente do usuário e um contexto seguro.',
+          dismiss: 'Dispensar',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'Código',
+        },
+        controls: {
+          movement: 'Movimento',
+          zoom: 'Zoom',
+          space_drag: 'Espaço + arrastar com o mouse',
+          middle_drag: 'Clique do meio + arrastar',
+          mouse_wheel: 'Roda do mouse',
+          pinch: 'Pinçar para ampliar/reduzir',
+          reset_view: 'Redefinir visualização',
+        }
+      },
+      ru: {
+        actions: {
+          title: 'Действия',
+          reset: 'Сбросить',
+          copy_mermaid_code: 'Копировать код Mermaid',
+          copied_mermaid_code: 'Код Mermaid скопирован',
+          copy_markdown_code: 'Копировать код Markdown',
+          copied_markdown_code: 'Код Markdown скопирован',
+          copy_url: 'Копировать ссылку для обмена',
+          copied_url: 'Ссылка для обмена скопирована',
+          download_svg_file: 'Скачать файл SVG',
+          download_png_file: 'Скачать файл PNG',
+        },
+        options: {
+          title: 'Параметры',
+          preview_relationships: 'Предпросмотр связей',
+          show_relationship_comment: 'Показать комментарий связи',
+          show_key: 'Показать ключ',
+          show_column_comment: 'Показать комментарий столбца',
+          hide_columns: 'Скрыть столбцы',
+          snapshot_mode: 'Режим снимка',
+          snapshot_mode_hint: 'Растрировать диаграмму после каждой отрисовки. Панорамирование и масштабирование становятся намного быстрее в Safari и Firefox, но текст нельзя будет выделить.',
+        },
+        models: {
+          title: 'Модели',
+          select: 'Выбрать',
+          all: 'Все',
+          none: 'Нет',
+          filter: 'Фильтр',
+          no_model_file: 'Нет файла модели',
+        },
+        empty: {
+          title: 'Модели не выбраны',
+          hint: 'Выберите модели на боковой панели, чтобы отобразить ERD.',
+        },
+        errors: {
+          render_failed: 'Mermaid не удалось отобразить текущий выбор. Подробности смотрите в консоли браузера.',
+          snapshot_failed: 'Не удалось создать изображение снимка. Возврат к отрисовке SVG.',
+          download_failed: 'Не удалось скачать. Подробности смотрите в консоли браузера.',
+          copy_failed: 'Не удалось скопировать в буфер обмена. Браузеры требуют недавнего действия пользователя и безопасного контекста.',
+          dismiss: 'Закрыть',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'Код',
+        },
+        controls: {
+          movement: 'Перемещение',
+          zoom: 'Масштаб',
+          space_drag: 'Пробел + перетаскивание мышью',
+          middle_drag: 'Средняя кнопка + перетаскивание',
+          mouse_wheel: 'Колесо мыши',
+          pinch: 'Щипок для масштабирования',
+          reset_view: 'Сбросить вид',
+        }
+      },
+      ar: {
+        actions: {
+          title: 'الإجراءات',
+          reset: 'إعادة تعيين',
+          copy_mermaid_code: 'نسخ كود Mermaid',
+          copied_mermaid_code: 'تم نسخ كود Mermaid',
+          copy_markdown_code: 'نسخ كود Markdown',
+          copied_markdown_code: 'تم نسخ كود Markdown',
+          copy_url: 'نسخ رابط المشاركة',
+          copied_url: 'تم نسخ رابط المشاركة',
+          download_svg_file: 'تنزيل ملف SVG',
+          download_png_file: 'تنزيل ملف PNG',
+        },
+        options: {
+          title: 'الخيارات',
+          preview_relationships: 'معاينة العلاقات',
+          show_relationship_comment: 'إظهار تعليق العلاقة',
+          show_key: 'إظهار المفتاح',
+          show_column_comment: 'إظهار تعليق العمود',
+          hide_columns: 'إخفاء الأعمدة',
+          snapshot_mode: 'وضع اللقطة',
+          snapshot_mode_hint: 'تحويل المخطط إلى صورة نقطية بعد كل عرض. يصبح التحريك والتكبير أسرع بكثير في Safari وFirefox، لكن على حساب إمكانية تحديد النص.',
+        },
+        models: {
+          title: 'النماذج',
+          select: 'تحديد',
+          all: 'الكل',
+          none: 'لا شيء',
+          filter: 'تصفية',
+          no_model_file: 'لا يوجد ملف نموذج',
+        },
+        empty: {
+          title: 'لم يتم تحديد أي نموذج',
+          hint: 'اختر النماذج من الشريط الجانبي لعرض المخطط (ERD).',
+        },
+        errors: {
+          render_failed: 'فشل Mermaid في عرض التحديد الحالي. تحقق من وحدة تحكم المتصفح لمزيد من التفاصيل.',
+          snapshot_failed: 'تعذّر إنشاء صورة اللقطة. سيتم الرجوع إلى عرض SVG.',
+          download_failed: 'فشل التنزيل. تحقق من وحدة تحكم المتصفح لمزيد من التفاصيل.',
+          copy_failed: 'فشل النسخ إلى الحافظة. تتطلب المتصفحات إجراءً حديثًا من المستخدم وسياقًا آمنًا.',
+          dismiss: 'إغلاق',
+        },
+        tab: {
+          erd: 'ERD',
+          code: 'الكود',
+        },
+        controls: {
+          movement: 'الحركة',
+          zoom: 'التكبير',
+          space_drag: 'المسافة + سحب الماوس',
+          middle_drag: 'النقر الأوسط + السحب',
+          mouse_wheel: 'عجلة الماوس',
+          pinch: 'القرص للتكبير/التصغير',
+          reset_view: 'إعادة تعيين العرض',
         }
       }
     }
@@ -1213,14 +1786,25 @@
           if (virtualListContainer.value) virtualListContainer.value.scrollTop = 0
         })
 
+        const resolveLocale = (raw) => {
+          if (!raw) return 'en'
+          const codes = window.locales.map((l) => l.code)
+          const exact = codes.find((c) => c.toLowerCase() === raw.toLowerCase())
+          if (exact) return exact
+          const base = raw.toLowerCase().split('-')[0]
+          // zh is the only language that ships two variants, so route it by script/region;
+          // every other region variant (fr-FR, pt-PT, ...) falls back to its base language.
+          if (base === 'zh') return /hant|tw|hk|mo/.test(raw.toLowerCase()) ? 'zh-TW' : 'zh-CN'
+          const baseMatch = codes.find((c) => c.toLowerCase().split('-')[0] === base)
+          return baseMatch || 'en'
+        }
+
         const setLanguage = (l) => {
-          if (Object.keys(window.i18n).includes(l)) {
-            language.value = l
-            document.documentElement.lang = l
-          } else {
-            language.value = 'en'
-            document.documentElement.lang = 'en'
-          }
+          const resolved = resolveLocale(l)
+          language.value = resolved
+          const meta = window.locales.find((x) => x.code === resolved)
+          document.documentElement.lang = resolved
+          document.documentElement.dir = (meta && meta.dir) || 'ltr'
         }
 
         Vue.onMounted(() => {
@@ -1275,6 +1859,7 @@
           isEmptySelection,
           renderError,
           language,
+          locales: window.locales,
           mermaidErd,
           onChange,
           onCopyMarkdown,
