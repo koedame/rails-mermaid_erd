@@ -807,6 +807,14 @@
         const onCopyUrl = () => clipboardWrite(location.href, isCopiedUrl)
 
         const mermaidErd = Vue.computed(() => {
+          // Comment metadata is arbitrary DB text. A newline would split a
+          // label or terminate a `%%` line mid-diagram, and a literal `"`
+          // closes a quoted label early — so collapse newlines to a space and
+          // escape `"` as Mermaid's `#quot;` entity. Kept in lockstep with the
+          // Ruby renderer (lib/rails-mermaid_erd/mermaid_text.rb).
+          const oneLine = (v) => String(v ?? '').replace(/[\r\n]+/g, ' ')
+          const quoted = (v) => `"${oneLine(v).replace(/"/g, '#quot;')}"`
+
           const lines = []
           lines.push('erDiagram')
           lines.push('    %% --------------------------------------------------------')
@@ -817,13 +825,13 @@
           lines.push('')
 
           filteredData.value.Models.forEach(model => {
-            lines.push(`    %% table name: ${model.TableName}`)
-            lines.push(`    %% table comment: ${model.TableComment}`)
+            lines.push(`    %% table name: ${oneLine(model.TableName)}`)
+            lines.push(`    %% table comment: ${oneLine(model.TableComment)}`)
             lines.push(`    ${model.ModelName.replace(/:/g, '-')} {`)
 
             if (!isHideColumns.value) {
               model.Columns.forEach(column => {
-                lines.push(`        ${column.type} ${column.name} ${isShowKey.value ? column.key : ''} ${isShowComment.value ? `"${column.comment || ''}"` : ''}`)
+                lines.push(`        ${column.type} ${column.name} ${isShowKey.value ? column.key : ''} ${isShowComment.value ? quoted(column.comment) : ''}`)
               })
             }
 
@@ -833,7 +841,7 @@
 
           filteredData.value.Relations.forEach(relation => {
             if (isShowRelationComment.value) {
-              lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : "${relation.Comment}"`)
+              lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : ${quoted(relation.Comment)}`)
             } else {
               lines.push(`    ${relation.LeftModelName.replace(/:/g, '-')} ${relation.LeftValue}${relation.Line}${relation.RightValue} ${relation.RightModelName.replace(/:/g, '-')} : ""`)
             }

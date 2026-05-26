@@ -64,6 +64,18 @@ If you share this file, it can be used by those who do not have a Ruby on Rails 
 
 It would be very smart to generate it automatically using CI.
 
+### Print the Mermaid source to stdout
+
+Run rake task `mermaid_erd:print` to print the raw `erDiagram` source to stdout instead of writing the HTML viewer. This pipes cleanly into other tools:
+
+```bash
+$ bundle exec rails mermaid_erd:print
+$ bundle exec rails mermaid_erd:print > er.mmd
+$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+```
+
+The output is the full diagram — every table, column, key, comment, and relation — equivalent to the HTML viewer with all of its detail toggles enabled.
+
 ## Supported versions
 
 The Ruby × Rails combinations exercised by CI on every push and pull request:
