@@ -122,6 +122,73 @@ describe "rake mermaid_erd" do
       expect(generated_html).to include("Mermaid の描画に失敗しました")
     end
 
+    # Every supported locale must carry a full translation block. A missing
+    # locale would make i18n[language][...] return undefined at runtime, so we
+    # assert one signature string (the empty-selection title) per locale to
+    # catch a dropped or garbled block.
+    it "ships the empty-selection title for every supported locale" do
+      {
+        "en" => "No models selected",
+        "ja" => "モデルが選択されていません",
+        "zh-CN" => "未选择模型",
+        "zh-TW" => "尚未選擇模型",
+        "ko" => "선택된 모델이 없습니다",
+        "es" => "Ningún modelo seleccionado",
+        "fr" => "Aucun modèle sélectionné",
+        "de" => "Keine Modelle ausgewählt",
+        "it" => "Nessun modello selezionato",
+        "pt-BR" => "Nenhum modelo selecionado",
+        "ru" => "Модели не выбраны",
+        "ar" => "لم يتم تحديد أي نموذج"
+      }.each do |locale, title|
+        expect(generated_html).to include(title), "missing empty-selection title for #{locale}"
+      end
+    end
+
+    # The language selector is generated from window.locales, which also drives
+    # the document `dir` switch. Confirm the metadata ships every code and that
+    # Arabic is flagged right-to-left.
+    it "registers every locale in the selector metadata with the Arabic RTL flag" do
+      %w[en ja zh-CN zh-TW ko es fr de it pt-BR ru ar].each do |code|
+        expect(generated_html).to include("{ code: '#{code}'"), "missing locale metadata for #{code}"
+      end
+      expect(generated_html).to include("code: 'ar', label: 'العربية', dir: 'rtl'")
+    end
+
+    # The viewer reads every string as i18n[language][section][key] — a chained
+    # bracket access that silently yields the literal "undefined" if any key is
+    # missing from a locale. The per-locale title check above only proves one
+    # key exists; this locks the real invariant: every locale carries exactly
+    # the same key structure as en, and window.locales stays in sync with
+    # window.i18n so no selectable locale can resolve to an absent block.
+    it "ships an identical i18n key structure for every supported locale" do
+      block = generated_html[/window\.i18n = \{\n(.*?)\n    \}\n  <\/script>/m, 1]
+      expect(block).not_to be_nil, "could not locate the window.i18n block"
+
+      locales = {}
+      block.split(/\n      (?=(?:'[\w-]+'|[a-z]{2}): \{)/).each do |segment|
+        code = segment[/\A\s*('?[\w-]+'?): \{/, 1]&.delete("'")
+        next unless code
+        locales[code] = segment.scan(/^\s{8}(\w+): \{(.*?)\n\s{8}\}/m).flat_map do |section, body|
+          body.scan(/^\s{10}(\w+):/).flatten.map { |key| "#{section}.#{key}" }
+        end.sort
+      end
+
+      expect(locales.keys).to match_array(%w[en ja zh-CN zh-TW ko es fr de it pt-BR ru ar])
+
+      # window.locales codes must match the i18n locale keys exactly, otherwise a
+      # selectable code could key into a non-existent block.
+      metadata_codes = generated_html.scan(/\{ code: '([\w-]+)'/).flatten
+      expect(metadata_codes).to match_array(locales.keys)
+
+      en_paths = locales.fetch("en")
+      expect(en_paths).not_to be_empty
+      locales.each do |code, paths|
+        expect(paths).to eq(en_paths),
+          "locale '#{code}' i18n keys differ from en (missing: #{(en_paths - paths).inspect}, extra: #{(paths - en_paths).inspect})"
+      end
+    end
+
     # I/O errors from FileUtils / File.write used to bubble up as raw
     # `Errno::EACCES` / `Errno::ENOSPC`, which left the user guessing which
     # config key controlled the path. Confirm the rescue re-raises with the
