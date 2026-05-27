@@ -44,7 +44,12 @@ HASH=$(ruby /workspace/script/release_screenshot_hash.rb /workspace/spec/dummy/m
 # --virtual-time-budget advances Chromium's virtual clock then snapshots; it is
 # not a render barrier on Mermaid's async render(). 10s is generous for the
 # dummy schema; bump if you ever point this at a much larger app.
+# --lang/--accept-lang pin the locale to English. The viewer resolves its UI
+# language from navigator.language, so without this the screenshot follows
+# Chromium's ambient locale and the canonical demo can render in a non-English
+# (even RTL) UI depending on the host environment.
 chromium-browser --headless --disable-gpu --no-sandbox \
+  --lang=en-US --accept-lang=en-US \
   --window-size=1280,800 --hide-scrollbars \
   --virtual-time-budget=10000 \
   --screenshot="/workspace/docs/screen_shot.png" \
