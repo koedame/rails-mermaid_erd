@@ -1,5 +1,6 @@
 require "spec_helper"
 require "rake"
+require "stringio"
 
 describe "rake mermaid_erd" do
   let(:output_path) { Rails.root.join("mermaid_erd/index.html") }
@@ -40,6 +41,16 @@ describe "rake mermaid_erd" do
     expect(generated_html).to include("__esbuild_esm_mermaid_nm") # Mermaid 11.x bundle marker
     expect(generated_html).to include('globalThis["mermaid"]')    # Mermaid exposes itself globally
     expect(generated_html).to match(/var Vue\s*=/)                # Vue 3 global build
+  end
+
+  # The front-end diagram builder must sanitise comment metadata the same way
+  # the Ruby renderer (MermaidText) does, so a column/table comment containing
+  # a `"` or a newline can't break the rendered diagram or the copied source.
+  # Asserted at the source level (the JS runs in the browser), matching how the
+  # other front-end behaviours in this file are pinned.
+  it "escapes quotes and collapses newlines in the diagram source it builds" do
+    expect(generated_html).to include("replace(/[\\r\\n]+/g, ' ')")
+    expect(generated_html).to include("replace(/\"/g, '#quot;')")
   end
 
   # Issue #169 — performance contract for large schemas:
@@ -111,6 +122,73 @@ describe "rake mermaid_erd" do
       expect(generated_html).to include("Mermaid の描画に失敗しました")
     end
 
+    # Every supported locale must carry a full translation block. A missing
+    # locale would make i18n[language][...] return undefined at runtime, so we
+    # assert one signature string (the empty-selection title) per locale to
+    # catch a dropped or garbled block.
+    it "ships the empty-selection title for every supported locale" do
+      {
+        "en" => "No models selected",
+        "ja" => "モデルが選択されていません",
+        "zh-CN" => "未选择模型",
+        "zh-TW" => "尚未選擇模型",
+        "ko" => "선택된 모델이 없습니다",
+        "es" => "Ningún modelo seleccionado",
+        "fr" => "Aucun modèle sélectionné",
+        "de" => "Keine Modelle ausgewählt",
+        "it" => "Nessun modello selezionato",
+        "pt-BR" => "Nenhum modelo selecionado",
+        "ru" => "Модели не выбраны",
+        "ar" => "لم يتم تحديد أي نموذج"
+      }.each do |locale, title|
+        expect(generated_html).to include(title), "missing empty-selection title for #{locale}"
+      end
+    end
+
+    # The language selector is generated from window.locales, which also drives
+    # the document `dir` switch. Confirm the metadata ships every code and that
+    # Arabic is flagged right-to-left.
+    it "registers every locale in the selector metadata with the Arabic RTL flag" do
+      %w[en ja zh-CN zh-TW ko es fr de it pt-BR ru ar].each do |code|
+        expect(generated_html).to include("{ code: '#{code}'"), "missing locale metadata for #{code}"
+      end
+      expect(generated_html).to include("code: 'ar', label: 'العربية', dir: 'rtl'")
+    end
+
+    # The viewer reads every string as i18n[language][section][key] — a chained
+    # bracket access that silently yields the literal "undefined" if any key is
+    # missing from a locale. The per-locale title check above only proves one
+    # key exists; this locks the real invariant: every locale carries exactly
+    # the same key structure as en, and window.locales stays in sync with
+    # window.i18n so no selectable locale can resolve to an absent block.
+    it "ships an identical i18n key structure for every supported locale" do
+      block = generated_html[/window\.i18n = \{\n(.*?)\n    \}\n  <\/script>/m, 1]
+      expect(block).not_to be_nil, "could not locate the window.i18n block"
+
+      locales = {}
+      block.split(/\n      (?=(?:'[\w-]+'|[a-z]{2}): \{)/).each do |segment|
+        code = segment[/\A\s*('?[\w-]+'?): \{/, 1]&.delete("'")
+        next unless code
+        locales[code] = segment.scan(/^\s{8}(\w+): \{(.*?)\n\s{8}\}/m).flat_map do |section, body|
+          body.scan(/^\s{10}(\w+):/).flatten.map { |key| "#{section}.#{key}" }
+        end.sort
+      end
+
+      expect(locales.keys).to match_array(%w[en ja zh-CN zh-TW ko es fr de it pt-BR ru ar])
+
+      # window.locales codes must match the i18n locale keys exactly, otherwise a
+      # selectable code could key into a non-existent block.
+      metadata_codes = generated_html.scan(/\{ code: '([\w-]+)'/).flatten
+      expect(metadata_codes).to match_array(locales.keys)
+
+      en_paths = locales.fetch("en")
+      expect(en_paths).not_to be_empty
+      locales.each do |code, paths|
+        expect(paths).to eq(en_paths),
+          "locale '#{code}' i18n keys differ from en (missing: #{(en_paths - paths).inspect}, extra: #{(paths - en_paths).inspect})"
+      end
+    end
+
     # I/O errors from FileUtils / File.write used to bubble up as raw
     # `Errno::EACCES` / `Errno::ENOSPC`, which left the user guessing which
     # config key controlled the path. Confirm the rescue re-raises with the
@@ -163,5 +241,67 @@ describe "rake mermaid_erd" do
     expect(JSON.parse(payload)).to eq(JSON.parse(hostile.to_json))
   ensure
     FileUtils.rm_f(tmp_path) if tmp_path
+  end
+end
+
+describe "rake mermaid_erd:print" do
+  before(:all) do
+    Rake::Task.define_task(:environment) unless Rake::Task.task_defined?(:environment)
+    Rails.application.load_tasks unless Rake::Task.task_defined?("mermaid_erd:print")
+  end
+
+  def run_print_task
+    original = $stdout
+    $stdout = StringIO.new
+    Rake::Task["mermaid_erd:print"].reenable
+    Rake::Task["mermaid_erd:print"].invoke
+    $stdout.string
+  ensure
+    $stdout = original
+  end
+
+  it "prints the Mermaid erDiagram source for the dummy app to stdout" do
+    output = run_print_task
+
+    expect(output).to start_with("erDiagram\n")
+    expect(output).to include('%% Generated by "Rails Mermaid ERD"')
+    # The dummy app has an audit_logs table with an id PK — a stable anchor
+    # that the model_data spec already pins.
+    expect(output).to include("    AuditLog {")
+    expect(output).to match(/^\s+integer id PK ""$/)
+  end
+
+  # The whole point of the task is a clean pipe: stdout must carry the diagram
+  # and nothing else — no HTML viewer, and none of the migration-style logging
+  # that Builder's schema introspection emits (which the task mutes). If the
+  # mute regressed, the `foreign_keys(...)` log lines would land in `output`
+  # and both the equality and the marker assertion would fail.
+  it "emits only the diagram text, with no HTML or migration logging" do
+    output = run_print_task
+    diagram = RailsMermaidErd::MermaidText.build(RailsMermaidErd::Builder.model_data)
+
+    # The task is `$stdout.puts diagram`, so output is the diagram with exactly
+    # one trailing newline — asserted without depending on whether `build`
+    # already ends in one (it does not when relations are present, does when
+    # they are not).
+    expect(output.chomp).to eq(diagram.chomp)
+    expect(output).to end_with("\n")
+    expect(output).not_to include("<html")
+    expect(output).not_to include("SCHEMA_DATA")
+    expect(output).not_to include("foreign_keys(")
+  end
+
+  # Muting migration logging flips a process-global; a failure mid-build must
+  # not leak the muted state into later tasks in the same process.
+  it "restores ActiveRecord::Migration.verbose even when model_data raises" do
+    saved = ActiveRecord::Migration.verbose
+    ActiveRecord::Migration.verbose = true
+    allow(RailsMermaidErd::Builder).to receive(:model_data).and_raise(RuntimeError, "boom")
+
+    Rake::Task["mermaid_erd:print"].reenable
+    expect { Rake::Task["mermaid_erd:print"].invoke }.to raise_error(/boom/)
+    expect(ActiveRecord::Migration.verbose).to be(true)
+  ensure
+    ActiveRecord::Migration.verbose = saved
   end
 end

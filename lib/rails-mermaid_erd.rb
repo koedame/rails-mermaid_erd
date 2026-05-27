@@ -8,6 +8,7 @@ module RailsMermaidErd
   # means "when the rake task runs."
   autoload :Builder, "rails-mermaid_erd/builder"
   autoload :Configuration, "rails-mermaid_erd/configuration"
+  autoload :MermaidText, "rails-mermaid_erd/mermaid_text"
 
   class << self
     def configuration

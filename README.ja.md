@@ -1,4 +1,6 @@
-[English](./README.md) | [日本語](./README.ja.md)
+[English](./README.md) | [日本語](./README.ja.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [한국어](./README.ko.md) | [Español](./README.es.md) | [Français](./README.fr.md) | [Deutsch](./README.de.md) | [Italiano](./README.it.md) | [Português (Brasil)](./README.pt-BR.md) | [Русский](./README.ru.md) | [العربية](./README.ar.md)
+
+> これは [英語版 README](./README.md) の翻訳です。内容に差異がある場合は英語版が正です。
 
 # Rails Mermaid ERD
 
@@ -61,6 +63,22 @@ mermaid_erd
 
 このファイルを共有すれば、Ruby on Rails環境が無くても使用できます。サーバーにアップロードすれば、同じURLを共有することもできます。
 CIと連携して生成から共有までを自動化するのはとても有効な手段です。
+
+### Mermaid ソースを標準出力する
+
+Rakeタスク `mermaid_erd:print` を実行すると、HTML ビューアを書き出す代わりに `erDiagram` のソースを標準出力します。他のツールへそのままパイプできます。
+
+```bash
+$ bundle exec rails mermaid_erd:print
+$ bundle exec rails mermaid_erd:print > er.mmd
+$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+```
+
+出力はすべてのテーブル・カラム・キー・コメント・リレーションを含む完全な図で、HTML ビューアの詳細表示トグルをすべて有効にした状態に相当します。
+
+## 対応言語
+
+ビューア UI は 12 言語に対応しています: English / 日本語 / 简体中文 / 繁體中文 / 한국어 / Español / Français / Deutsch / Italiano / Português (Brasil) / Русский / العربية (右から左)。読み込み時にブラウザの言語(`navigator.language`)を自動判定し、未対応の言語は英語にフォールバックします。右上のセレクタから手動で切り替えることもできます。
 
 ## 動作確認済みバージョン
 

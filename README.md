@@ -1,4 +1,4 @@
-[English](./README.md) | [日本語](./README.ja.md)
+[English](./README.md) | [日本語](./README.ja.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [한국어](./README.ko.md) | [Español](./README.es.md) | [Français](./README.fr.md) | [Deutsch](./README.de.md) | [Italiano](./README.it.md) | [Português (Brasil)](./README.pt-BR.md) | [Русский](./README.ru.md) | [العربية](./README.ar.md)
 
 # Rails Mermaid ERD
 
@@ -63,6 +63,22 @@ mermaid_erd
 If you share this file, it can be used by those who do not have a Ruby on Rails environment. Or, you can upload the file to a web server and share it with the same URL.
 
 It would be very smart to generate it automatically using CI.
+
+### Print the Mermaid source to stdout
+
+Run rake task `mermaid_erd:print` to print the raw `erDiagram` source to stdout instead of writing the HTML viewer. This pipes cleanly into other tools:
+
+```bash
+$ bundle exec rails mermaid_erd:print
+$ bundle exec rails mermaid_erd:print > er.mmd
+$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+```
+
+The output is the full diagram — every table, column, key, comment, and relation — equivalent to the HTML viewer with all of its detail toggles enabled.
+
+## Languages
+
+The viewer UI ships in 12 languages: English, 日本語, 简体中文, 繁體中文, 한국어, Español, Français, Deutsch, Italiano, Português (Brasil), Русский, and العربية (right-to-left). It auto-detects the browser language (`navigator.language`) on load, falls back to English for unsupported locales, and can be switched manually from the selector in the top-right corner.
 
 ## Supported versions
 

@@ -34,7 +34,21 @@ bundle exec rspec
 cd /workspace/spec/dummy
 RAILS_ENV=test bundle exec rails mermaid_erd
 cp -f /workspace/spec/dummy/mermaid_erd/index.html /workspace/docs/example.html
-chromium-browser --headless --disable-gpu --no-sandbox --window-size=1280,800 --hide-scrollbars --screenshot="/workspace/docs/screen_shot.png" /workspace/spec/dummy/mermaid_erd/index.html
+
+# Pre-select every model on load so the screenshot shows the rendered ERD
+# instead of the empty-selection default. See script/release_screenshot_hash.rb;
+# it raises on an empty model list. `|| exit 1` is load-bearing — `HASH=$(...)`
+# does NOT propagate the sub-shell's exit status, so without it a failed script
+# would leave HASH empty and chromium would screenshot the blank placeholder.
+HASH=$(ruby /workspace/script/release_screenshot_hash.rb /workspace/spec/dummy/mermaid_erd/index.html) || exit 1
+# --virtual-time-budget advances Chromium's virtual clock then snapshots; it is
+# not a render barrier on Mermaid's async render(). 10s is generous for the
+# dummy schema; bump if you ever point this at a much larger app.
+chromium-browser --headless --disable-gpu --no-sandbox \
+  --window-size=1280,800 --hide-scrollbars \
+  --virtual-time-budget=10000 \
+  --screenshot="/workspace/docs/screen_shot.png" \
+  "file:///workspace/spec/dummy/mermaid_erd/index.html#${HASH}"
 ```
 
 Stage the bump, the regenerated demo, and the screenshot, then commit them together with the message `vX.Y.Z` (matching prior history: `v0.6.0`, `v0.5.1`, …):
@@ -69,3 +83,25 @@ bundle exec rake release
 ```
 
 `rake release` tags the commit as `vX.Y.Z` and pushes to RubyGems. After release, confirm the new version at https://rubygems.org/gems/rails-mermaid_erd.
+
+### 5. Publish the GitHub Release
+
+`rake release` only pushes the git tag — it does not create the GitHub Releases entry. Create it explicitly so the tag shows up on https://github.com/koedame/rails-mermaid_erd/releases.
+
+The release notes must **never include release-PR rows** — both the modern `Release/vX.Y.Z by …` form and the legacy bare `vX.Y.Z by …` form (used once, for the v0.1.2 row in v0.2.0's notes). They are noise: the release branch is the delivery mechanism, not a change. Because GitHub's auto-generated notes always list those PRs, filter them out before publishing:
+
+```bash
+# 1. Ask the GitHub API for the auto-generated notes for this tag.
+# 2. Drop any release-PR row (both `Release/vX.Y.Z by …` and bare `vX.Y.Z by …`).
+# 3. Publish with the filtered body.
+gh api repos/koedame/rails-mermaid_erd/releases/generate-notes \
+  -f tag_name=vX.Y.Z \
+  -f previous_tag_name=vPREV.Y.Z \
+  --jq .body \
+  | grep -v -E '^\* (Release/)?v[0-9]+\.[0-9]+\.[0-9]+ by ' \
+  > /tmp/release-notes.md
+
+gh release create vX.Y.Z --title vX.Y.Z --notes-file /tmp/release-notes.md --verify-tag
+```
+
+Skim the published page to confirm the body lists only feature/fix/dependency PRs. Historical releases through `v0.7.0` were retroactively cleaned to match this rule — keep them that way.

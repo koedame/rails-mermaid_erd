@@ -188,7 +188,7 @@ All public-facing development artifacts are written in **English**:
 - Commit messages
 - Code comments, identifier names, and documentation under `/docs`
 
-The README is bilingual (`README.md` / `README.ja.md`); when you change one, update the other in the same PR. UI strings in `lib/templates/index.html.erb` live in the `window.i18n` block and must be kept in sync between `en` and `ja`.
+`README.md` (English) is the canonical README; each UI locale has a translation at `README.<locale>.md` (e.g. `README.ja.md`, `README.zh-CN.md`). Update the English README in the same PR as a user-facing change and keep the translations and the language-switcher list in sync where you can; the English version is authoritative if they diverge. UI strings in `lib/templates/index.html.erb` live in the `window.i18n` block and must be kept in sync across every locale listed in `window.locales`.
 
 ## CI/CD
 Three GitHub Actions workflows run on each contribution:
@@ -219,7 +219,7 @@ The dev container is pinned to a single Ruby version, so only appraisals compati
 ## Development Best Practices
 1. Add or extend tests in `spec/` before changing `Builder` behavior. The dummy app's models (`spec/dummy/app/models/*.rb`) are the contract — extend them to cover new association cases.
 2. Run `bundle exec standardrb` (or `--fix`) before pushing; CI fails on style violations.
-3. Update documentation in the same PR as the code change, including the bilingual README pair when relevant.
+3. Update documentation in the same PR as the code change, including the README translations (`README.<locale>.md`) when relevant; English (`README.md`) is canonical.
 4. Keep PRs focused on a single concern; split unrelated refactors into separate branches.
 5. Write all development communication in English (see [Natural language](#natural-language)).
 
