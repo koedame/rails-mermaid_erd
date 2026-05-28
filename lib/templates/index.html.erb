@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-  <div id="app">
+  <div id="app" class="h-screen flex flex-col">
     <header class="bg-red-600">
       <nav class="mx-auto px-4">
         <div class="flex w-full items-center justify-between py-4">
@@ -39,8 +39,8 @@
       </nav>
     </header>
 
-    <div class="flex">
-      <div class="w-[250px] border-r border-gray-300 h-full flex-none p-2">
+    <div class="flex flex-1 h-[calc(100vh-56px-32px-56px)]">
+      <div class="w-[250px] border-r border-gray-300 h-full flex-none p-2 overflow-scroll">
         <div class="p-2">
           <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["actions"]["title"]}}</h2>
 
