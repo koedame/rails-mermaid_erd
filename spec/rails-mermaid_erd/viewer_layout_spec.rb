@@ -82,15 +82,73 @@ describe "generated viewer layout" do
     JSON.parse(@browser.evaluate("JSON.stringify((() => { #{script} })())"))
   end
 
-  def scroll_model_list_to_bottom
+  def scroll_sidebar_to(position)
     @browser.evaluate(<<~JS)
       (() => {
-        const list = document.querySelector('.model-list')
-        list.scrollTop = list.scrollHeight
-        list.dispatchEvent(new Event('scroll'))
+        const aside = document.querySelector('aside')
+        aside.scrollTop = #{(position == :bottom) ? "aside.scrollHeight" : Integer(position)}
+        aside.dispatchEvent(new Event('scroll'))
       })()
     JS
     wait_for_stable_layout
+  end
+
+  def filter_models(text)
+    @browser.evaluate(<<~JS)
+      (() => {
+        const input = document.querySelector('aside input[type="search"]')
+        input.value = #{text.to_json}
+        input.dispatchEvent(new Event('input'))
+      })()
+    JS
+    wait_for_stable_layout
+  end
+
+  # Where the sidebar, its sticky model header, and each rendered model row
+  # currently sit on screen.
+  def sidebar_state
+    measure(<<~JS)
+      const aside = document.querySelector('aside')
+      const rect = aside.getBoundingClientRect()
+      const filterInput = document.querySelector('aside input[type="search"]')
+      const filter = filterInput.getBoundingClientRect()
+      const list = document.querySelector('.model-list')
+      const labels = [...list.querySelectorAll('label')]
+      const headerBottom = list.previousElementSibling.getBoundingClientRect().bottom
+      const rows = labels.map((label) => {
+        const r = label.getBoundingClientRect()
+        return { name: label.textContent.trim(), top: r.top, bottom: r.bottom }
+      })
+      return {
+        top: rect.top,
+        bottom: rect.top + aside.clientHeight,
+        filterTop: filter.top,
+        filterBottom: filter.bottom,
+        // What a click in the middle of the filter would hit: rows scrolling
+        // under the header must not be painted over it.
+        filterOnTop: document.elementFromPoint(filter.left + filter.width / 2, filter.top + filter.height / 2) === filterInput,
+        rowPeeksAboveHeader: !!document.elementFromPoint(filter.left + filter.width / 2, rect.top + 1).closest('label'),
+        headerBottom,
+        listHasOwnScrollbox: list.scrollHeight > list.clientHeight,
+        rows,
+        visibleRows: rows.filter((row) => row.top >= headerBottom && row.bottom <= rect.top + aside.clientHeight).map((row) => row.name)
+      }
+    JS
+  end
+
+  def expect_model_header_pinned(state)
+    expect(state["filterTop"]).to be >= state["top"]
+    expect(state["filterBottom"]).to be <= state["headerBottom"]
+    expect(state["filterOnTop"]).to be(true)
+    expect(state["rowPeeksAboveHeader"]).to be(false)
+  end
+
+  # Every row slot between the sticky header and the bottom of the sidebar
+  # holds a model: no blank band left by rendering too few virtual rows.
+  def expect_rows_to_fill_sidebar(state)
+    slots = ((state["bottom"] - state["headerBottom"]) / 24).floor
+    expect(state["visibleRows"].size).to be >= slots - 1
+    expect(state["rows"].last["bottom"]).to be >= state["bottom"]
   end
 
   context "when the schema has hundreds of models in a regular window" do
@@ -111,66 +169,62 @@ describe "generated viewer layout" do
       expect(page["lowestMainButton"]).to be <= page["innerHeight"]
     end
 
-    it "scrolls only the model list, leaving the actions, options, and filter in place" do
-      sidebar = measure(<<~JS)
-        const aside = document.querySelector('aside')
-        const list = document.querySelector('.model-list')
-        return {
-          asideScrollHeight: aside.scrollHeight, asideClientHeight: aside.clientHeight,
-          listScrollHeight: list.scrollHeight, listClientHeight: list.clientHeight
-        }
-      JS
+    it "scrolls the model list with the sidebar while the model filter stays pinned above the rows" do
+      scroll_sidebar_to(3000)
+      state = sidebar_state
 
-      expect(sidebar["asideScrollHeight"]).to be <= sidebar["asideClientHeight"]
-      expect(sidebar["listScrollHeight"]).to be > sidebar["listClientHeight"]
+      expect(state["listHasOwnScrollbox"]).to be(false)
+      expect_model_header_pinned(state)
+      expect_rows_to_fill_sidebar(state)
     end
 
-    it "shows the last model inside the list after scrolling the list to the bottom" do
-      scroll_model_list_to_bottom
+    it "shows the last model below the pinned filter after scrolling the sidebar to the bottom" do
+      scroll_sidebar_to(:bottom)
+      state = sidebar_state
 
-      last = measure(<<~JS)
-        const list = document.querySelector('.model-list').getBoundingClientRect()
-        const label = [...document.querySelectorAll('.model-list label')].find((l) => l.textContent.includes('Model299'))
-        if (!label) return null
-        const rect = label.getBoundingClientRect()
-        return { visible: rect.top >= list.top && rect.bottom <= list.bottom }
-      JS
+      expect(state["visibleRows"].last).to eq("Model299")
+      expect_model_header_pinned(state)
+    end
 
-      expect(last).to eq("visible" => true)
+    it "shows the first matching models under the filter when filtering after scrolling down" do
+      scroll_sidebar_to(:bottom)
+      # "Model1" matches Model100-Model199: still enough rows to be virtualised.
+      filter_models("Model1")
+      state = sidebar_state
+
+      expect(state["visibleRows"].first(3)).to eq(%w[Model100 Model101 Model102])
+      expect_model_header_pinned(state)
     end
   end
 
   context "when the schema has hundreds of models in a tall window" do
-    before { open_viewer(model_count: 300, width: 1280, height: 1600) }
+    it "fills the sidebar with model rows before it is scrolled" do
+      open_viewer(model_count: 300, width: 1280, height: 1600)
 
-    it "fills the visible part of the model list with rows before it is scrolled" do
-      list = measure(<<~JS)
-        const list = document.querySelector('.model-list')
-        const labels = [...list.querySelectorAll('label')]
-        return {
-          listBottom: list.getBoundingClientRect().bottom,
-          lastRowBottom: labels[labels.length - 1].getBoundingClientRect().bottom
-        }
-      JS
+      expect_rows_to_fill_sidebar(sidebar_state)
+    end
 
-      expect(list["lastRowBottom"]).to be >= list["listBottom"]
+    it "fills the sidebar with model rows when the window grows taller after scrolling" do
+      open_viewer(model_count: 300, width: 1280, height: 800)
+      scroll_sidebar_to(3000)
+      @browser.resize(width: 1280, height: 1600)
+      wait_for_stable_layout
+
+      expect_rows_to_fill_sidebar(sidebar_state)
     end
   end
 
   context "when the schema has hundreds of models in a short window" do
-    before { open_viewer(model_count: 300, width: 1280, height: 600) }
+    before { open_viewer(model_count: 300, width: 1280, height: 400) }
 
-    it "keeps at least five rows of the model list visible and still fits the page in the window" do
-      page = measure(<<~JS)
-        return {
-          innerHeight: window.innerHeight,
-          scrollHeight: document.scrollingElement.scrollHeight,
-          listClientHeight: document.querySelector('.model-list').clientHeight
-        }
-      JS
+    it "keeps the page within the window and still reaches the last model by scrolling the sidebar" do
+      page = measure("return { innerHeight: window.innerHeight, scrollHeight: document.scrollingElement.scrollHeight }")
+      scroll_sidebar_to(:bottom)
+      state = sidebar_state
 
-      expect(page["listClientHeight"]).to be >= 5 * 24
       expect(page["scrollHeight"]).to be <= page["innerHeight"]
+      expect(state["visibleRows"].last).to eq("Model299")
+      expect_model_header_pinned(state)
     end
   end
 
@@ -210,6 +264,29 @@ describe "generated viewer layout" do
       expect(bottoms["footerBottom"]).to eq(bottoms["innerHeight"])
       expect(bottoms["diagramBottom"]).to eq(bottoms["footerTop"])
       expect(code_bottom).to eq(bottoms["footerTop"])
+    end
+
+    it "draws the sidebar divider on the diagram side after switching to a right-to-left language" do
+      @browser.evaluate(<<~JS)
+        (() => {
+          const select = document.querySelector('header select')
+          select.value = 'ar'
+          select.dispatchEvent(new Event('change'))
+        })()
+      JS
+      wait_for_stable_layout
+
+      divider = measure(<<~JS)
+        const aside = document.querySelector('aside')
+        const style = getComputedStyle(aside)
+        return {
+          sidebarOnRight: aside.getBoundingClientRect().left > document.querySelector('main').getBoundingClientRect().left,
+          left: style.borderLeftWidth,
+          right: style.borderRightWidth
+        }
+      JS
+
+      expect(divider).to eq("sidebarOnRight" => true, "left" => "1px", "right" => "0px")
     end
   end
 end

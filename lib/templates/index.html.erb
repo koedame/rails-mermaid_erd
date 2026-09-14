@@ -40,7 +40,7 @@
     </header>
 
     <div class="flex flex-1 min-h-0">
-      <aside class="w-[250px] border-r border-gray-300 flex-none p-2 flex flex-col overflow-y-auto">
+      <aside ref="sidebar" @scroll.passive="onSidebarScroll" class="w-[250px] border-r rtl:border-r-0 rtl:border-l border-gray-300 flex-none p-2 overflow-y-auto">
         <div class="p-2">
           <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["actions"]["title"]}}</h2>
 
@@ -193,38 +193,37 @@
           </div>
         </div>
 
-        <div class="p-2 flex-1 flex flex-col">
-          <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["models"]["title"]}}</h2>
+        <!--
+          The model list scrolls with the rest of the sidebar rather than in a
+          box of its own, and the header above it sticks to the top so the
+          filter stays in reach while browsing a long list. `-top-2` pins the
+          header over the sidebar's top padding, so no row shows above it, and
+          `z-10` keeps the rows (positioned labels) from painting over it.
+        -->
+        <div class="px-2 pb-2">
+          <div ref="modelListHeader" class="sticky -top-2 z-10 bg-white pt-2">
+            <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["models"]["title"]}}</h2>
 
-          <div>
-            <input type="search" class="rounded text-xs w-full py-1 px-2 border border-gray-300 bg-gray-100 focus:border-red-600 focus:ring-red-600" :placeholder="i18n[language]['models']['filter']" v-model="filterText">
+            <div>
+              <input type="search" class="rounded text-xs w-full py-1 px-2 border border-gray-300 bg-gray-100 focus:border-red-600 focus:ring-red-600" :placeholder="i18n[language]['models']['filter']" v-model="filterText">
+            </div>
+
+            <div class="space-x-1 text-xs text-gray-900 my-1">
+              <span>{{i18n[language]["models"]["select"]}}</span>
+              <button @click="onSelectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["all"]}}</button>
+              <span>/</span>
+              <button @click="onUnselectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["none"]}}</button>
+            </div>
+
+            <div class="inline-flex items-center text-xs text-gray-700 mb-1" v-if="isExistsNoModelTable">
+              <svg class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              <span>{{i18n[language]["models"]["no_model_file"]}}</span>
+            </div>
           </div>
 
-          <div class="space-x-1 text-xs text-gray-900 my-1">
-            <span>{{i18n[language]["models"]["select"]}}</span>
-            <button @click="onSelectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["all"]}}</button>
-            <span>/</span>
-            <button @click="onUnselectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["none"]}}</button>
-          </div>
-
-          <div class="inline-flex items-center text-xs text-gray-700 mb-1" v-if="isExistsNoModelTable">
-            <svg class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-            </svg>
-            <span>{{i18n[language]["models"]["no_model_file"]}}</span>
-          </div>
-
-          <!--
-            The model list takes the sidebar height left over by the sections
-            above and is the sidebar's only scroll area, so the actions,
-            options, and filter stay in view. `min-h-[120px]` keeps five rows
-            usable in short windows; the sidebar itself scrolls then instead.
-          -->
-          <div
-            ref="virtualListContainer"
-            @scroll.passive="virtualListScroll"
-            class="model-list grow h-0 min-h-[120px] overflow-y-auto"
-          >
+          <div ref="virtualList" class="model-list">
             <div :style="virtualListTopSpacerStyle"></div>
 
             <label
@@ -1732,18 +1731,22 @@
         // viewport, plus a small buffer.
         //
         // Item height has to be a constant for the maths to work — bind
-        // .virtual-list-item below to `height: ${VIRTUAL_LIST_ITEM_HEIGHT_PX}px`
+        // each row label in the template to `height: ${VIRTUAL_LIST_ITEM_HEIGHT_PX}px`
         // and resist adding wrap/multi-line content.
         //
-        // The list's height follows the window, so it is measured with a
-        // ResizeObserver rather than assumed.
+        // The list has no scroll box of its own: it scrolls with the sidebar,
+        // so the window is derived from how far the sidebar has scrolled past
+        // the top of the list, and sized by the sidebar's height, which follows
+        // the browser window and is therefore measured rather than assumed.
         const VIRTUAL_LIST_ITEM_HEIGHT_PX = 24
         const VIRTUAL_LIST_BUFFER_ROWS = 8
         const VIRTUAL_LIST_THRESHOLD = 80
-        const virtualListContainer = Vue.ref(null)
+        const sidebar = Vue.ref(null)
+        const modelListHeader = Vue.ref(null)
+        const virtualList = Vue.ref(null)
         const virtualListScrollTop = Vue.ref(0)
         const virtualListClientHeight = Vue.ref(0)
-        const virtualListResizeObserver = new ResizeObserver(([entry]) => {
+        const sidebarResizeObserver = new ResizeObserver(([entry]) => {
           virtualListClientHeight.value = entry.target.clientHeight
         })
 
@@ -1777,17 +1780,22 @@
           return { height: `${Math.max(0, trailing) * VIRTUAL_LIST_ITEM_HEIGHT_PX}px` }
         })
 
-        const virtualListScroll = (e) => {
-          virtualListScrollTop.value = e.target.scrollTop
+        const onSidebarScroll = () => {
+          const listTop = virtualList.value.getBoundingClientRect().top - sidebar.value.getBoundingClientRect().top
+          virtualListScrollTop.value = Math.max(0, -listTop)
         }
 
-        // Filtering shrinks the list — reset scroll so the window doesn't sit
-        // past the new end (which would render zero visible rows with a tall
-        // empty spacer above).
+        // Filtering shrinks the list — if it had been scrolled under the pinned
+        // header, scroll back so its first row sits right below the header
+        // (otherwise the window could sit past the new end and render no rows
+        // above a tall empty spacer). The filter input lives in that header, so
+        // it stays where the user is typing. Runs after the DOM update so the
+        // positions describe the filtered list.
         Vue.watch(filterText, () => {
-          virtualListScrollTop.value = 0
-          if (virtualListContainer.value) virtualListContainer.value.scrollTop = 0
-        })
+          const hidden = modelListHeader.value.getBoundingClientRect().bottom - virtualList.value.getBoundingClientRect().top
+          if (hidden > 0) sidebar.value.scrollTop -= hidden
+          onSidebarScroll()
+        }, { flush: 'post' })
 
         const resolveLocale = (raw) => {
           if (!raw) return 'en'
@@ -1826,7 +1834,7 @@
           window.addEventListener('touchstart', handleTouchStart, { passive: false })
           window.addEventListener('touchmove', handleTouchMove, { passive: false })
           window.addEventListener('touchend', handleTouchEnd)
-          virtualListResizeObserver.observe(virtualListContainer.value)
+          sidebarResizeObserver.observe(sidebar.value)
         })
 
         Vue.onUnmounted(() => {
@@ -1839,7 +1847,7 @@
           window.removeEventListener('touchstart', handleTouchStart)
           window.removeEventListener('touchmove', handleTouchMove)
           window.removeEventListener('touchend', handleTouchEnd)
-          virtualListResizeObserver.disconnect()
+          sidebarResizeObserver.disconnect()
         })
 
         window.addEventListener('hashchange', () => {
@@ -1893,12 +1901,13 @@
           moveRight,
           isSpacePressed,
           isDragging,
-          virtualListContainer,
-          virtualListScroll,
+          sidebar,
+          modelListHeader,
+          virtualList,
+          onSidebarScroll,
           virtualListTopSpacerStyle,
           virtualListBottomSpacerStyle,
-          virtualListVisibleModels,
-          isVirtualizingModels
+          virtualListVisibleModels
         }
       }
     }
