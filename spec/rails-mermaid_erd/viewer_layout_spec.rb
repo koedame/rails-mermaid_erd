@@ -78,6 +78,21 @@ describe "generated viewer layout" do
     raise "viewer layout did not settle"
   end
 
+  # The model list learns the sidebar's height from a ResizeObserver, whose
+  # callback (and the re-render it triggers) lands on a later rendering frame.
+  # A slow machine can delay that frame past the settle check above, so
+  # assertions about the rendered rows are retried until they hold.
+  def eventually(timeout: 5)
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+    begin
+      yield
+    rescue RSpec::Expectations::ExpectationNotMetError
+      raise if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+      sleep 0.1
+      retry
+    end
+  end
+
   def measure(script)
     JSON.parse(@browser.evaluate("JSON.stringify((() => { #{script} })())"))
   end
@@ -171,23 +186,29 @@ describe "generated viewer layout" do
 
     it "scrolls the model list with the sidebar while the model filter stays pinned above the rows" do
       scroll_sidebar_to(3000)
-      state = sidebar_state
 
-      expect(state["listHasOwnScrollbox"]).to be(false)
-      expect_model_header_pinned(state)
-      expect_rows_to_fill_sidebar(state)
+      eventually do
+        state = sidebar_state
+        expect(state["listHasOwnScrollbox"]).to be(false)
+        expect_model_header_pinned(state)
+        expect_rows_to_fill_sidebar(state)
+      end
     end
 
     it "shows the last model below the pinned filter after scrolling the sidebar to the bottom" do
       scroll_sidebar_to(:bottom)
-      state = sidebar_state
 
-      expect(state["visibleRows"].last).to eq("Model299")
-      expect_model_header_pinned(state)
+      eventually do
+        state = sidebar_state
+        expect(state["visibleRows"].last).to eq("Model299")
+        expect_model_header_pinned(state)
+      end
     end
 
     it "keeps each checkbox reached by Shift+Tab visible instead of hidden under the model header" do
       scroll_sidebar_to(3000)
+      # The sidebar's scroll padding comes from the same observer as the rows.
+      eventually { expect_rows_to_fill_sidebar(sidebar_state) }
       first_visible = sidebar_state["visibleRows"].first
       @browser.evaluate(<<~JS)
         [...document.querySelectorAll('.model-list label')]
@@ -195,19 +216,19 @@ describe "generated viewer layout" do
           .querySelector('input').focus()
       JS
 
-      hidden = 5.times.map do
+      5.times do
         @browser.keyboard.type([:Shift, :Tab])
         wait_for_stable_layout
-        @browser.evaluate(<<~JS)
+        focused_on_top = @browser.evaluate(<<~JS)
           (() => {
             const focused = document.activeElement
             const rect = focused.getBoundingClientRect()
-            return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) !== focused
+            return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) === focused
           })()
         JS
-      end
 
-      expect(hidden).to all(be(false))
+        expect(focused_on_top).to be(true)
+      end
     end
 
     it "keeps the sidebar where it was when clearing a filter that had shortened the list" do
@@ -225,10 +246,12 @@ describe "generated viewer layout" do
       scroll_sidebar_to(:bottom)
       # "Model1" matches Model100-Model199: still enough rows to be virtualised.
       filter_models("Model1")
-      state = sidebar_state
 
-      expect(state["visibleRows"].first(3)).to eq(%w[Model100 Model101 Model102])
-      expect_model_header_pinned(state)
+      eventually do
+        state = sidebar_state
+        expect(state["visibleRows"].first(3)).to eq(%w[Model100 Model101 Model102])
+        expect_model_header_pinned(state)
+      end
     end
   end
 
@@ -236,7 +259,7 @@ describe "generated viewer layout" do
     it "fills the sidebar with model rows before it is scrolled" do
       open_viewer(model_count: 300, width: 1280, height: 1600)
 
-      expect_rows_to_fill_sidebar(sidebar_state)
+      eventually { expect_rows_to_fill_sidebar(sidebar_state) }
     end
 
     it "fills the sidebar with model rows when the window grows taller after scrolling" do
@@ -245,7 +268,7 @@ describe "generated viewer layout" do
       @browser.resize(width: 1280, height: 1600)
       wait_for_stable_layout
 
-      expect_rows_to_fill_sidebar(sidebar_state)
+      eventually { expect_rows_to_fill_sidebar(sidebar_state) }
     end
   end
 
@@ -255,11 +278,13 @@ describe "generated viewer layout" do
     it "keeps the page within the window and still reaches the last model by scrolling the sidebar" do
       page = measure("return { innerHeight: window.innerHeight, scrollHeight: document.scrollingElement.scrollHeight }")
       scroll_sidebar_to(:bottom)
-      state = sidebar_state
 
       expect(page["scrollHeight"]).to be <= page["innerHeight"]
-      expect(state["visibleRows"].last).to eq("Model299")
-      expect_model_header_pinned(state)
+      eventually do
+        state = sidebar_state
+        expect(state["visibleRows"].last).to eq("Model299")
+        expect_model_header_pinned(state)
+      end
     end
   end
 
