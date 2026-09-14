@@ -74,6 +74,7 @@ If all tests pass and you see a coverage report, your development environment is
 - rails (>= 5.2)
 
 ### Development
+- ferrum (Drives headless Chrome for the viewer layout specs)
 - pg (PostgreSQL client)
 - rspec-rails (Testing framework)
 - simplecov (Code coverage)
@@ -135,6 +136,8 @@ To run the tests:
 ```bash
 docker compose exec devcontainer bundle exec rspec
 ```
+
+`spec/rails-mermaid_erd/viewer_layout_spec.rb` renders the generated viewer in headless Chrome and measures its layout, so running the suite needs Chrome or Chromium. The development container ships Chromium, and GitHub Actions runners have Chrome preinstalled.
 
 The test suite includes coverage reporting via SimpleCov. The coverage report will be generated in the `/coverage` directory.
 

@@ -55,6 +55,8 @@ CI runs natively on GitHub Actions via `ruby/setup-ruby` + `services.postgres` (
 
 `spec/dummy` is a real (minimal) Rails app whose models intentionally cover every association edge case the builder handles — read `spec/dummy/app/models/*.rb` and `spec/dummy/db/schema.rb` as the spec of the spec. When changing `Builder`, the right move is usually to add a model/association to the dummy app and extend `spec/rails-mermaid_erd/builder/model_data_spec.rb` rather than mocking; the expected arrays in that file are exhaustive `match_array` assertions, so additions there are deliberate.
 
+Most front-end behaviour in `lib/templates/index.html.erb` is pinned at the source level in `spec/rails-mermaid_erd/rake_task_spec.rb`. Layout is the exception: class names say nothing about whether the page fits the window, so `spec/rails-mermaid_erd/viewer_layout_spec.rb` renders the viewer in headless Chrome (via Ferrum) and asserts on measured sizes. Extend that file when changing how the page is laid out.
+
 ## Contribution conventions
 
 Detailed in `docs/DEVELOPMENT.md` ("Contributing" section). Highlights to apply without re-reading:
