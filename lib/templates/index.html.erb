@@ -39,8 +39,8 @@
       </nav>
     </header>
 
-    <div class="flex flex-1 h-[calc(100vh-56px-32px-56px)]">
-      <div class="w-[250px] border-r border-gray-300 h-full flex-none p-2 overflow-scroll">
+    <div class="flex flex-1 min-h-0">
+      <aside class="w-[250px] border-r border-gray-300 flex-none p-2 flex flex-col overflow-y-auto">
         <div class="p-2">
           <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["actions"]["title"]}}</h2>
 
@@ -193,7 +193,7 @@
           </div>
         </div>
 
-        <div class="p-2">
+        <div class="p-2 flex-1 flex flex-col">
           <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["models"]["title"]}}</h2>
 
           <div>
@@ -215,15 +215,15 @@
           </div>
 
           <!--
-            `max-h-[480px]` must match `VIRTUAL_LIST_VIEWPORT_PX` in setup() —
-            the JS uses 480 as the assumed viewport height before the first
-            scroll event arrives, and a mismatch would over- or under-render
-            rows. If you change one, change both.
+            The model list takes the sidebar height left over by the sections
+            above and is the sidebar's only scroll area, so the actions,
+            options, and filter stay in view. `min-h-[120px]` keeps five rows
+            usable in short windows; the sidebar itself scrolls then instead.
           -->
           <div
             ref="virtualListContainer"
             @scroll.passive="virtualListScroll"
-            :class="['model-list', isVirtualizingModels ? 'overflow-y-auto max-h-[480px]' : '']"
+            class="model-list grow h-0 min-h-[120px] overflow-y-auto"
           >
             <div :style="virtualListTopSpacerStyle"></div>
 
@@ -251,14 +251,14 @@
             <div :style="virtualListBottomSpacerStyle"></div>
           </div>
         </div>
-      </div>
+      </aside>
 
-      <div class="flex-1 bg-gray-900">
+      <main class="flex-1 min-w-0 bg-gray-900 flex flex-col">
         <div class="space-x-2 inline-flex p-4">
           <button @click="tab = 'erd'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'erd' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["erd"]}}</button>
           <button @click="tab = 'code'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'code' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["code"]}}</button>
         </div>
-        <div v-show="tab === 'erd'" ref="viewport" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
+        <div v-show="tab === 'erd'" ref="viewport" class="px-4 w-full flex-1 min-h-0 relative overflow-hidden">
           <div class="absolute inset-0" :style="zoomStyle" ref="zoomArea">
             <div v-show="!isSnapshotMode || !snapshotDataUrl" id="preview" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }"></div>
             <img v-show="isSnapshotMode && snapshotDataUrl" :src="snapshotDataUrl" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }" alt="ERD snapshot" draggable="false" style="user-select: none; -webkit-user-drag: none;" />
@@ -310,8 +310,8 @@
             </div>
           </div>
         </div>
-        <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs min-h-[calc(100vh-56px-32px-56px)] border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
-      </div>
+        <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs flex-1 min-h-0 border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
+      </main>
     </div>
 
     <footer class="bg-gray-100">
@@ -1734,13 +1734,18 @@
         // Item height has to be a constant for the maths to work — bind
         // .virtual-list-item below to `height: ${VIRTUAL_LIST_ITEM_HEIGHT_PX}px`
         // and resist adding wrap/multi-line content.
+        //
+        // The list's height follows the window, so it is measured with a
+        // ResizeObserver rather than assumed.
         const VIRTUAL_LIST_ITEM_HEIGHT_PX = 24
         const VIRTUAL_LIST_BUFFER_ROWS = 8
         const VIRTUAL_LIST_THRESHOLD = 80
-        const VIRTUAL_LIST_VIEWPORT_PX = 480
         const virtualListContainer = Vue.ref(null)
         const virtualListScrollTop = Vue.ref(0)
-        const virtualListClientHeight = Vue.ref(VIRTUAL_LIST_VIEWPORT_PX)
+        const virtualListClientHeight = Vue.ref(0)
+        const virtualListResizeObserver = new ResizeObserver(([entry]) => {
+          virtualListClientHeight.value = entry.target.clientHeight
+        })
 
         const isVirtualizingModels = Vue.computed(() => filteredModelList.value.length > VIRTUAL_LIST_THRESHOLD)
 
@@ -1749,8 +1754,7 @@
           if (!isVirtualizingModels.value) {
             return { start: 0, end: total }
           }
-          const viewport = virtualListClientHeight.value || VIRTUAL_LIST_VIEWPORT_PX
-          const visibleCount = Math.ceil(viewport / VIRTUAL_LIST_ITEM_HEIGHT_PX)
+          const visibleCount = Math.ceil(virtualListClientHeight.value / VIRTUAL_LIST_ITEM_HEIGHT_PX)
           const start = Math.max(0, Math.floor(virtualListScrollTop.value / VIRTUAL_LIST_ITEM_HEIGHT_PX) - VIRTUAL_LIST_BUFFER_ROWS)
           const end = Math.min(total, start + visibleCount + VIRTUAL_LIST_BUFFER_ROWS * 2)
           return { start, end }
@@ -1775,7 +1779,6 @@
 
         const virtualListScroll = (e) => {
           virtualListScrollTop.value = e.target.scrollTop
-          virtualListClientHeight.value = e.target.clientHeight
         }
 
         // Filtering shrinks the list — reset scroll so the window doesn't sit
@@ -1823,6 +1826,7 @@
           window.addEventListener('touchstart', handleTouchStart, { passive: false })
           window.addEventListener('touchmove', handleTouchMove, { passive: false })
           window.addEventListener('touchend', handleTouchEnd)
+          virtualListResizeObserver.observe(virtualListContainer.value)
         })
 
         Vue.onUnmounted(() => {
@@ -1835,6 +1839,7 @@
           window.removeEventListener('touchstart', handleTouchStart)
           window.removeEventListener('touchmove', handleTouchMove)
           window.removeEventListener('touchend', handleTouchEnd)
+          virtualListResizeObserver.disconnect()
         })
 
         window.addEventListener('hashchange', () => {

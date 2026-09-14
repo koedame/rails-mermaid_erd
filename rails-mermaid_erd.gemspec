@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", ">= 5.2"
 
+  spec.add_development_dependency "ferrum"
   spec.add_development_dependency "pg"
   spec.add_development_dependency "rspec-rails"
   spec.add_development_dependency "simplecov"
