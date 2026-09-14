@@ -186,6 +186,41 @@ describe "generated viewer layout" do
       expect_model_header_pinned(state)
     end
 
+    it "keeps each checkbox reached by Shift+Tab visible instead of hidden under the model header" do
+      scroll_sidebar_to(3000)
+      first_visible = sidebar_state["visibleRows"].first
+      @browser.evaluate(<<~JS)
+        [...document.querySelectorAll('.model-list label')]
+          .find((label) => label.textContent.trim() === #{first_visible.to_json})
+          .querySelector('input').focus()
+      JS
+
+      hidden = 5.times.map do
+        @browser.keyboard.type([:Shift, :Tab])
+        wait_for_stable_layout
+        @browser.evaluate(<<~JS)
+          (() => {
+            const focused = document.activeElement
+            const rect = focused.getBoundingClientRect()
+            return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) !== focused
+          })()
+        JS
+      end
+
+      expect(hidden).to all(be(false))
+    end
+
+    it "keeps the sidebar where it was when clearing a filter that had shortened the list" do
+      scroll_sidebar_to(1500)
+      # "Model00" leaves ten rows, so the browser pulls the scroll position back.
+      filter_models("Model00")
+      scroll_top = -> { @browser.evaluate("document.querySelector('aside').scrollTop") }
+      before_clearing = scroll_top.call
+      filter_models("")
+
+      expect(scroll_top.call).to eq(before_clearing)
+    end
+
     it "shows the first matching models under the filter when filtering after scrolling down" do
       scroll_sidebar_to(:bottom)
       # "Model1" matches Model100-Model199: still enough rows to be virtualised.
