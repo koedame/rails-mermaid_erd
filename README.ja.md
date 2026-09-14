@@ -1,4 +1,6 @@
-[English](./README.md) | [日本語](./README.ja.md)
+[English](./README.md) | [日本語](./README.ja.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [한국어](./README.ko.md) | [Español](./README.es.md) | [Français](./README.fr.md) | [Deutsch](./README.de.md) | [Italiano](./README.it.md) | [Português (Brasil)](./README.pt-BR.md) | [Русский](./README.ru.md) | [العربية](./README.ar.md)
+
+> これは [英語版 README](./README.md) の翻訳です。内容に差異がある場合は英語版が正です。
 
 # Rails Mermaid ERD
 
@@ -57,9 +59,43 @@ $ bundle exec rake mermaid_erd
 mermaid_erd
 ```
 
-`<app_root>/mermaid_erd/index.html` はシングルHTMLファイルです。
+`<app_root>/mermaid_erd/index.html` は自己完結したシングル HTML ファイルです。Tailwind / Mermaid / Vue を含むすべてのフロントエンド依存は HTML 内にインライン展開されているため、CDN への接続が無いオフライン環境や厳格なプロキシ下でも動作します。バンドルが同梱されている都合上、ファイルサイズは約 4 MB 程度になります。
+
 このファイルを共有すれば、Ruby on Rails環境が無くても使用できます。サーバーにアップロードすれば、同じURLを共有することもできます。
 CIと連携して生成から共有までを自動化するのはとても有効な手段です。
+
+### Mermaid ソースを標準出力する
+
+Rakeタスク `mermaid_erd:print` を実行すると、HTML ビューアを書き出す代わりに `erDiagram` のソースを標準出力します。他のツールへそのままパイプできます。
+
+```bash
+$ bundle exec rails mermaid_erd:print
+$ bundle exec rails mermaid_erd:print > er.mmd
+$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+```
+
+出力はすべてのテーブル・カラム・キー・コメント・リレーションを含む完全な図で、HTML ビューアの詳細表示トグルをすべて有効にした状態に相当します。
+
+## 対応言語
+
+ビューア UI は 12 言語に対応しています: English / 日本語 / 简体中文 / 繁體中文 / 한국어 / Español / Français / Deutsch / Italiano / Português (Brasil) / Русский / العربية (右から左)。読み込み時にブラウザの言語(`navigator.language`)を自動判定し、未対応の言語は英語にフォールバックします。右上のセレクタから手動で切り替えることもできます。
+
+## 動作確認済みバージョン
+
+push / pull request ごとに CI で検証している Ruby × Rails の組み合わせは以下のとおりです。
+
+| Rails | Ruby                             |
+| ----- | -------------------------------- |
+| 5.2   | 2.7                              |
+| 6.0   | 2.7, 3.0                         |
+| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
+| 7.1   | 3.1, 3.2, 3.3, 3.4               |
+| 7.2   | 3.1, 3.2, 3.3, 3.4               |
+| 8.0   | 3.2, 3.3, 3.4, 4.0               |
+| 8.1   | 3.2, 3.3, 3.4, 4.0               |
+
+これ以外の組み合わせでも動作する可能性はありますが、検証対象には含まれていません。
 
 ## 設定
 
@@ -71,6 +107,7 @@ CIと連携して生成から共有までを自動化するのはとても有効
 | キー | 説明 | 初期値 |
 | --- | --- | --- |
 | `result_path` | 生成されるファイルのパス。 | `mermaid_erd/index.html` |
+| `ignore_tables` | 正規表現文字列の配列。`table_name` がいずれかのパターンに一致するテーブルは、それに紐づく関連線も含めて生成されるERDから除外されます。監査ログ系のモデル・論理削除済み/レガシーなテーブル・ノイズが多くて描画したくないテーブルを除外したい場合に有用です。パターンは `Regexp.new` でコンパイルされるため、YAML文字列内ではバックスラッシュをエスケープしてください(例: `"\\Aaudit_"`)。 | `[]` |
 
 <!--
 TODO:

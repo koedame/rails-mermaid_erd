@@ -6,4 +6,5 @@ class Author < ApplicationRecord
   has_many :comment_posts, through: :comments, source: :post
   has_one :profile, class_name: "AuthorProfile", foreign_key: "user_id", dependent: :destroy
   has_many :images, class_name: "UserImage", foreign_key: "user_id", dependent: :destroy
+  has_many :audit_logs, foreign_key: "user_id", dependent: :destroy
 end

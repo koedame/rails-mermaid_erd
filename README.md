@@ -1,4 +1,4 @@
-[English](./README.md) | [日本語](./README.ja.md)
+[English](./README.md) | [日本語](./README.ja.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [한국어](./README.ko.md) | [Español](./README.es.md) | [Français](./README.fr.md) | [Deutsch](./README.de.md) | [Italiano](./README.it.md) | [Português (Brasil)](./README.pt-BR.md) | [Русский](./README.ru.md) | [العربية](./README.ar.md)
 
 # Rails Mermaid ERD
 
@@ -58,10 +58,44 @@ This file is not required for Git management, so you can add it to `.gitignore` 
 mermaid_erd
 ```
 
-`<app_root>/mermaid_erd/index.html` is a single HTML file.
+`<app_root>/mermaid_erd/index.html` is a single self-contained HTML file. All front-end dependencies (Tailwind, Mermaid, Vue) are inlined, so it works offline and behind strict corporate proxies — no CDN access is needed at view time. The file is roughly 4 MB because the bundles ship inside it.
+
 If you share this file, it can be used by those who do not have a Ruby on Rails environment. Or, you can upload the file to a web server and share it with the same URL.
 
 It would be very smart to generate it automatically using CI.
+
+### Print the Mermaid source to stdout
+
+Run rake task `mermaid_erd:print` to print the raw `erDiagram` source to stdout instead of writing the HTML viewer. This pipes cleanly into other tools:
+
+```bash
+$ bundle exec rails mermaid_erd:print
+$ bundle exec rails mermaid_erd:print > er.mmd
+$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+```
+
+The output is the full diagram — every table, column, key, comment, and relation — equivalent to the HTML viewer with all of its detail toggles enabled.
+
+## Languages
+
+The viewer UI ships in 12 languages: English, 日本語, 简体中文, 繁體中文, 한국어, Español, Français, Deutsch, Italiano, Português (Brasil), Русский, and العربية (right-to-left). It auto-detects the browser language (`navigator.language`) on load, falls back to English for unsupported locales, and can be switched manually from the selector in the top-right corner.
+
+## Supported versions
+
+The Ruby × Rails combinations exercised by CI on every push and pull request:
+
+| Rails | Ruby                             |
+| ----- | -------------------------------- |
+| 5.2   | 2.7                              |
+| 6.0   | 2.7, 3.0                         |
+| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
+| 7.1   | 3.1, 3.2, 3.3, 3.4               |
+| 7.2   | 3.1, 3.2, 3.3, 3.4               |
+| 8.0   | 3.2, 3.3, 3.4, 4.0               |
+| 8.1   | 3.2, 3.3, 3.4, 4.0               |
+
+Other combinations may work but are not verified.
 
 ## Configuration
 
@@ -73,6 +107,7 @@ The setting items are as follows.
 | key | description | default |
 | --- | --- | --- |
 | `result_path` | Destination of generated files. | `mermaid_erd/index.html` |
+| `ignore_tables` | Array of regular-expression strings. Tables whose `table_name` matches any pattern are dropped from the generated ERD, along with any relations that point at them. Useful for excluding audit-log models, soft-deleted/legacy tables, or other large noise you don't want to render. Patterns are compiled with `Regexp.new`, so escape backslashes inside YAML strings (e.g. `"\\Aaudit_"`). | `[]` |
 
 <!--
 TODO:
