@@ -151,11 +151,11 @@ The `develop` branch is the default integration branch; `main` only ever moves o
 ### Branch naming
 Pick the prefix that matches the change:
 
-| Purpose      | Pattern                  | Example                                |
-| ------------ | ------------------------ | -------------------------------------- |
-| New feature  | `feature/<kebab-case>`   | `feature/improve-erd-viewer-operation` |
-| Release      | `release/vX.Y.Z`         | `release/v0.6.0`                       |
-| Dependabot   | (auto-generated)         | `dependabot/bundler/rails-8.0.1`       |
+| Purpose     | Pattern                | Example                                                                           |
+| ----------- | ---------------------- | --------------------------------------------------------------------------------- |
+| New feature | `feature/<kebab-case>` | `feature/improve-erd-viewer-operation`                                            |
+| Release     | `release/vX.Y.Z`       | `release/v0.6.0`                                                                  |
+| Dependabot  | (auto-generated)       | `dependabot/bundler/rails-8.0.1`, `dependabot/bundler/bundler-minor-patch-<hash>` |
 
 Outside contributors occasionally use bare slugs (e.g. `typo`, `readme-require-false`); maintainers keep the `feature/` prefix.
 
@@ -202,7 +202,9 @@ Three GitHub Actions workflows run on each contribution:
 | `.github/workflows/coding-style-check.yml`  | push / PR to `main` or `develop`                      | `bundle exec standardrb` (StandardRb) on Ruby 3.4                                                         |
 | `.github/workflows/codeql-analysis.yml`     | push / PR to `develop`, plus a weekly cron            | CodeQL Ruby analysis                                                                                      |
 
-CI uses `ruby/setup-ruby` and a `services.postgres` container directly — no `compose.ci.yml`. Dependabot watches three ecosystems — Docker, Bundler, and GitHub Actions (see `.github/dependabot.yml`) — and its PRs are merged once CI is green.
+CI uses `ruby/setup-ruby` and a `services.postgres` container directly — no `compose.ci.yml`. Dependabot watches three ecosystems — Docker, Bundler, and GitHub Actions (see `.github/dependabot.yml`). Minor and patch gem updates arrive together as one weekly PR titled "Bump the bundler-minor-patch group with N updates", so `Gemfile.lock` is updated and tested once instead of conflicting across many PRs. Major gem updates and security updates still open one PR per gem. Dependabot PRs are merged once CI is green.
+
+If one gem in the group PR breaks CI, comment `@dependabot ignore <gem> minor version` (or `patch version`, or just `@dependabot ignore <gem>`) on it. Dependabot closes the PR and leaves that gem out of later group PRs; `@dependabot unignore <gem>` brings it back.
 
 ### Matrix testing with Appraisal
 The supported Ruby × Rails matrix is declared in `Appraisals` at the repo root. Each appraisal produces a separate `gemfiles/*.gemfile` (committed). The per-Rails `*.gemfile.lock` files are **gitignored** (a single lockfile cannot satisfy every Ruby in a row's range, so CI resolves them fresh on each job). CI iterates all combinations declared in `.github/workflows/run-test.yml`.
