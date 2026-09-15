@@ -235,6 +235,18 @@ describe "generated viewer navigation" do
       settle
     end
 
+    # Keyboard scrolling is animated, so the scroll position is polled until it moves.
+    def eventually(timeout: 5)
+      deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+      begin
+        yield
+      rescue RSpec::Expectations::ExpectationNotMetError
+        raise if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+        sleep 0.1
+        retry
+      end
+    end
+
     it "scrolls the model list with the arrow keys after a model is clicked, leaving the diagram where it was" do
       checkbox = JSON.parse(@browser.evaluate("JSON.stringify(document.querySelector('.model-list input').getBoundingClientRect())"))
       click(checkbox["left"] + checkbox["width"] / 2, checkbox["top"] + checkbox["height"] / 2)
@@ -242,7 +254,7 @@ describe "generated viewer navigation" do
       press(:Down)
       press(:Down)
 
-      expect(@browser.evaluate("document.querySelector('aside').scrollTop")).to be > 0
+      eventually { expect(@browser.evaluate("document.querySelector('aside').scrollTop")).to be > 0 }
       expect(view).to eq(before_keys)
     end
 
