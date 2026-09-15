@@ -47,7 +47,9 @@ describe "generated viewer column display" do
       timeout: 20,
       process_timeout: 30,
       # The dev container runs Chrome as root, which requires disabling the sandbox.
-      browser_options: {"no-sandbox" => nil}
+      # The examples find options by their English labels, and the viewer picks
+      # its language from the browser's.
+      browser_options: {"no-sandbox" => nil, "lang" => "en-US"}
     )
   end
 
@@ -132,6 +134,7 @@ describe "generated viewer column display" do
     it "keeps Show Key and Show Column Comment available" do
       open_viewer(selectModels: %w[User Post])
       choose_columns("keys")
+      expect_drawn_columns(key_column_names)
 
       expect(option_disabled?("Show Key")).to be(false)
       expect(option_disabled?("Show Column Comment")).to be(false)

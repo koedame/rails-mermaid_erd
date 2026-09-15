@@ -121,7 +121,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isPreviewRelations"
                   @change="updateHash"
                 />
@@ -133,7 +133,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isShowRelationComment"
                   @change="updateHash"
                 />
@@ -148,7 +148,7 @@
                   <input
                     type="radio"
                     name="columns"
-                    class="h-4 w-4 border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                    class="h-4 w-4 border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                     :value="mode"
                     v-model="columnMode"
                     @change="updateHash"
@@ -162,7 +162,7 @@
               <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ columnMode === 'none' ? 'cursor-not-allowed' : 'cursor-pointer' }`">
                 <input
                   type="checkbox"
-                  :class="`h-4 w-4 rounded border-gray-300 mr-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
+                  :class="`h-4 w-4 rounded border-gray-300 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
                   v-model="isShowKey"
                   @change="updateHash"
                   :disabled="columnMode === 'none'"
@@ -175,7 +175,7 @@
               <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ columnMode === 'none' ? 'cursor-not-allowed' : 'cursor-pointer' }`">
                 <input
                   type="checkbox"
-                  :class="`h-4 w-4 rounded border-gray-300 mr-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
+                  :class="`h-4 w-4 rounded border-gray-300 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
                   v-model="isShowComment"
                   @change="updateHash"
                   :disabled="columnMode === 'none'"
@@ -188,7 +188,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded" :title="i18n[language]['options']['snapshot_mode_hint']">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isSnapshotMode"
                   @change="updateHash"
                 />
@@ -243,7 +243,7 @@
               <div class="min-w-0 flex-1 text-xs text-gray-900 inline-flex items-center">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600 shrink-0"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 shrink-0"
                   :value="model.ModelName"
                   :checked="selectModels.includes(model.ModelName)"
                   @change="onChange"
@@ -496,7 +496,7 @@
           show_column_comment: '显示字段注释',
           columns: '字段',
           columns_all: '全部',
-          columns_keys: '仅键',
+          columns_keys: '仅显示键',
           columns_none: '无',
           snapshot_mode: '快照模式',
           snapshot_mode_hint: '每次渲染后将图表栅格化。在 Safari 和 Firefox 上平移和缩放会快很多，但代价是无法选择文本。',
@@ -558,7 +558,7 @@
           show_column_comment: '顯示欄位註解',
           columns: '欄位',
           columns_all: '全部',
-          columns_keys: '僅鍵',
+          columns_keys: '僅顯示鍵',
           columns_none: '無',
           snapshot_mode: '快照模式',
           snapshot_mode_hint: '每次算繪後將圖表點陣化。在 Safari 與 Firefox 上平移與縮放會快很多，但代價是無法選取文字。',
@@ -1114,9 +1114,9 @@
         const isShowRelationComment = Vue.ref(false)
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
-        // Which columns each model box draws. Keys Only keeps the primary and
-        // foreign key columns so a large diagram stays small while still showing
-        // which column each relation hangs off.
+        // Which columns each model box draws. Keys Only keeps the columns the
+        // schema marks as a primary or foreign key, so a large diagram stays
+        // small without dropping the columns its relations are declared on.
         const COLUMN_MODES = ['all', 'keys', 'none']
         const columnMode = Vue.ref('all')
         // Snapshot mode bakes the rendered SVG into a raster image so pan/zoom
