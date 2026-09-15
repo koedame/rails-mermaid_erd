@@ -45,7 +45,7 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
   </style>
 </head>
 <body>
-  <div id="app">
+  <div id="app" class="h-screen flex flex-col">
     <header class="bg-red-600">
       <nav class="mx-auto px-4">
         <div class="flex w-full items-center justify-between py-4">
@@ -86,8 +86,8 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
       </nav>
     </header>
 
-    <div class="flex">
-      <div class="w-[250px] border-r border-gray-300 h-full flex-none p-2">
+    <div class="flex flex-1 min-h-0">
+      <aside ref="sidebar" @scroll.passive="onSidebarScroll" :style="{ scrollPaddingTop: `${modelListHeaderHeight}px` }" class="w-[250px] border-r rtl:border-r-0 rtl:border-l border-gray-300 flex-none p-2 overflow-y-auto [overflow-anchor:none]">
         <div class="p-2">
           <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["actions"]["title"]}}</h2>
 
@@ -240,45 +240,47 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
           </div>
         </div>
 
-        <div class="p-2">
-          <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["models"]["title"]}}</h2>
+        <!--
+          The model list scrolls with the rest of the sidebar rather than in a
+          box of its own, and the header above it sticks to the top so the
+          filter stays in reach while browsing a long list. `-top-2` and
+          `-mx-2 px-2` stretch the pinned header over the padding around it, so
+          no row shows above or beside it, and `z-10` keeps the rows
+          (positioned labels) from painting over it. The sidebar's
+          scroll-padding-top matches the header height, so a checkbox reached
+          with the keyboard is scrolled out from under the header.
+        -->
+        <div class="px-2 pb-2">
+          <div ref="modelListHeader" class="sticky -top-2 z-10 -mx-2 px-2 bg-white pt-2">
+            <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["models"]["title"]}}</h2>
 
-          <div>
-            <input type="search" class="rounded text-xs w-full py-1 px-2 border border-gray-300 bg-gray-100 focus:border-red-600 focus:ring-red-600" :placeholder="i18n[language]['models']['filter']" v-model="filterText">
+            <div>
+              <input type="search" class="rounded text-xs w-full py-1 px-2 border border-gray-300 bg-gray-100 focus:border-red-600 focus:ring-red-600" :placeholder="i18n[language]['models']['filter']" v-model="filterText">
+            </div>
+
+            <div class="space-x-1 text-xs text-gray-900 my-1">
+              <span>{{i18n[language]["models"]["select"]}}</span>
+              <button @click="onSelectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["all"]}}</button>
+              <span>/</span>
+              <button @click="onUnselectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["none"]}}</button>
+            </div>
+
+            <div class="inline-flex items-center text-xs text-gray-700 mb-1" v-if="isExistsNoModelTable">
+              <svg class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              <span>{{i18n[language]["models"]["no_model_file"]}}</span>
+            </div>
           </div>
 
-          <div class="space-x-1 text-xs text-gray-900 my-1">
-            <span>{{i18n[language]["models"]["select"]}}</span>
-            <button @click="onSelectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["all"]}}</button>
-            <span>/</span>
-            <button @click="onUnselectAll" class="text-red-600 font-bold hover:text-red-900 rounded focus:ring-2 focus:ring-red-600 focus:ring-offset-1">{{i18n[language]["models"]["none"]}}</button>
-          </div>
-
-          <div class="inline-flex items-center text-xs text-gray-700 mb-1" v-if="isExistsNoModelTable">
-            <svg class="text-orange-900 mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-            </svg>
-            <span>{{i18n[language]["models"]["no_model_file"]}}</span>
-          </div>
-
-          <!--
-            `max-h-[480px]` must match `VIRTUAL_LIST_VIEWPORT_PX` in setup() —
-            the JS uses 480 as the assumed viewport height before the first
-            scroll event arrives, and a mismatch would over- or under-render
-            rows. If you change one, change both.
-          -->
-          <div
-            ref="virtualListContainer"
-            @scroll.passive="virtualListScroll"
-            :class="['model-list', isVirtualizingModels ? 'overflow-y-auto max-h-[480px]' : '']"
-          >
+          <div ref="virtualList" class="model-list">
             <div :style="virtualListTopSpacerStyle"></div>
 
             <label
               v-for="model in virtualListVisibleModels"
               :key="model.ModelName"
               class="relative flex items-center cursor-pointer hover:bg-gray-100 rounded"
-              style="height: 24px;"
+              :style="{ height: `${VIRTUAL_LIST_ITEM_HEIGHT_PX}px` }"
             >
               <div class="min-w-0 flex-1 text-xs text-gray-900 inline-flex items-center">
                 <input
@@ -298,14 +300,14 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
             <div :style="virtualListBottomSpacerStyle"></div>
           </div>
         </div>
-      </div>
+      </aside>
 
-      <div class="flex-1 bg-gray-900">
+      <main class="flex-1 min-w-0 bg-gray-900 flex flex-col">
         <div class="space-x-2 inline-flex p-4">
           <button @click="tab = 'erd'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'erd' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["erd"]}}</button>
           <button @click="tab = 'code'" :class="`text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 ${tab === 'code' ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'}`">{{i18n[language]["tab"]["code"]}}</button>
         </div>
-        <div v-show="tab === 'erd'" ref="viewport" class="px-4 w-full min-h-[calc(100vh-56px-32px-56px)] relative overflow-hidden">
+        <div v-show="tab === 'erd'" ref="viewport" class="px-4 w-full flex-1 min-h-0 relative overflow-hidden">
           <div class="absolute inset-0" :style="zoomStyle" ref="zoomArea">
             <div v-show="!isSnapshotMode || !snapshotDataUrl" id="preview" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }"></div>
             <img v-show="isSnapshotMode && snapshotDataUrl" :src="snapshotDataUrl" :class="{ 'cursor-grab': isSpacePressed, 'cursor-grabbing': isDragging }" alt="ERD snapshot" draggable="false" style="user-select: none; -webkit-user-drag: none;" />
@@ -357,14 +359,14 @@ aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=
             </div>
           </div>
         </div>
-        <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs min-h-[calc(100vh-56px-32px-56px)] border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
-      </div>
+        <textarea v-show="tab === 'code'" class="px-4 bg-gray-900 text-gray-300 font-mono w-full text-xs flex-1 min-h-0 border-0 focus:ring-0" readonly v-model="mermaidErd"></textarea>
+      </main>
     </div>
 
     <footer class="bg-gray-100">
       <p class="text-center text-xs text-gray-600 py-2">
         <a href="https://github.com/koedame/rails-mermaid_erd" class="hover:text-gray-400" target="_blank" rel="noopener noreferrer">
-          Rails Mermaid ERD v0.8.0
+          Rails Mermaid ERD v0.8.1
         </a>
       </p>
     </footer>
@@ -5250,16 +5252,32 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
         // a windowed list: render only the rows currently inside the scroll
         // viewport, plus a small buffer.
         //
-        // Item height has to be a constant for the maths to work — bind
-        // .virtual-list-item below to `height: ${VIRTUAL_LIST_ITEM_HEIGHT_PX}px`
-        // and resist adding wrap/multi-line content.
+        // Item height has to be a constant for the maths to work — the row
+        // labels in the template bind their height to it, so resist adding
+        // wrap/multi-line content.
+        //
+        // The list has no scroll box of its own: it scrolls with the sidebar,
+        // so the window is derived from how far the sidebar has scrolled past
+        // the top of the list, and sized by the sidebar's height, which follows
+        // the browser window and is therefore measured rather than assumed.
         const VIRTUAL_LIST_ITEM_HEIGHT_PX = 24
         const VIRTUAL_LIST_BUFFER_ROWS = 8
         const VIRTUAL_LIST_THRESHOLD = 80
-        const VIRTUAL_LIST_VIEWPORT_PX = 480
-        const virtualListContainer = Vue.ref(null)
+        const sidebar = Vue.ref(null)
+        const modelListHeader = Vue.ref(null)
+        const virtualList = Vue.ref(null)
         const virtualListScrollTop = Vue.ref(0)
-        const virtualListClientHeight = Vue.ref(VIRTUAL_LIST_VIEWPORT_PX)
+        const virtualListClientHeight = Vue.ref(0)
+        const modelListHeaderHeight = Vue.ref(0)
+        const sidebarResizeObserver = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.target === sidebar.value) {
+              virtualListClientHeight.value = entry.target.clientHeight
+            } else {
+              modelListHeaderHeight.value = entry.target.offsetHeight
+            }
+          }
+        })
 
         const isVirtualizingModels = Vue.computed(() => filteredModelList.value.length > VIRTUAL_LIST_THRESHOLD)
 
@@ -5268,8 +5286,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
           if (!isVirtualizingModels.value) {
             return { start: 0, end: total }
           }
-          const viewport = virtualListClientHeight.value || VIRTUAL_LIST_VIEWPORT_PX
-          const visibleCount = Math.ceil(viewport / VIRTUAL_LIST_ITEM_HEIGHT_PX)
+          const visibleCount = Math.ceil(virtualListClientHeight.value / VIRTUAL_LIST_ITEM_HEIGHT_PX)
           const start = Math.max(0, Math.floor(virtualListScrollTop.value / VIRTUAL_LIST_ITEM_HEIGHT_PX) - VIRTUAL_LIST_BUFFER_ROWS)
           const end = Math.min(total, start + visibleCount + VIRTUAL_LIST_BUFFER_ROWS * 2)
           return { start, end }
@@ -5292,18 +5309,25 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
           return { height: `${Math.max(0, trailing) * VIRTUAL_LIST_ITEM_HEIGHT_PX}px` }
         })
 
-        const virtualListScroll = (e) => {
-          virtualListScrollTop.value = e.target.scrollTop
-          virtualListClientHeight.value = e.target.clientHeight
+        const onSidebarScroll = () => {
+          const listTop = virtualList.value.getBoundingClientRect().top - sidebar.value.getBoundingClientRect().top
+          virtualListScrollTop.value = Math.max(0, -listTop)
         }
 
-        // Filtering shrinks the list — reset scroll so the window doesn't sit
-        // past the new end (which would render zero visible rows with a tall
-        // empty spacer above).
+        // Filtering shrinks the list — if it had been scrolled under the pinned
+        // header, scroll back so its first row sits right below the header
+        // (otherwise the window could sit past the new end and render no rows
+        // above a tall empty spacer). The header holds the filter input, so it
+        // stays pinned while the user types, unless the filtered list is too
+        // short to keep the sidebar scrolled that far. Runs after the DOM update
+        // so the positions describe the filtered list. The sidebar opts out of
+        // scroll anchoring: otherwise Chromium restores an older scroll position
+        // when the list grows back, and this would scroll to the header.
         Vue.watch(filterText, () => {
-          virtualListScrollTop.value = 0
-          if (virtualListContainer.value) virtualListContainer.value.scrollTop = 0
-        })
+          const hidden = modelListHeader.value.getBoundingClientRect().bottom - virtualList.value.getBoundingClientRect().top
+          if (hidden > 0) sidebar.value.scrollTop -= hidden
+          onSidebarScroll()
+        }, { flush: 'post' })
 
         const resolveLocale = (raw) => {
           if (!raw) return 'en'
@@ -5342,6 +5366,8 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
           window.addEventListener('touchstart', handleTouchStart, { passive: false })
           window.addEventListener('touchmove', handleTouchMove, { passive: false })
           window.addEventListener('touchend', handleTouchEnd)
+          sidebarResizeObserver.observe(sidebar.value)
+          sidebarResizeObserver.observe(modelListHeader.value)
         })
 
         Vue.onUnmounted(() => {
@@ -5354,6 +5380,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
           window.removeEventListener('touchstart', handleTouchStart)
           window.removeEventListener('touchmove', handleTouchMove)
           window.removeEventListener('touchend', handleTouchEnd)
+          sidebarResizeObserver.disconnect()
         })
 
         window.addEventListener('hashchange', () => {
@@ -5407,12 +5434,15 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
           moveRight,
           isSpacePressed,
           isDragging,
-          virtualListContainer,
-          virtualListScroll,
+          sidebar,
+          modelListHeader,
+          modelListHeaderHeight,
+          VIRTUAL_LIST_ITEM_HEIGHT_PX,
+          virtualList,
+          onSidebarScroll,
           virtualListTopSpacerStyle,
           virtualListBottomSpacerStyle,
-          virtualListVisibleModels,
-          isVirtualizingModels
+          virtualListVisibleModels
         }
       }
     }

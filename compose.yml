@@ -1,6 +1,5 @@
 services:
   devcontainer:
-    container_name: devcontainer-rails-mermaid-erd
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,7 +16,6 @@ services:
       RAILS_ENV: test
 
   db:
-    container_name: rails-mermaid-erd-db
     image: postgres:14-alpine
     environment:
       POSTGRES_USER: test
