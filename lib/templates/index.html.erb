@@ -121,7 +121,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isPreviewRelations"
                   @change="updateHash"
                 />
@@ -133,7 +133,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isShowRelationComment"
                   @change="updateHash"
                 />
@@ -141,41 +141,46 @@
               </label>
             </div>
 
-            <div class="min-w-0 flex-1 text-sm">
-              <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
-                <input
-                  type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
-                  v-model="isHideColumns"
-                  @change="updateHash"
-                />
-                <span class="text-xs text-gray-900">{{i18n[language]["options"]["hide_columns"]}}</span>
-              </label>
-            </div>
+            <fieldset class="min-w-0 flex-1 text-sm">
+              <legend class="text-xs text-gray-900">{{i18n[language]["options"]["columns"]}}</legend>
+              <div class="space-y-1 mt-1 ml-6 rtl:ml-0 rtl:mr-6">
+                <label v-for="mode in COLUMN_MODES" :key="mode" class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
+                  <input
+                    type="radio"
+                    name="columns"
+                    class="h-4 w-4 border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                    :value="mode"
+                    v-model="columnMode"
+                    @change="updateHash"
+                  />
+                  <span class="text-xs text-gray-900">{{i18n[language]["options"][`columns_${mode}`]}}</span>
+                </label>
+              </div>
+            </fieldset>
 
             <div class="min-w-0 flex-1 text-sm">
-              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ isHideColumns ? 'cursor-not-allowed' : 'cursor-pointer' }`">
+              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ columnMode === 'none' ? 'cursor-not-allowed' : 'cursor-pointer' }`">
                 <input
                   type="checkbox"
-                  :class="`h-4 w-4 rounded border-gray-300 mr-2 focus:ring-red-600 ${ isHideColumns ? 'text-gray-400' : 'text-red-600'}`"
+                  :class="`h-4 w-4 rounded border-gray-300 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
                   v-model="isShowKey"
                   @change="updateHash"
-                  :disabled="isHideColumns"
+                  :disabled="columnMode === 'none'"
                 />
-                <span :class="`text-xs ${ isHideColumns ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_key"]}}</span>
+                <span :class="`text-xs ${ columnMode === 'none' ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_key"]}}</span>
               </label>
             </div>
 
             <div class="min-w-0 flex-1 text-sm">
-              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ isHideColumns ? 'cursor-not-allowed' : 'cursor-pointer' }`">
+              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ columnMode === 'none' ? 'cursor-not-allowed' : 'cursor-pointer' }`">
                 <input
                   type="checkbox"
-                  :class="`h-4 w-4 rounded border-gray-300 mr-2 focus:ring-red-600 ${ isHideColumns ? 'text-gray-400' : 'text-red-600'}`"
+                  :class="`h-4 w-4 rounded border-gray-300 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
                   v-model="isShowComment"
                   @change="updateHash"
-                  :disabled="isHideColumns"
+                  :disabled="columnMode === 'none'"
                 />
-                <span :class="`text-xs ${ isHideColumns ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_column_comment"]}}</span>
+                <span :class="`text-xs ${ columnMode === 'none' ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_column_comment"]}}</span>
               </label>
             </div>
 
@@ -183,7 +188,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded" :title="i18n[language]['options']['snapshot_mode_hint']">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isSnapshotMode"
                   @change="updateHash"
                 />
@@ -238,7 +243,7 @@
               <div class="min-w-0 flex-1 text-xs text-gray-900 inline-flex items-center">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600 shrink-0"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 shrink-0"
                   :value="model.ModelName"
                   :checked="selectModels.includes(model.ModelName)"
                   @change="onChange"
@@ -365,7 +370,10 @@
           show_relationship_comment: 'Show Relationship Comment',
           show_key: 'Show Key',
           show_column_comment: 'Show Column Comment',
-          hide_columns: 'Hide Columns',
+          columns: 'Columns',
+          columns_all: 'All',
+          columns_keys: 'Keys Only',
+          columns_none: 'None',
           snapshot_mode: 'Snapshot Mode',
           snapshot_mode_hint: 'Rasterise the diagram after each render. Pan and zoom become much faster on Safari and Firefox at the cost of text selection.',
         },
@@ -424,7 +432,10 @@
           show_relationship_comment: 'リレーションのコメントを表示',
           show_key: 'キーを表示',
           show_column_comment: 'コメントを表示',
-          hide_columns: 'カラムを非表示',
+          columns: 'カラム',
+          columns_all: 'すべて',
+          columns_keys: 'キーのみ',
+          columns_none: 'なし',
           snapshot_mode: 'スナップショットモード',
           snapshot_mode_hint: '描画後に図を画像化します。Safari / Firefox での拡大縮小やパン操作が高速になりますが、テキスト選択はできなくなります。',
         },
@@ -483,7 +494,10 @@
           show_relationship_comment: '显示关系注释',
           show_key: '显示键',
           show_column_comment: '显示字段注释',
-          hide_columns: '隐藏字段',
+          columns: '字段',
+          columns_all: '全部',
+          columns_keys: '仅显示键',
+          columns_none: '无',
           snapshot_mode: '快照模式',
           snapshot_mode_hint: '每次渲染后将图表栅格化。在 Safari 和 Firefox 上平移和缩放会快很多，但代价是无法选择文本。',
         },
@@ -542,7 +556,10 @@
           show_relationship_comment: '顯示關聯註解',
           show_key: '顯示鍵',
           show_column_comment: '顯示欄位註解',
-          hide_columns: '隱藏欄位',
+          columns: '欄位',
+          columns_all: '全部',
+          columns_keys: '僅顯示鍵',
+          columns_none: '無',
           snapshot_mode: '快照模式',
           snapshot_mode_hint: '每次算繪後將圖表點陣化。在 Safari 與 Firefox 上平移與縮放會快很多，但代價是無法選取文字。',
         },
@@ -601,7 +618,10 @@
           show_relationship_comment: '관계 주석 표시',
           show_key: '키 표시',
           show_column_comment: '컬럼 주석 표시',
-          hide_columns: '컬럼 숨기기',
+          columns: '컬럼',
+          columns_all: '전체',
+          columns_keys: '키만',
+          columns_none: '없음',
           snapshot_mode: '스냅샷 모드',
           snapshot_mode_hint: '렌더링할 때마다 다이어그램을 래스터화합니다. Safari와 Firefox에서 이동과 확대/축소가 훨씬 빨라지지만 텍스트를 선택할 수 없게 됩니다.',
         },
@@ -660,7 +680,10 @@
           show_relationship_comment: 'Mostrar comentario de la relación',
           show_key: 'Mostrar clave',
           show_column_comment: 'Mostrar comentario de la columna',
-          hide_columns: 'Ocultar columnas',
+          columns: 'Columnas',
+          columns_all: 'Todas',
+          columns_keys: 'Solo claves',
+          columns_none: 'Ninguna',
           snapshot_mode: 'Modo instantánea',
           snapshot_mode_hint: 'Rasteriza el diagrama después de cada renderizado. El desplazamiento y el zoom son mucho más rápidos en Safari y Firefox, a costa de no poder seleccionar texto.',
         },
@@ -719,7 +742,10 @@
           show_relationship_comment: 'Afficher le commentaire de la relation',
           show_key: 'Afficher la clé',
           show_column_comment: 'Afficher le commentaire de la colonne',
-          hide_columns: 'Masquer les colonnes',
+          columns: 'Colonnes',
+          columns_all: 'Toutes',
+          columns_keys: 'Clés uniquement',
+          columns_none: 'Aucune',
           snapshot_mode: 'Mode instantané',
           snapshot_mode_hint: 'Pixellise le diagramme après chaque rendu. Le déplacement et le zoom deviennent beaucoup plus rapides sur Safari et Firefox, au prix de la sélection du texte.',
         },
@@ -778,7 +804,10 @@
           show_relationship_comment: 'Beziehungskommentar anzeigen',
           show_key: 'Schlüssel anzeigen',
           show_column_comment: 'Spaltenkommentar anzeigen',
-          hide_columns: 'Spalten ausblenden',
+          columns: 'Spalten',
+          columns_all: 'Alle',
+          columns_keys: 'Nur Schlüssel',
+          columns_none: 'Keine',
           snapshot_mode: 'Schnappschussmodus',
           snapshot_mode_hint: 'Rastert das Diagramm nach jedem Rendern. Verschieben und Zoomen werden in Safari und Firefox deutlich schneller, allerdings auf Kosten der Textauswahl.',
         },
@@ -837,7 +866,10 @@
           show_relationship_comment: 'Mostra commento della relazione',
           show_key: 'Mostra chiave',
           show_column_comment: 'Mostra commento della colonna',
-          hide_columns: 'Nascondi colonne',
+          columns: 'Colonne',
+          columns_all: 'Tutte',
+          columns_keys: 'Solo chiavi',
+          columns_none: 'Nessuna',
           snapshot_mode: 'Modalità istantanea',
           snapshot_mode_hint: 'Rasterizza il diagramma dopo ogni rendering. Lo spostamento e lo zoom diventano molto più veloci su Safari e Firefox, a scapito della selezione del testo.',
         },
@@ -896,7 +928,10 @@
           show_relationship_comment: 'Mostrar comentário do relacionamento',
           show_key: 'Mostrar chave',
           show_column_comment: 'Mostrar comentário da coluna',
-          hide_columns: 'Ocultar colunas',
+          columns: 'Colunas',
+          columns_all: 'Todas',
+          columns_keys: 'Somente chaves',
+          columns_none: 'Nenhuma',
           snapshot_mode: 'Modo instantâneo',
           snapshot_mode_hint: 'Rasteriza o diagrama após cada renderização. Mover e dar zoom ficam muito mais rápidos no Safari e no Firefox, ao custo da seleção de texto.',
         },
@@ -955,7 +990,10 @@
           show_relationship_comment: 'Показать комментарий связи',
           show_key: 'Показать ключ',
           show_column_comment: 'Показать комментарий столбца',
-          hide_columns: 'Скрыть столбцы',
+          columns: 'Столбцы',
+          columns_all: 'Все',
+          columns_keys: 'Только ключи',
+          columns_none: 'Нет',
           snapshot_mode: 'Режим снимка',
           snapshot_mode_hint: 'Растрировать диаграмму после каждой отрисовки. Панорамирование и масштабирование становятся намного быстрее в Safari и Firefox, но текст нельзя будет выделить.',
         },
@@ -1014,7 +1052,10 @@
           show_relationship_comment: 'إظهار تعليق العلاقة',
           show_key: 'إظهار المفتاح',
           show_column_comment: 'إظهار تعليق العمود',
-          hide_columns: 'إخفاء الأعمدة',
+          columns: 'الأعمدة',
+          columns_all: 'الكل',
+          columns_keys: 'المفاتيح فقط',
+          columns_none: 'لا شيء',
           snapshot_mode: 'وضع اللقطة',
           snapshot_mode_hint: 'تحويل المخطط إلى صورة نقطية بعد كل عرض. يصبح التحريك والتكبير أسرع بكثير في Safari وFirefox، لكن على حساب إمكانية تحديد النص.',
         },
@@ -1073,7 +1114,11 @@
         const isShowRelationComment = Vue.ref(false)
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
-        const isHideColumns = Vue.ref(false)
+        // Which columns each model box draws. Keys Only keeps the columns the
+        // schema marks as a primary or foreign key, so a large diagram stays
+        // small without dropping the columns its relations are declared on.
+        const COLUMN_MODES = ['all', 'keys', 'none']
+        const columnMode = Vue.ref('all')
         // Snapshot mode bakes the rendered SVG into a raster image so pan/zoom
         // transforms a single <img> instead of relaying out hundreds of <g>
         // elements. Safari and Firefox get the biggest win; Chromium handles
@@ -1409,7 +1454,11 @@
             isShowRelationComment.value = !!parsedData.isShowRelationComment
             isShowKey.value = !!parsedData.isShowKey
             isShowComment.value = !!parsedData.isShowComment
-            isHideColumns.value = !!parsedData.isHideColumns
+            // Links shared before the column choice existed carry the old
+            // `isHideColumns` checkbox instead.
+            columnMode.value = COLUMN_MODES.includes(parsedData.columns)
+              ? parsedData.columns
+              : (parsedData.isHideColumns ? 'none' : 'all')
             isSnapshotMode.value = !!parsedData.isSnapshotMode
           } catch (err) {
             console.warn('mermaid_erd: could not restore from URL hash, resetting to defaults.', err)
@@ -1427,7 +1476,7 @@
           isShowRelationComment.value = false
           isShowKey.value = false
           isShowComment.value = false
-          isHideColumns.value = false
+          columnMode.value = 'all'
           isSnapshotMode.value = false
           updateHash()
         }
@@ -1439,7 +1488,7 @@
             isShowRelationComment: isShowRelationComment.value,
             isShowKey: isShowKey.value,
             isShowComment: isShowComment.value,
-            isHideColumns: isHideColumns.value,
+            columns: columnMode.value,
             isSnapshotMode: isSnapshotMode.value,
           }))
         }
@@ -1512,8 +1561,8 @@
             lines.push(`    %% table comment: ${oneLine(model.TableComment)}`)
             lines.push(`    ${model.ModelName.replace(/:/g, '-')} {`)
 
-            if (!isHideColumns.value) {
-              model.Columns.forEach(column => {
+            if (columnMode.value !== 'none') {
+              model.Columns.filter(column => columnMode.value === 'all' || column.key).forEach(column => {
                 lines.push(`        ${column.type} ${column.name} ${isShowKey.value ? column.key : ''} ${isShowComment.value ? quoted(column.comment) : ''}`)
               })
             }
@@ -1586,7 +1635,7 @@
           isShowRelationComment.value,
           isShowKey.value,
           isShowComment.value,
-          isHideColumns.value
+          columnMode.value
         ])
         let lastRenderKey = null
 
@@ -2016,7 +2065,8 @@
           setLanguage,
           tab,
           updateHash,
-          isHideColumns,
+          COLUMN_MODES,
+          columnMode,
           zoomStyle,
           zoomArea,
           viewport,
