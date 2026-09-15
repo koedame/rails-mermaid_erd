@@ -44,6 +44,15 @@ describe RailsMermaidErd::Builder do
       end
     end
 
+    context "when a has_many names an inverse association that does not exist" do
+      it "still draws it on the line of the belongs_to that holds the same column" do
+        lines = result[:Relations].select { |r| [r[:LeftModelName], r[:RightModelName]].sort == ["PostsTag", "Tag"] }
+        expect(lines).to contain_exactly(
+          {LeftModelName: "Tag", LeftValue: "||", Line: "--", RightModelName: "PostsTag", RightValue: "o{", Comment: "BT:tag, HM:posts_tags"}
+        )
+      end
+    end
+
     context "when a model has one of another model through a third" do
       it "draws the end it reaches as at most one" do
         expect(result[:Relations]).to include(

@@ -215,8 +215,22 @@ class RailsMermaidErd::Builder
     end
 
     # Rails may hand back a String or a Symbol, or an Array for a composite key.
+    #
+    # Rails 7.1+ derives an undeclared key from `inverse_of` or the model's
+    # `query_constraints`, and raises when those are misdeclared. The host app
+    # only hits that once it uses the association, so one such declaration
+    # must not abort the whole diagram: fall back to the naming convention.
     def foreign_key_columns(reflection)
       Array(reflection.foreign_key).map(&:to_s)
+    rescue NameError, ArgumentError
+      column = if reflection.macro == :belongs_to
+        "#{reflection.name}_id"
+      elsif reflection.options[:as]
+        "#{reflection.options[:as]}_id"
+      else
+        reflection.active_record.name.foreign_key
+      end
+      [column]
     end
 
     def optional_belongs_to?(reflection)

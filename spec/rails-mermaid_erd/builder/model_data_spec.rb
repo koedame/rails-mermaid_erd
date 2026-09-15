@@ -243,7 +243,7 @@ describe RailsMermaidErd::Builder.model_data do
       Line: "--",
       RightModelName: "PostsTag",
       RightValue: "o{",
-      Comment: "BT:tag"
+      Comment: "BT:tag, HM:posts_tags"
     }, {
       LeftModelName: "CareType",
       LeftValue: "||",
