@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_05_20_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_15_120000) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "audit_logs", force: :cascade do |t|
     t.string "action", null: false
@@ -37,9 +37,12 @@ ActiveRecord::Schema.define(version: 2026_05_20_120000) do
   create_table "comments", force: :cascade do |t|
     t.string "body", null: false
     t.datetime "created_at", null: false
+    t.bigint "flagged_comment_id"
     t.bigint "post_id", null: false
+    t.string "type"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["flagged_comment_id"], name: "index_comments_on_flagged_comment_id"
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
@@ -107,6 +110,7 @@ ActiveRecord::Schema.define(version: 2026_05_20_120000) do
   end
 
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "comments", "comments", column: "flagged_comment_id"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "matching_info_care_types", "care_types"

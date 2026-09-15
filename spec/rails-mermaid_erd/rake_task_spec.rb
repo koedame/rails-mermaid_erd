@@ -48,6 +48,18 @@ describe "rake mermaid_erd" do
   # a `"` or a newline can't break the rendered diagram or the copied source.
   # Asserted at the source level (the JS runs in the browser), matching how the
   # other front-end behaviours in this file are pinned.
+  # The viewer draws whatever SCHEMA_DATA lists, so a single table inheritance
+  # subclass must not reach it as a model or a relation endpoint.
+  it "hands the viewer a single table inheritance hierarchy as one model" do
+    payload = generated_html[%r{<script>window\.SCHEMA_DATA=(.*?)</script>}m, 1]
+    schema = JSON.parse(payload)
+    model_names = schema["Models"].map { |m| m["ModelName"] }
+    endpoints = schema["Relations"].flat_map { |r| [r["LeftModelName"], r["RightModelName"]] }
+
+    expect(model_names.count("Comment")).to eq(1)
+    expect(model_names + endpoints).not_to include("Complaint")
+  end
+
   it "escapes quotes and collapses newlines in the diagram source it builds" do
     expect(generated_html).to include("replace(/[\\r\\n]+/g, ' ')")
     expect(generated_html).to include("replace(/\"/g, '#quot;')")
@@ -269,6 +281,15 @@ describe "rake mermaid_erd:print" do
     # that the model_data spec already pins.
     expect(output).to include("    AuditLog {")
     expect(output).to match(/^\s+integer id PK ""$/)
+  end
+
+  # `Complaint < Comment` shares the `comments` table, so the dump must draw
+  # that table once and never name the subclass.
+  it "prints a single table inheritance hierarchy as one entity" do
+    output = run_print_task
+
+    expect(output.scan(/^    Comment \{$/).size).to eq(1)
+    expect(output).not_to match(/\bComplaint\b/)
   end
 
   # The whole point of the task is a clean pipe: stdout must carry the diagram

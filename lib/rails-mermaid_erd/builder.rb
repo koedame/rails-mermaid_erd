@@ -24,10 +24,16 @@ class RailsMermaidErd::Builder
       # pulling in `set` (which is autoloaded on Ruby 3.2+ but not earlier).
       ignored_model_names = compute_ignored_model_names(ignore_patterns)
 
+      # Single table inheritance subclasses share their base class's table, so
+      # each hierarchy is drawn as the base class's entity. Associations that
+      # target a subclass are pointed at that entity too.
+      sti_base_names = compute_sti_base_names
+
       ::ActiveRecord::Base.descendants.sort_by(&:name).each do |defined_model|
         next unless defined_model.table_exists?
         next if defined_model.name.include?("HABTM_")
         next if defined_model.table_name.blank?
+        next if sti_base_names.key?(defined_model.name)
         next if ignored_model_names.key?(defined_model.name)
 
         table_name = defined_model.table_name
@@ -58,8 +64,11 @@ class RailsMermaidErd::Builder
 
         result[:Models] << model
 
-        defined_model.reflect_on_all_associations(:has_many).each do |reflection|
-          reflection_model_name = get_reflection_model_name(reflection)
+        hierarchy = [defined_model] + defined_model.descendants
+          .select { |descendant| sti_base_names[descendant.name] == defined_model.name }
+          .sort_by(&:name)
+
+        hierarchy_reflections(hierarchy, :has_many, sti_base_names).each do |reflection, reflection_model_name|
           next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r|
@@ -87,8 +96,7 @@ class RailsMermaidErd::Builder
           end
         end
 
-        defined_model.reflect_on_all_associations(:has_and_belongs_to_many).each do |reflection|
-          reflection_model_name = get_reflection_model_name(reflection)
+        hierarchy_reflections(hierarchy, :has_and_belongs_to_many, sti_base_names).each do |reflection, reflection_model_name|
           next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
@@ -106,7 +114,7 @@ class RailsMermaidErd::Builder
           end
         end
 
-        defined_model.reflect_on_all_associations(:belongs_to).each do |reflection|
+        hierarchy_reflections(hierarchy, :belongs_to, sti_base_names).each do |reflection, reflection_model_name|
           # Polymorphic `belongs_to` has no concrete target class — the target is
           # decided at row level by the `*_type` column. Emitting an edge to the
           # macro name (e.g. `"Imageable"`) would render an orphan node with no
@@ -114,7 +122,6 @@ class RailsMermaidErd::Builder
           # `has_many ..., as: :foo` reflections instead.
           next if reflection.polymorphic?
 
-          reflection_model_name = get_reflection_model_name(reflection)
           next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
@@ -140,8 +147,7 @@ class RailsMermaidErd::Builder
           end
         end
 
-        defined_model.reflect_on_all_associations(:has_one).each do |reflection|
-          reflection_model_name = get_reflection_model_name(reflection)
+        hierarchy_reflections(hierarchy, :has_one, sti_base_names).each do |reflection, reflection_model_name|
           next if ignored_model_names.key?(reflection_model_name)
 
           reverse_relation = result[:Relations].find { |r|
@@ -189,6 +195,34 @@ class RailsMermaidErd::Builder
         next if table_name.blank?
         acc[defined_model.name] = true if ignore_patterns.any? { |pattern| pattern.match?(table_name) }
       end
+    end
+
+    # Returns a Hash mapping each single table inheritance subclass name to its
+    # base class name. A subclass that sets its own `table_name` keeps its own
+    # entity, since it no longer shares the base class's table.
+    def compute_sti_base_names
+      ::ActiveRecord::Base.descendants.each_with_object({}) do |defined_model, acc|
+        next unless defined_model.table_exists?
+        next if defined_model.name.include?("HABTM_")
+        base_class = defined_model.base_class
+        next if base_class == defined_model
+        next unless base_class.table_name == defined_model.table_name
+        acc[defined_model.name] = base_class.name
+      end
+    end
+
+    # Returns `[reflection, target model name]` pairs for the associations
+    # declared anywhere in an inheritance hierarchy, with targets resolved to
+    # their base class. A subclass inherits its base class's reflections, so
+    # pairs repeating a name and target are dropped rather than drawn twice.
+    def hierarchy_reflections(hierarchy, macro, sti_base_names)
+      hierarchy
+        .flat_map { |model| model.reflect_on_all_associations(macro) }
+        .map { |reflection|
+          model_name = get_reflection_model_name(reflection)
+          [reflection, sti_base_names.fetch(model_name, model_name)]
+        }
+        .uniq { |reflection, model_name| [reflection.name, model_name] }
     end
 
     # Doc: https://guides.rubyonrails.org/association_basics.html
