@@ -284,14 +284,14 @@
           </div>
 
           <div class="absolute bottom-0 left-1/2 -translate-x-1/2 p-4">
-            <div class="bg-gray-800 text-white text-[10px] px-3 py-1.5 rounded inline-flex items-center space-x-6">
-              <div class="inline-flex items-center">
+            <div class="bg-gray-800 text-white text-[10px] px-3 py-1.5 rounded flex flex-col space-y-0.5">
+              <div>
                 <span class="font-medium">{{i18n[language]["controls"]["movement"]}}:</span>
-                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["space_drag"]}} / {{i18n[language]["controls"]["middle_drag"]}}</span>
+                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["scroll"]}} / {{i18n[language]["controls"]["arrow_keys"]}} / {{i18n[language]["controls"]["space_drag"]}} / {{i18n[language]["controls"]["middle_drag"]}}</span>
               </div>
-              <div class="inline-flex items-center">
+              <div>
                 <span class="font-medium">{{i18n[language]["controls"]["zoom"]}}:</span>
-                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["mouse_wheel"]}} / {{i18n[language]["controls"]["pinch"]}}</span>
+                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["ctrl_scroll"]}} / {{i18n[language]["controls"]["pinch"]}} / {{i18n[language]["controls"]["zoom_keys"]}}</span>
               </div>
             </div>
           </div>
@@ -300,7 +300,7 @@
             <div class="space-x-2 flex items-center">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomIn">+</button>
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomOut">-</button>
-              <button :title="i18n[language]['controls']['reset_view']" :aria-label="i18n[language]['controls']['reset_view']" class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="resetView">⌂</button>
+              <button :title="`${i18n[language]['controls']['reset_view']} (0)`" :aria-label="i18n[language]['controls']['reset_view']" class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="resetView">⌂</button>
             </div>
             <div class="flex items-center space-x-2">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveLeft">←</button>
@@ -397,7 +397,10 @@
           zoom: 'Zoom',
           space_drag: 'Space + Mouse Drag',
           middle_drag: 'Middle Click + Drag',
-          mouse_wheel: 'Mouse Wheel',
+          scroll: 'Scroll',
+          arrow_keys: 'Arrow Keys',
+          ctrl_scroll: 'Ctrl/⌘ + Scroll',
+          zoom_keys: '+/- Keys',
           pinch: 'Pinch In/Out',
           reset_view: 'Reset View',
         }
@@ -453,7 +456,10 @@
           zoom: '拡大/縮小',
           space_drag: 'スペースキー + マウスドラッグ',
           middle_drag: '中クリック + ドラッグ',
-          mouse_wheel: 'マウスホイール',
+          scroll: 'スクロール',
+          arrow_keys: '矢印キー',
+          ctrl_scroll: 'Ctrl/⌘ + スクロール',
+          zoom_keys: '+/- キー',
           pinch: 'ピンチイン/アウト',
           reset_view: 'ビューをリセット',
         }
@@ -509,7 +515,10 @@
           zoom: '缩放',
           space_drag: '空格 + 鼠标拖动',
           middle_drag: '中键 + 拖动',
-          mouse_wheel: '鼠标滚轮',
+          scroll: '滚动',
+          arrow_keys: '方向键',
+          ctrl_scroll: 'Ctrl/⌘ + 滚动',
+          zoom_keys: '+/- 键',
           pinch: '双指缩放',
           reset_view: '重置视图',
         }
@@ -565,7 +574,10 @@
           zoom: '縮放',
           space_drag: '空白鍵 + 滑鼠拖曳',
           middle_drag: '中鍵 + 拖曳',
-          mouse_wheel: '滑鼠滾輪',
+          scroll: '捲動',
+          arrow_keys: '方向鍵',
+          ctrl_scroll: 'Ctrl/⌘ + 捲動',
+          zoom_keys: '+/- 鍵',
           pinch: '雙指縮放',
           reset_view: '重設檢視',
         }
@@ -621,7 +633,10 @@
           zoom: '확대/축소',
           space_drag: '스페이스 + 마우스 드래그',
           middle_drag: '가운데 클릭 + 드래그',
-          mouse_wheel: '마우스 휠',
+          scroll: '스크롤',
+          arrow_keys: '화살표 키',
+          ctrl_scroll: 'Ctrl/⌘ + 스크롤',
+          zoom_keys: '+/- 키',
           pinch: '핀치 확대/축소',
           reset_view: '보기 초기화',
         }
@@ -677,7 +692,10 @@
           zoom: 'Zoom',
           space_drag: 'Espacio + arrastrar con el ratón',
           middle_drag: 'Clic central + arrastrar',
-          mouse_wheel: 'Rueda del ratón',
+          scroll: 'Desplazamiento',
+          arrow_keys: 'Teclas de flecha',
+          ctrl_scroll: 'Ctrl/⌘ + desplazamiento',
+          zoom_keys: 'Teclas +/-',
           pinch: 'Pellizcar para acercar/alejar',
           reset_view: 'Restablecer vista',
         }
@@ -733,7 +751,10 @@
           zoom: 'Zoom',
           space_drag: 'Espace + glisser avec la souris',
           middle_drag: 'Clic du milieu + glisser',
-          mouse_wheel: 'Molette de la souris',
+          scroll: 'Défilement',
+          arrow_keys: 'Touches fléchées',
+          ctrl_scroll: 'Ctrl/⌘ + défilement',
+          zoom_keys: 'Touches +/-',
           pinch: 'Pincer pour zoomer',
           reset_view: 'Réinitialiser la vue',
         }
@@ -789,7 +810,10 @@
           zoom: 'Zoom',
           space_drag: 'Leertaste + Maus ziehen',
           middle_drag: 'Mittelklick + Ziehen',
-          mouse_wheel: 'Mausrad',
+          scroll: 'Scrollen',
+          arrow_keys: 'Pfeiltasten',
+          ctrl_scroll: 'Strg/⌘ + Scrollen',
+          zoom_keys: 'Tasten +/-',
           pinch: 'Zwei-Finger-Zoom',
           reset_view: 'Ansicht zurücksetzen',
         }
@@ -845,7 +869,10 @@
           zoom: 'Zoom',
           space_drag: 'Spazio + trascina con il mouse',
           middle_drag: 'Clic centrale + trascina',
-          mouse_wheel: 'Rotellina del mouse',
+          scroll: 'Scorrimento',
+          arrow_keys: 'Tasti freccia',
+          ctrl_scroll: 'Ctrl/⌘ + scorrimento',
+          zoom_keys: 'Tasti +/-',
           pinch: 'Pizzica per zoomare',
           reset_view: 'Reimposta vista',
         }
@@ -901,7 +928,10 @@
           zoom: 'Zoom',
           space_drag: 'Espaço + arrastar com o mouse',
           middle_drag: 'Clique do meio + arrastar',
-          mouse_wheel: 'Roda do mouse',
+          scroll: 'Rolagem',
+          arrow_keys: 'Setas do teclado',
+          ctrl_scroll: 'Ctrl/⌘ + rolagem',
+          zoom_keys: 'Teclas +/-',
           pinch: 'Pinçar para ampliar/reduzir',
           reset_view: 'Redefinir visualização',
         }
@@ -957,7 +987,10 @@
           zoom: 'Масштаб',
           space_drag: 'Пробел + перетаскивание мышью',
           middle_drag: 'Средняя кнопка + перетаскивание',
-          mouse_wheel: 'Колесо мыши',
+          scroll: 'Прокрутка',
+          arrow_keys: 'Клавиши со стрелками',
+          ctrl_scroll: 'Ctrl/⌘ + прокрутка',
+          zoom_keys: 'Клавиши +/-',
           pinch: 'Щипок для масштабирования',
           reset_view: 'Сбросить вид',
         }
@@ -1013,7 +1046,10 @@
           zoom: 'التكبير',
           space_drag: 'المسافة + سحب الماوس',
           middle_drag: 'النقر الأوسط + السحب',
-          mouse_wheel: 'عجلة الماوس',
+          scroll: 'التمرير',
+          arrow_keys: 'مفاتيح الأسهم',
+          ctrl_scroll: 'Ctrl/⌘ + التمرير',
+          zoom_keys: 'المفتاحان +/-',
           pinch: 'القرص للتكبير/التصغير',
           reset_view: 'إعادة تعيين العرض',
         }
@@ -1051,15 +1087,18 @@
 
         const MIN_SCALE = 0.1
         const MAX_SCALE = 5
-        // Wheel delta in pixels → zoom factor. Exponential keeps each step perceptually uniform
-        // across the whole range, and lets trackpad (small deltas) and mouse-wheel (large deltas)
-        // share the same code path.
-        const WHEEL_ZOOM_SENSITIVITY = 0.0015
+        // Ctrl + wheel delta in pixels → zoom factor. Browsers other than Safari report a trackpad
+        // pinch as Ctrl + wheel events; Chromium sets deltaY = -100 * ln(pinch scale), so this
+        // sensitivity makes the diagram follow the fingers.
+        const WHEEL_ZOOM_SENSITIVITY = 0.01
         const BUTTON_ZOOM_FACTOR = 1.2
+        // A mouse wheel notch arrives as one large delta (around 100px) that would zoom by ~2.7x.
+        // Capping each event at the delta that equals one button step makes a notch zoom like the
+        // + / - buttons, while pinch events (a few pixels each) stay under the cap.
+        const WHEEL_ZOOM_MAX_DELTA_PX = Math.log(BUTTON_ZOOM_FACTOR) / WHEEL_ZOOM_SENSITIVITY
         const PAN_STEP_PX = 60
-        // Approximate pixels-per-line / pixels-per-page for wheel events that don't report
-        // DOM_DELTA_PIXEL. Firefox defaults to DOM_DELTA_LINE (deltaMode === 1, e.g. ±3 per detent)
-        // — without normalisation, exp(-3 * 0.0015) ≈ 0.9955 produces almost no visible zoom.
+        // Approximate pixels-per-line for wheel events that report DOM_DELTA_LINE
+        // (Firefox's default for mouse wheels, e.g. ±3 per notch).
         const WHEEL_LINE_HEIGHT_PX = 16
 
         const scale = Vue.ref(1)
@@ -1075,6 +1114,8 @@
         const isDragging = Vue.ref(false)
         // Record distance between two touch points
         let lastTouchDistance = 0
+        // Safari's gesture events report the scale since the gesture started, not per event
+        let lastGestureScale = 1
         // Record mouse position
         let lastMouseX = 0
         let lastMouseY = 0
@@ -1189,7 +1230,58 @@
           }
         }
 
-        // Handle key down (space key for drag mode toggle)
+        // Safari has no Ctrl + wheel pinch: a trackpad pinch arrives as gesturestart /
+        // gesturechange / gestureend. Without preventDefault Safari zooms the whole page instead.
+        // iOS Safari sends the same gesture events alongside the touch events of a two-finger
+        // pinch, which the touch handlers already zoom by, so a pinch in progress is left to them.
+        const handleGestureStart = (e) => {
+          if (!viewport.value || !viewport.value.contains(e.target)) return
+          e.preventDefault()
+          lastGestureScale = e.scale || 1
+        }
+
+        const handleGestureChange = (e) => {
+          if (!viewport.value || !viewport.value.contains(e.target)) return
+          e.preventDefault()
+          if (lastTouchDistance === 0 && lastGestureScale > 0 && e.scale > 0) {
+            zoomAt(e.clientX, e.clientY, e.scale / lastGestureScale)
+          }
+          lastGestureScale = e.scale
+        }
+
+        const handleGestureEnd = (e) => {
+          if (!viewport.value || !viewport.value.contains(e.target)) return
+          e.preventDefault()
+          lastGestureScale = 1
+        }
+
+        // Keys typed into these belong to the control, not to the diagram. Checkboxes only
+        // react to Space, so zoom keys still reach the diagram from the model list.
+        const isTypingTarget = (element) => {
+          if (!element) return false
+          if (element.isContentEditable) return true
+          if (element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') return true
+          return element.tagName === 'INPUT' && element.type !== 'checkbox'
+        }
+
+        // Arrow keys scroll the model list while the user is working in the sidebar (last clicked
+        // or tabbed into), and move the diagram otherwise.
+        let isSidebarActive = false
+        const ARROW_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
+
+        const KEY_ACTIONS = {
+          ArrowUp: () => moveUp(),
+          ArrowDown: () => moveDown(),
+          ArrowLeft: () => moveLeft(),
+          ArrowRight: () => moveRight(),
+          '+': () => zoomIn(),
+          // `=` shares the + key on US layouts, so zooming in doesn't need Shift
+          '=': () => zoomIn(),
+          '-': () => zoomOut(),
+          '0': () => resetView(),
+        }
+
+        // Handle key down: space toggles drag mode; arrows move, + / - zoom and 0 resets the view
         const handleKeyDown = (e) => {
           if (e.code === 'Space' && !isSpacePressed.value) {
             if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
@@ -1197,7 +1289,15 @@
             }
             isSpacePressed.value = true
             e.preventDefault()
+            return
           }
+          const action = KEY_ACTIONS[e.key]
+          // Ctrl / Command / Alt combinations are the browser's (page zoom, history navigation)
+          if (!action || tab.value !== 'erd' || e.ctrlKey || e.metaKey || e.altKey) return
+          if (isTypingTarget(document.activeElement)) return
+          if (ARROW_KEYS.includes(e.key) && (isSidebarActive || (sidebar.value && sidebar.value.contains(document.activeElement)))) return
+          e.preventDefault()
+          action()
         }
 
         // Handle key up
@@ -1210,6 +1310,7 @@
 
         // Handle mouse down (start dragging)
         const handleMouseDown = (e) => {
+          isSidebarActive = !!(sidebar.value && sidebar.value.contains(e.target))
           if (isSpacePressed.value || e.button === 1) {
             isDragging.value = true
             lastMouseX = e.clientX
@@ -1239,28 +1340,35 @@
           isDragging.value = false
         }
 
-        // Handle mouse wheel (zoom). Exponential factor derived from wheel delta gives smooth,
-        // device-agnostic zooming and anchors the zoom at the cursor.
+        // Handle wheel: scrolling (a mouse wheel or a two-finger trackpad swipe) moves the diagram;
+        // Ctrl / Command + scrolling and trackpad pinches (which browsers send as Ctrl + wheel)
+        // zoom it, anchored at the cursor.
         const handleWheel = (e) => {
           // Use `viewport` rather than `#preview` so snapshot mode (which swaps `#preview` for
-          // an <img> sibling under the same viewport) keeps responding to wheel zoom.
+          // an <img> sibling under the same viewport) keeps responding to the wheel.
           if (!viewport.value || !viewport.value.contains(e.target)) return
-          // Pure horizontal trackpad swipes (deltaY === 0) shouldn't be swallowed — the user is
-          // navigating, not zooming. Returning without preventDefault lets the browser handle it.
-          if (e.deltaY === 0) return
+          if (e.deltaX === 0 && e.deltaY === 0) return
           e.preventDefault()
-          // Normalise non-pixel deltaMode (Firefox defaults to line mode); otherwise the
-          // exp() factor collapses to ~1.0 and the wheel feels unresponsive. For page mode,
-          // scale against the zoomable area's own height — page-mode events are rare, but
-          // when they fire we want a step proportional to the surface being zoomed, not the
-          // whole document viewport.
-          const pageHeightPx = (viewport.value && viewport.value.clientHeight) || window.innerHeight
-          const pixelDeltaY = e.deltaMode === 1
-            ? e.deltaY * WHEEL_LINE_HEIGHT_PX
+          // Normalise non-pixel deltaMode (Firefox defaults to line mode). Page mode is rare;
+          // scale it against the diagram area itself rather than the whole document.
+          const toPixels = (delta, pagePx) => e.deltaMode === 1
+            ? delta * WHEEL_LINE_HEIGHT_PX
             : e.deltaMode === 2
-              ? e.deltaY * pageHeightPx
-              : e.deltaY
-          zoomAt(e.clientX, e.clientY, Math.exp(-pixelDeltaY * WHEEL_ZOOM_SENSITIVITY))
+              ? delta * pagePx
+              : delta
+          const pixelDeltaX = toPixels(e.deltaX, viewport.value.clientWidth)
+          const pixelDeltaY = toPixels(e.deltaY, viewport.value.clientHeight)
+          if (e.ctrlKey || e.metaKey) {
+            const zoomDelta = Math.min(Math.max(pixelDeltaY, -WHEEL_ZOOM_MAX_DELTA_PX), WHEEL_ZOOM_MAX_DELTA_PX)
+            zoomAt(e.clientX, e.clientY, Math.exp(-zoomDelta * WHEEL_ZOOM_SENSITIVITY))
+            return
+          }
+          // Browsers that don't turn Shift + mouse wheel into a horizontal scroll still get one
+          if (e.shiftKey && pixelDeltaX === 0) {
+            move(-pixelDeltaY, 0)
+            return
+          }
+          move(-pixelDeltaX, -pixelDeltaY)
         }
 
         const zoomStyle = Vue.computed(() => {
@@ -1847,6 +1955,9 @@
           window.addEventListener('touchstart', handleTouchStart, { passive: false })
           window.addEventListener('touchmove', handleTouchMove, { passive: false })
           window.addEventListener('touchend', handleTouchEnd)
+          window.addEventListener('gesturestart', handleGestureStart, { passive: false })
+          window.addEventListener('gesturechange', handleGestureChange, { passive: false })
+          window.addEventListener('gestureend', handleGestureEnd, { passive: false })
           sidebarResizeObserver.observe(sidebar.value)
           sidebarResizeObserver.observe(modelListHeader.value)
         })
@@ -1861,6 +1972,9 @@
           window.removeEventListener('touchstart', handleTouchStart)
           window.removeEventListener('touchmove', handleTouchMove)
           window.removeEventListener('touchend', handleTouchEnd)
+          window.removeEventListener('gesturestart', handleGestureStart)
+          window.removeEventListener('gesturechange', handleGestureChange)
+          window.removeEventListener('gestureend', handleGestureEnd)
           sidebarResizeObserver.disconnect()
         })
 
