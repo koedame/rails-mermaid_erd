@@ -43,11 +43,6 @@ describe "rake mermaid_erd" do
     expect(generated_html).to match(/var Vue\s*=/)                # Vue 3 global build
   end
 
-  # The front-end diagram builder must sanitise comment metadata the same way
-  # the Ruby renderer (MermaidText) does, so a column/table comment containing
-  # a `"` or a newline can't break the rendered diagram or the copied source.
-  # Asserted at the source level (the JS runs in the browser), matching how the
-  # other front-end behaviours in this file are pinned.
   # The viewer draws whatever SCHEMA_DATA lists, so a single table inheritance
   # subclass must not reach it as a model or a relation endpoint.
   it "hands the viewer a single table inheritance hierarchy as one model" do
@@ -60,6 +55,11 @@ describe "rake mermaid_erd" do
     expect(model_names + endpoints).not_to include("Complaint")
   end
 
+  # The front-end diagram builder must sanitise comment metadata the same way
+  # the Ruby renderer (MermaidText) does, so a column/table comment containing
+  # a `"` or a newline can't break the rendered diagram or the copied source.
+  # Asserted at the source level (the JS runs in the browser), matching how the
+  # other front-end behaviours in this file are pinned.
   it "escapes quotes and collapses newlines in the diagram source it builds" do
     expect(generated_html).to include("replace(/[\\r\\n]+/g, ' ')")
     expect(generated_html).to include("replace(/\"/g, '#quot;')")
