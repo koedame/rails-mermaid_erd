@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_09_15_120000) do
+ActiveRecord::Schema.define(version: 2026_09_15_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -65,9 +65,11 @@ ActiveRecord::Schema.define(version: 2026_09_15_120000) do
 
   create_table "posts", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.bigint "editor_id"
     t.string "title", null: false, comment: "post title"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["editor_id"], name: "index_posts_on_editor_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
@@ -115,6 +117,7 @@ ActiveRecord::Schema.define(version: 2026_09_15_120000) do
   add_foreign_key "comments", "users"
   add_foreign_key "matching_info_care_types", "care_types"
   add_foreign_key "posts", "users"
+  add_foreign_key "posts", "users", column: "editor_id"
   add_foreign_key "posts_tags", "posts"
   add_foreign_key "posts_tags", "tags"
   add_foreign_key "user_images", "users"

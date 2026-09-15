@@ -31,7 +31,7 @@ describe RailsMermaidErd::Builder do
 
     it "points an association that targets the subclass at the base class" do
       expect(result[:Relations]).to include(
-        hash_including(LeftModelName: "Comment", RightModelName: "Post", Comment: "BT:post, HM:comments, HM:complaints")
+        hash_including(LeftModelName: "Post", RightModelName: "Comment", Comment: "BT:post, HM:comments, HM:complaints")
       )
     end
 

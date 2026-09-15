@@ -1,4 +1,8 @@
 class RailsMermaidErd::Builder
+  # The order associations are read in, which is also the order their labels
+  # appear in a relation's comment.
+  RELATION_MACROS = [:has_many, :has_and_belongs_to_many, :belongs_to, :has_one].freeze
+
   class << self
     def model_data
       result = {
@@ -28,6 +32,10 @@ class RailsMermaidErd::Builder
       # each hierarchy is drawn as the base class's entity. Associations that
       # target a subclass are pointed at that entity too.
       sti_base_names = compute_sti_base_names
+
+      # Associations grouped by the link they describe (see `link_key`). Each
+      # group becomes one relation line once every model has been read.
+      links = Hash.new { |hash, key| hash[key] = [] }
 
       ::ActiveRecord::Base.descendants.sort_by(&:name).each do |defined_model|
         next unless defined_model.table_exists?
@@ -68,114 +76,24 @@ class RailsMermaidErd::Builder
           .select { |descendant| sti_base_names[descendant.name] == defined_model.name }
           .sort_by(&:name)
 
-        hierarchy_reflections(hierarchy, :has_many, sti_base_names).each do |reflection, reflection_model_name|
-          next if ignored_model_names.key?(reflection_model_name)
+        RELATION_MACROS.each do |macro|
+          hierarchy_reflections(hierarchy, macro, sti_base_names).each do |reflection, reflection_model_name|
+            # Polymorphic `belongs_to` has no concrete target class — the target is
+            # decided at row level by the `*_type` column. Emitting an edge to the
+            # macro name (e.g. `"Imageable"`) would render an orphan node with no
+            # columns; the polymorphic parents express the relationship via their
+            # `has_many ..., as: :foo` reflections instead.
+            next if macro == :belongs_to && reflection.polymorphic?
 
-          reverse_relation = result[:Relations].find { |r|
-            if reflection.options[:through]
-              r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name && r[:Line] == ".."
-            else
-              r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name && r[:Line] == "--"
-            end
-          }
-          if reverse_relation
-            reverse_relation[:Comment] = if reflection.options[:through]
-              "#{reverse_relation[:Comment]}, HMT:#{reflection.name}"
-            else
-              "#{reverse_relation[:Comment]}, HM:#{reflection.name}"
-            end
-          else
-            result[:Relations] << {
-              LeftModelName: model[:ModelName],
-              LeftValue: reflection.options[:through] ? "}o" : "||",
-              Line: reflection.options[:through] ? ".." : "--",
-              RightModelName: reflection_model_name,
-              RightValue: "o{",
-              Comment: reflection.options[:through] ? "HMT:#{reflection.name}" : "HM:#{reflection.name}"
-            }
-          end
-        end
+            next if ignored_model_names.key?(reflection_model_name)
 
-        hierarchy_reflections(hierarchy, :has_and_belongs_to_many, sti_base_names).each do |reflection, reflection_model_name|
-          next if ignored_model_names.key?(reflection_model_name)
-
-          reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
-          if reverse_relation
-            reverse_relation[:Comment] = "HABTM"
-          else
-            result[:Relations] << {
-              LeftModelName: model[:ModelName],
-              LeftValue: "}o",
-              Line: "..",
-              RightModelName: reflection_model_name,
-              RightValue: "o{",
-              Comment: "HABTM"
-            }
-          end
-        end
-
-        hierarchy_reflections(hierarchy, :belongs_to, sti_base_names).each do |reflection, reflection_model_name|
-          # Polymorphic `belongs_to` has no concrete target class — the target is
-          # decided at row level by the `*_type` column. Emitting an edge to the
-          # macro name (e.g. `"Imageable"`) would render an orphan node with no
-          # columns; the polymorphic parents express the relationship via their
-          # `has_many ..., as: :foo` reflections instead.
-          next if reflection.polymorphic?
-
-          next if ignored_model_names.key?(reflection_model_name)
-
-          reverse_relation = result[:Relations].find { |r| r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name }
-          if reverse_relation
-            if (::Rails.application.config.active_record.belongs_to_required_by_default && reflection.options[:optional]) || (!::Rails.application.config.active_record.belongs_to_required_by_default && !reflection.options[:required])
-              reverse_relation[:LeftValue] = "|o"
-            end
-            reverse_relation[:Comment] = "#{reverse_relation[:Comment]}, BT:#{reflection.name}"
-          else
-            right_value = if (::Rails.application.config.active_record.belongs_to_required_by_default && reflection.options[:optional]) || (!::Rails.application.config.active_record.belongs_to_required_by_default && !reflection.options[:required])
-              "o|"
-            else
-              "||"
-            end
-            result[:Relations] << {
-              LeftModelName: model[:ModelName],
-              LeftValue: "}o",
-              Line: "--",
-              RightModelName: reflection_model_name,
-              RightValue: right_value,
-              Comment: "BT:#{reflection.name}"
-            }
-          end
-        end
-
-        hierarchy_reflections(hierarchy, :has_one, sti_base_names).each do |reflection, reflection_model_name|
-          next if ignored_model_names.key?(reflection_model_name)
-
-          reverse_relation = result[:Relations].find { |r|
-            if reflection.options[:through]
-              r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name && r[:Line] == ".."
-            else
-              r[:RightModelName] == model[:ModelName] && r[:LeftModelName] == reflection_model_name && r[:Line] == "--"
-            end
-          }
-          if reverse_relation
-            reverse_relation[:LeftValue] = "|o"
-            reverse_relation[:Comment] = if reflection.options[:through]
-              "#{reverse_relation[:Comment]}, HOT:#{reflection.name}"
-            else
-              "#{reverse_relation[:Comment]}, HO:#{reflection.name}"
-            end
-          else
-            result[:Relations] << {
-              LeftModelName: model[:ModelName],
-              LeftValue: reflection.options[:through] ? "}o" : "||",
-              Line: reflection.options[:through] ? ".." : "--",
-              RightModelName: reflection_model_name,
-              RightValue: "o|",
-              Comment: reflection.options[:through] ? "HOT:#{reflection.name}" : "HO:#{reflection.name}"
-            }
+            association = {owner: model[:ModelName], macro: macro, reflection: reflection, target: reflection_model_name}
+            links[link_key(association)] << association
           end
         end
       end
+
+      result[:Relations] = links.map { |key, associations| relation_for(key, associations) }
 
       result
     end
@@ -223,6 +141,104 @@ class RailsMermaidErd::Builder
           [reflection, sti_base_names.fetch(model_name, model_name)]
         }
         .uniq { |reflection, model_name| [reflection.name, model_name] }
+    end
+
+    # Identifies the link between two tables that an association describes, so
+    # that every association describing the same link is drawn as one line —
+    # whichever model declares it and whichever model sorts first — and
+    # associations describing different links are never folded together:
+    #
+    # - A foreign key column is one link: `belongs_to` on the model that holds
+    #   the column, `has_many` / `has_one` on the model it references.
+    # - A join table is one link: both sides of `has_and_belongs_to_many`.
+    # - A `:through` association derives from other links and stores nothing
+    #   of its own, so it is identified by the two models it connects.
+    def link_key(association)
+      owner, target, reflection = association.values_at(:owner, :target, :reflection)
+
+      if reflection.options[:through]
+        [:through, *[owner, target].sort]
+      elsif association[:macro] == :has_and_belongs_to_many
+        [:join_table, reflection.join_table.to_s, *[owner, target].sort]
+      elsif association[:macro] == :belongs_to
+        [:foreign_key, owner, foreign_key_columns(reflection), target]
+      else
+        [:foreign_key, target, foreign_key_columns(reflection), owner]
+      end
+    end
+
+    # Builds the relation line for one link from every association that
+    # describes it, so no glyph depends on the order they were read in.
+    def relation_for(key, associations)
+      case key.first
+      when :foreign_key
+        _, child, _, parent = key
+        macros = associations.map { |association| association[:macro] }
+        optional = associations.any? { |association| association[:macro] == :belongs_to && optional_belongs_to?(association[:reflection]) }
+        {
+          LeftModelName: parent,
+          LeftValue: optional ? "|o" : "||",
+          Line: "--",
+          RightModelName: child,
+          RightValue: (macros.include?(:has_one) && !macros.include?(:has_many)) ? "o|" : "o{",
+          Comment: association_labels(associations)
+        }
+      when :join_table
+        _, _, left, right = key
+        {LeftModelName: left, LeftValue: "}o", Line: "..", RightModelName: right, RightValue: "o{", Comment: "HABTM"}
+      when :through
+        _, left, right = key
+        # Each end is "at most one" only when every association reaching that
+        # end is a `has_one :through`.
+        at_most_one = lambda do |model_name|
+          reaching = associations.select { |association| association[:target] == model_name }
+          reaching.any? && reaching.all? { |association| association[:macro] == :has_one }
+        end
+        {
+          LeftModelName: left,
+          LeftValue: at_most_one.call(left) ? "|o" : "}o",
+          Line: "..",
+          RightModelName: right,
+          RightValue: at_most_one.call(right) ? "o|" : "o{",
+          Comment: association_labels(associations)
+        }
+      end
+    end
+
+    def association_labels(associations)
+      associations.map { |association|
+        reflection = association[:reflection]
+        prefix = {has_many: "HM", has_one: "HO", belongs_to: "BT"}.fetch(association[:macro])
+        prefix = "#{prefix}T" if reflection.options[:through]
+        "#{prefix}:#{reflection.name}"
+      }.join(", ")
+    end
+
+    # Rails may hand back a String or a Symbol, or an Array for a composite key.
+    #
+    # Rails 7.1+ derives an undeclared key from `inverse_of` or the model's
+    # `query_constraints`, and raises when those are misdeclared. The host app
+    # only hits that once it uses the association, so one such declaration
+    # must not abort the whole diagram: fall back to the naming convention.
+    def foreign_key_columns(reflection)
+      Array(reflection.foreign_key).map(&:to_s)
+    rescue NameError, ArgumentError
+      column = if reflection.macro == :belongs_to
+        "#{reflection.name}_id"
+      elsif reflection.options[:as]
+        "#{reflection.options[:as]}_id"
+      else
+        reflection.active_record.name.foreign_key
+      end
+      [column]
+    end
+
+    def optional_belongs_to?(reflection)
+      if ::Rails.application.config.active_record.belongs_to_required_by_default
+        reflection.options[:optional]
+      else
+        !reflection.options[:required]
+      end
     end
 
     # Doc: https://guides.rubyonrails.org/association_basics.html
