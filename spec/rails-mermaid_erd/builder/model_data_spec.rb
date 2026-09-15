@@ -72,7 +72,9 @@ describe RailsMermaidErd::Builder.model_data do
         {name: "id", type: :integer, key: "PK", comment: nil},
         {name: "body", type: :string, key: "", comment: nil},
         {name: "created_at", type: :datetime, key: "", comment: nil},
+        {name: "flagged_comment_id", type: :integer, key: "FK", comment: nil},
         {name: "post_id", type: :integer, key: "FK", comment: nil},
+        {name: "type", type: :string, key: "", comment: nil},
         {name: "updated_at", type: :datetime, key: "", comment: nil},
         {name: "user_id", type: :integer, key: "FK", comment: nil}
       ]
@@ -198,7 +200,14 @@ describe RailsMermaidErd::Builder.model_data do
       Line: "--",
       RightModelName: "Post",
       RightValue: "||",
-      Comment: "BT:post, HM:comments"
+      Comment: "BT:post, HM:comments, HM:complaints"
+    }, {
+      LeftModelName: "Comment",
+      LeftValue: "}o",
+      Line: "--",
+      RightModelName: "Comment",
+      RightValue: "||",
+      Comment: "BT:flagged_comment"
     }, {
       LeftModelName: "Post",
       LeftValue: "}o",

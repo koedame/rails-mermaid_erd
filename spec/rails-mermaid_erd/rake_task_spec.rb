@@ -43,6 +43,18 @@ describe "rake mermaid_erd" do
     expect(generated_html).to match(/var Vue\s*=/)                # Vue 3 global build
   end
 
+  # The viewer draws whatever SCHEMA_DATA lists, so a single table inheritance
+  # subclass must not reach it as a model or a relation endpoint.
+  it "hands the viewer a single table inheritance hierarchy as one model" do
+    payload = generated_html[%r{<script>window\.SCHEMA_DATA=(.*?)</script>}m, 1]
+    schema = JSON.parse(payload)
+    model_names = schema["Models"].map { |m| m["ModelName"] }
+    endpoints = schema["Relations"].flat_map { |r| [r["LeftModelName"], r["RightModelName"]] }
+
+    expect(model_names.count("Comment")).to eq(1)
+    expect(model_names + endpoints).not_to include("Complaint")
+  end
+
   # The front-end diagram builder must sanitise comment metadata the same way
   # the Ruby renderer (MermaidText) does, so a column/table comment containing
   # a `"` or a newline can't break the rendered diagram or the copied source.
@@ -269,6 +281,15 @@ describe "rake mermaid_erd:print" do
     # that the model_data spec already pins.
     expect(output).to include("    AuditLog {")
     expect(output).to match(/^\s+integer id PK ""$/)
+  end
+
+  # `Complaint < Comment` shares the `comments` table, so the dump must draw
+  # that table once and never name the subclass.
+  it "prints a single table inheritance hierarchy as one entity" do
+    output = run_print_task
+
+    expect(output.scan(/^    Comment \{$/).size).to eq(1)
+    expect(output).not_to match(/\bComplaint\b/)
   end
 
   # The whole point of the task is a clean pipe: stdout must carry the diagram
