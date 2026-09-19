@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_09_15_130000) do
+ActiveRecord::Schema.define(version: 2026_09_19_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,6 +20,13 @@ ActiveRecord::Schema.define(version: 2026_09_15_130000) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
+
+  create_table "bookmarks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "post_id", null: false
+    t.bigint "reader_id", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "care_types", force: :cascade do |t|
@@ -61,6 +68,19 @@ ActiveRecord::Schema.define(version: 2026_09_15_130000) do
     t.datetime "updated_at", null: false
     t.index ["care_type_id"], name: "index_matching_info_care_types_on_care_type_id"
     t.index ["matching_info_type", "matching_info_id"], name: "idx_on_matching_info_type_matching_info_id_de942d05f3"
+  end
+
+  create_table "memberships", primary_key: ["organization_code", "member_code"], force: :cascade do |t|
+    t.string "member_code", null: false
+    t.string "organization_code", null: false
+    t.string "role"
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.string "body", null: false
+    t.datetime "created_at", null: false
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "posts", force: :cascade do |t|
