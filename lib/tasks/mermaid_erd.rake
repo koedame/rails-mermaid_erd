@@ -12,6 +12,18 @@ desc "Generate Mermaid ERD."
 task mermaid_erd: :environment do
   result = RailsMermaidErd::Builder.model_data
 
+  viewer_defaults = RailsMermaidErd.configuration.viewer_defaults
+  # A model that was renamed, or whose table is now in `ignore_tables`, would
+  # otherwise leave the viewer opening on a selection that quietly lost a
+  # model. Don't fail the build over it — the diagram is still usable — but say
+  # which names were dropped.
+  unknown_models = viewer_defaults[:models] - result[:Models].map { |model| model[:ModelName] }
+  unless unknown_models.empty?
+    warn "rails-mermaid_erd: `viewer_defaults.models` in config/mermaid_erd.yml lists " \
+         "#{unknown_models.join(", ")}, which #{unknown_models.one? ? "is" : "are"} not in the diagram; not preselecting."
+    viewer_defaults = viewer_defaults.merge(models: viewer_defaults[:models] - unknown_models)
+  end
+
   version = RailsMermaidErd::VERSION
   app_name = ::Rails.application.class.try(:parent_name) || ::Rails.application.class.try(:module_parent_name)
   logo = RailsMermaidErd.read_gem_asset("./assets/logo.svg")
