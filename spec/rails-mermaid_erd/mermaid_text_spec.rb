@@ -30,7 +30,7 @@ describe RailsMermaidErd::MermaidText do
 
             %% table name: users
             %% table comment: app users
-            User {
+            User["User / app users"] {
                 integer id PK ""
                 integer team_id FK "owning team"
             }
@@ -70,6 +70,31 @@ describe RailsMermaidErd::MermaidText do
       expect(output).to include("    %% table comment: multi line comment")
       # In the quoted column label: `"` -> `#quot;` and newline -> space.
       expect(output).to include(%(        string size  "width in #quot;px#quot; or mm"))
+    end
+
+    it "draws a model that has a table comment under a heading of its name and the comment, keeping the name as the entity id" do
+      result = {
+        Models: [
+          {TableName: "users", TableComment: "ユーザー", ModelName: "User", IsModelExist: true, Columns: []},
+          {TableName: "posts", TableComment: "", ModelName: "Post", IsModelExist: true, Columns: []}
+        ],
+        Relations: [{LeftModelName: "User", LeftValue: "||", Line: "--", RightModelName: "Post", RightValue: "o{", Comment: ""}]
+      }
+
+      output = described_class.build(result)
+
+      expect(output).to include(%(    User["User / ユーザー"] {))
+      expect(output).to include("    Post {")
+      expect(output).to include(%(    User ||--o{ Post : ""))
+    end
+
+    it "sanitises the table comment in the heading so quotes and newlines can't break the diagram" do
+      result = {
+        Models: [{TableName: "tags", TableComment: %(tag "kind"\nsecond line), ModelName: "Admin::Tag", IsModelExist: true, Columns: []}],
+        Relations: []
+      }
+
+      expect(described_class.build(result)).to include(%(    Admin--Tag["Admin--Tag / tag #quot;kind#quot; second line"] {))
     end
 
     it "replaces every ':' in namespaced model names with '-' so Mermaid can parse them (matching the viewer)" do
