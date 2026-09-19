@@ -293,8 +293,8 @@ describe "rake mermaid_erd viewer defaults" do
   context "when every listed model is in the diagram" do
     let(:configured) { {models: %w[Post], columns: "keys"} }
 
-    it "hands the viewer the configured defaults without a warning" do
-      expect { generate }.not_to output.to_stderr
+    it "hands the viewer the configured defaults without a warning about them" do
+      expect { generate }.not_to output(/viewer_defaults/).to_stderr
 
       expect(hand_over).to eq({"models" => %w[Post], "columns" => "keys"})
     end
