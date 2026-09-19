@@ -3,6 +3,9 @@ require "spec_helper"
 describe RailsMermaidErd::Builder.model_data do
   let(:result) { RailsMermaidErd::Builder.model_data }
 
+  # Before Rails 7.1 a composite primary key reads as no primary key at all.
+  let(:composite_primary_key_key) { (ActiveRecord.version >= Gem::Version.new("7.1")) ? "PK" : "" }
+
   it "Model includes" do
     expect(result[:Models]).to match_array([{
       TableName: "audit_logs",
@@ -145,9 +148,43 @@ describe RailsMermaidErd::Builder.model_data do
         {name: "id", type: :integer, key: "PK", comment: nil},
         {name: "care_type_id", type: :integer, key: "FK", comment: nil},
         {name: "created_at", type: :datetime, key: "", comment: nil},
-        {name: "matching_info_id", type: :integer, key: "", comment: nil},
+        {name: "matching_info_id", type: :integer, key: "FK", comment: nil},
         {name: "matching_info_type", type: :string, key: "", comment: nil},
         {name: "updated_at", type: :datetime, key: "", comment: nil}
+      ]
+    }, {
+      TableName: "bookmarks",
+      TableComment: "",
+      ModelName: "Bookmark",
+      IsModelExist: true,
+      Columns: [
+        {name: "id", type: :integer, key: "PK", comment: nil},
+        {name: "created_at", type: :datetime, key: "", comment: nil},
+        {name: "post_id", type: :integer, key: "FK", comment: nil},
+        {name: "reader_id", type: :integer, key: "FK", comment: nil},
+        {name: "updated_at", type: :datetime, key: "", comment: nil}
+      ]
+    }, {
+      TableName: "notes",
+      TableComment: "",
+      ModelName: "Note",
+      IsModelExist: true,
+      Columns: [
+        {name: "id", type: :integer, key: "PK", comment: nil},
+        {name: "body", type: :string, key: "", comment: nil},
+        {name: "created_at", type: :datetime, key: "", comment: nil},
+        {name: "post_id", type: :integer, key: "FK", comment: nil},
+        {name: "updated_at", type: :datetime, key: "", comment: nil}
+      ]
+    }, {
+      TableName: "memberships",
+      TableComment: "",
+      ModelName: "Membership",
+      IsModelExist: true,
+      Columns: [
+        {name: "member_code", type: :string, key: composite_primary_key_key, comment: nil},
+        {name: "organization_code", type: :string, key: composite_primary_key_key, comment: nil},
+        {name: "role", type: :string, key: "", comment: nil}
       ]
     }])
   end
@@ -223,6 +260,27 @@ describe RailsMermaidErd::Builder.model_data do
       RightModelName: "Comment",
       RightValue: "o{",
       Comment: "BT:flagged_comment"
+    }, {
+      LeftModelName: "Post",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "Bookmark",
+      RightValue: "o{",
+      Comment: "BT:post"
+    }, {
+      LeftModelName: "Author",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "Bookmark",
+      RightValue: "o{",
+      Comment: "BT:reader"
+    }, {
+      LeftModelName: "Post",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "Note",
+      RightValue: "o{",
+      Comment: "HM:notes"
     }, {
       LeftModelName: "Post",
       LeftValue: "}o",

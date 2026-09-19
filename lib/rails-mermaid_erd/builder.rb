@@ -37,6 +37,11 @@ class RailsMermaidErd::Builder
       # group becomes one relation line once every model has been read.
       links = Hash.new { |hash, key| hash[key] = [] }
 
+      # Foreign key columns the associations name, by the model whose table
+      # holds them. Not every application backs its associations with foreign
+      # key constraints, so these are drawn as foreign keys too.
+      association_foreign_keys = Hash.new { |hash, model_name| hash[model_name] = [] }
+
       ::ActiveRecord::Base.descendants.sort_by(&:name).each do |defined_model|
         next unless defined_model.table_exists?
         next if defined_model.name.include?("HABTM_")
@@ -54,10 +59,10 @@ class RailsMermaidErd::Builder
         }
 
         foreign_keys = ::ActiveRecord::Schema.foreign_keys(defined_model.table_name).map { |k| k.options[:column] }
-        primary_key = defined_model.primary_key
+        primary_keys = Array(defined_model.primary_key)
         defined_model.columns.each do |column|
           key = ""
-          if column.name == primary_key
+          if primary_keys.include?(column.name)
             key = "PK"
           elsif foreign_keys.include?(column.name)
             key = "FK"
@@ -78,6 +83,11 @@ class RailsMermaidErd::Builder
 
         RELATION_MACROS.each do |macro|
           hierarchy_reflections(hierarchy, macro, sti_base_names).each do |reflection, reflection_model_name|
+            # A `belongs_to` holds its foreign key itself, whatever it points at.
+            if macro == :belongs_to
+              association_foreign_keys[model[:ModelName]].concat(foreign_key_columns(reflection))
+            end
+
             # Polymorphic `belongs_to` has no concrete target class — the target is
             # decided at row level by the `*_type` column. Emitting an edge to the
             # macro name (e.g. `"Imageable"`) would render an orphan node with no
@@ -87,9 +97,21 @@ class RailsMermaidErd::Builder
 
             next if ignored_model_names.key?(reflection_model_name)
 
+            # `has_many` / `has_one` leave the foreign key to the model they
+            # point at. A `:through` association stores nothing of its own.
+            if [:has_many, :has_one].include?(macro) && !reflection.options[:through]
+              association_foreign_keys[reflection_model_name].concat(foreign_key_columns(reflection))
+            end
+
             association = {owner: model[:ModelName], macro: macro, reflection: reflection, target: reflection_model_name}
             links[link_key(association)] << association
           end
+        end
+      end
+
+      result[:Models].each do |model|
+        model[:Columns].each do |column|
+          column[:key] = "FK" if column[:key].empty? && association_foreign_keys[model[:ModelName]].include?(column[:name])
         end
       end
 
