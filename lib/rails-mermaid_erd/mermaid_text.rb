@@ -6,13 +6,14 @@ class RailsMermaidErd::MermaidText
   # (lib/templates/index.html.erb): the dump always shows every table, every
   # column with its key marker and comment, and every relation label — i.e.
   # the diagram the viewer produces with all of its detail toggles ("Show
-  # key", "Show comment", "Show relation comment") enabled and with no
-  # model-selection filtering. The viewer defaults those toggles off, so the
-  # dump is deliberately more detailed than the viewer's initial view. The only
-  # thing it drops is the viewer's "Restore Hash" comment line, which encodes
-  # browser-only UI state and is meaningless on the command line. Apart from
-  # that line and a single trailing newline (added by the rake task's `puts`),
-  # it is byte-identical to the viewer's "all toggles on" output.
+  # key", "Show column comment", "Show table comment", "Show relationship
+  # comment") enabled and with no model-selection filtering. The viewer
+  # defaults those toggles off, so the dump is deliberately more detailed than
+  # the viewer's initial view. The only thing it drops is the viewer's
+  # "Restore Hash" comment line, which encodes browser-only UI state and is
+  # meaningless on the command line. Apart from that line and a single trailing
+  # newline (added by the rake task's `puts`), it is byte-identical to the
+  # viewer's "all toggles on" output.
   #
   # Comment values come from arbitrary DB metadata, so they are sanitised the
   # same way the viewer's renderer must (and now does): newlines collapse to a
@@ -39,7 +40,12 @@ class RailsMermaidErd::MermaidText
         lines << "    %% table comment: #{one_line(model[:TableComment])}"
         # Mermaid entity names can't contain ":", so namespaced models like
         # `Admin::User` are written as `Admin-User` (matches the front-end).
-        lines << "    #{model[:ModelName].tr(":", "-")} {"
+        name = model[:ModelName].tr(":", "-")
+        # A model with a table comment gets Mermaid's entity alias, so its
+        # heading reads "Model / comment" while relations keep using the name.
+        comment = one_line(model[:TableComment])
+        alias_label = comment.empty? ? "" : %(["#{name} / #{comment.gsub('"', "#quot;")}"])
+        lines << "    #{name}#{alias_label} {"
         model[:Columns].each do |column|
           lines << "        #{column[:type]} #{column[:name]} #{column[:key]} #{quoted(column[:comment])}"
         end

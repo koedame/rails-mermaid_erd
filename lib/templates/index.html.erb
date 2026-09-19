@@ -185,6 +185,18 @@
             </div>
 
             <div class="min-w-0 flex-1 text-sm">
+              <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                  v-model="isShowTableComment"
+                  @change="updateHash"
+                />
+                <span class="text-xs text-gray-900">{{i18n[language]["options"]["show_table_comment"]}}</span>
+              </label>
+            </div>
+
+            <div class="min-w-0 flex-1 text-sm">
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded" :title="i18n[language]['options']['snapshot_mode_hint']">
                 <input
                   type="checkbox"
@@ -371,6 +383,7 @@
           show_relationship_comment: 'Show Relationship Comment',
           show_key: 'Show Key',
           show_column_comment: 'Show Column Comment',
+          show_table_comment: 'Show Table Comment',
           columns: 'Columns',
           columns_all: 'All',
           columns_keys: 'Keys Only',
@@ -433,6 +446,7 @@
           show_relationship_comment: 'リレーションのコメントを表示',
           show_key: 'キーを表示',
           show_column_comment: 'コメントを表示',
+          show_table_comment: 'テーブルコメントを表示',
           columns: 'カラム',
           columns_all: 'すべて',
           columns_keys: 'キーのみ',
@@ -495,6 +509,7 @@
           show_relationship_comment: '显示关系注释',
           show_key: '显示键',
           show_column_comment: '显示字段注释',
+          show_table_comment: '显示表注释',
           columns: '字段',
           columns_all: '全部',
           columns_keys: '仅显示键',
@@ -557,6 +572,7 @@
           show_relationship_comment: '顯示關聯註解',
           show_key: '顯示鍵',
           show_column_comment: '顯示欄位註解',
+          show_table_comment: '顯示資料表註解',
           columns: '欄位',
           columns_all: '全部',
           columns_keys: '僅顯示鍵',
@@ -619,6 +635,7 @@
           show_relationship_comment: '관계 주석 표시',
           show_key: '키 표시',
           show_column_comment: '컬럼 주석 표시',
+          show_table_comment: '테이블 주석 표시',
           columns: '컬럼',
           columns_all: '전체',
           columns_keys: '키만',
@@ -681,6 +698,7 @@
           show_relationship_comment: 'Mostrar comentario de la relación',
           show_key: 'Mostrar clave',
           show_column_comment: 'Mostrar comentario de la columna',
+          show_table_comment: 'Mostrar comentario de la tabla',
           columns: 'Columnas',
           columns_all: 'Todas',
           columns_keys: 'Solo claves',
@@ -743,6 +761,7 @@
           show_relationship_comment: 'Afficher le commentaire de la relation',
           show_key: 'Afficher la clé',
           show_column_comment: 'Afficher le commentaire de la colonne',
+          show_table_comment: 'Afficher le commentaire de la table',
           columns: 'Colonnes',
           columns_all: 'Toutes',
           columns_keys: 'Clés uniquement',
@@ -805,6 +824,7 @@
           show_relationship_comment: 'Beziehungskommentar anzeigen',
           show_key: 'Schlüssel anzeigen',
           show_column_comment: 'Spaltenkommentar anzeigen',
+          show_table_comment: 'Tabellenkommentar anzeigen',
           columns: 'Spalten',
           columns_all: 'Alle',
           columns_keys: 'Nur Schlüssel',
@@ -867,6 +887,7 @@
           show_relationship_comment: 'Mostra commento della relazione',
           show_key: 'Mostra chiave',
           show_column_comment: 'Mostra commento della colonna',
+          show_table_comment: 'Mostra commento della tabella',
           columns: 'Colonne',
           columns_all: 'Tutte',
           columns_keys: 'Solo chiavi',
@@ -929,6 +950,7 @@
           show_relationship_comment: 'Mostrar comentário do relacionamento',
           show_key: 'Mostrar chave',
           show_column_comment: 'Mostrar comentário da coluna',
+          show_table_comment: 'Mostrar comentário da tabela',
           columns: 'Colunas',
           columns_all: 'Todas',
           columns_keys: 'Somente chaves',
@@ -991,6 +1013,7 @@
           show_relationship_comment: 'Показать комментарий связи',
           show_key: 'Показать ключ',
           show_column_comment: 'Показать комментарий столбца',
+          show_table_comment: 'Показать комментарий таблицы',
           columns: 'Столбцы',
           columns_all: 'Все',
           columns_keys: 'Только ключи',
@@ -1053,6 +1076,7 @@
           show_relationship_comment: 'إظهار تعليق العلاقة',
           show_key: 'إظهار المفتاح',
           show_column_comment: 'إظهار تعليق العمود',
+          show_table_comment: 'إظهار تعليق الجدول',
           columns: 'الأعمدة',
           columns_all: 'الكل',
           columns_keys: 'المفاتيح فقط',
@@ -1118,6 +1142,7 @@
         const isShowRelationComment = Vue.ref(false)
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
+        const isShowTableComment = Vue.ref(false)
         // Which columns each model box draws. Keys Only keeps the columns the
         // schema marks as a primary or foreign key, so a large diagram stays
         // small without dropping the columns its relations are declared on.
@@ -1458,6 +1483,7 @@
             isShowRelationComment.value = !!parsedData.isShowRelationComment
             isShowKey.value = !!parsedData.isShowKey
             isShowComment.value = !!parsedData.isShowComment
+            isShowTableComment.value = !!parsedData.isShowTableComment
             // Links shared before the column choice existed carry the old
             // `isHideColumns` checkbox instead. A link that names neither
             // leaves the choice to the app's default.
@@ -1483,6 +1509,7 @@
           isShowRelationComment.value = false
           isShowKey.value = false
           isShowComment.value = false
+          isShowTableComment.value = false
           columnMode.value = viewerDefaults.columns
           isSnapshotMode.value = false
           updateHash()
@@ -1495,6 +1522,7 @@
             isShowRelationComment: isShowRelationComment.value,
             isShowKey: isShowKey.value,
             isShowComment: isShowComment.value,
+            isShowTableComment: isShowTableComment.value,
             columns: columnMode.value,
             isSnapshotMode: isSnapshotMode.value,
           }))
@@ -1566,7 +1594,13 @@
           filteredData.value.Models.forEach(model => {
             lines.push(`    %% table name: ${oneLine(model.TableName)}`)
             lines.push(`    %% table comment: ${oneLine(model.TableComment)}`)
-            lines.push(`    ${model.ModelName.replace(/:/g, '-')} {`)
+            const entityName = model.ModelName.replace(/:/g, '-')
+            // Mermaid's entity alias: the id stays the model name (relations
+            // refer to it), the heading shows "Model / table comment".
+            const entityAlias = isShowTableComment.value && oneLine(model.TableComment) !== ''
+              ? `["${entityName} / ${oneLine(model.TableComment).replace(/"/g, '#quot;')}"]`
+              : ''
+            lines.push(`    ${entityName}${entityAlias} {`)
 
             if (columnMode.value !== 'none') {
               model.Columns.filter(column => columnMode.value === 'all' || column.key).forEach(column => {
@@ -1642,6 +1676,7 @@
           isShowRelationComment.value,
           isShowKey.value,
           isShowComment.value,
+          isShowTableComment.value,
           columnMode.value
         ])
         let lastRenderKey = null
@@ -2050,6 +2085,7 @@
           isPreviewRelations,
           isShowRelationComment,
           isShowComment,
+          isShowTableComment,
           isShowKey,
           isSnapshotMode,
           snapshotDataUrl,
