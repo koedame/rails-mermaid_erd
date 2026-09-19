@@ -110,6 +110,7 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 | --- | --- | --- |
 | `result_path` | 產生檔案的輸出路徑。 | `mermaid_erd/index.html` |
 | `ignore_tables` | 正規表示式字串陣列。`table_name` 與任意模式相符的資料表，連同指向它們的所有關聯，都將從產生的 ERD 中排除。適用於排除稽核日誌模型、軟刪除/舊版資料表或其他不想渲染的大量雜訊。模式透過 `Regexp.new` 編譯，因此在 YAML 字串中需要跳脫反斜線（例如 `"\\Aaudit_"`）。 | `[]` |
+| `viewer_defaults` | URL 中沒有已儲存狀態時檢視器開啟的初始檢視，也是按下**重設**後回到的檢視；帶有自身狀態的連結一律優先。`models`：初始選取的模型名稱陣列（不在 ERD 中的名稱會在產生檔案時顯示警告並被忽略）。`columns`：`all` / `keys`（僅主鍵與外鍵）/ `none`，與側邊欄「欄位」的選項相同。適合在大型應用程式中從常用的模型開始檢視。 | `models: []`（不選取任何模型），`columns: all` |
 
 <!--
 TODO:

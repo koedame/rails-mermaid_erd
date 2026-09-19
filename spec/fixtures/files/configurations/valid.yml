@@ -6,3 +6,10 @@ result_path: doc/erd.html
 ignore_tables:
   - "\\Aaudit_"
   - "\\Aschema_migrations\\z"
+
+# The view the viewer opens on.
+viewer_defaults:
+  models:
+    - User
+    - Post
+  columns: keys

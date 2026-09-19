@@ -71,9 +71,11 @@ describe "rake mermaid_erd" do
     # the page on a hundreds-of-models schema lays out the full diagram before
     # the user has any chance to narrow it down. We assert the behavioural
     # intent (empty default, no `Models.forEach` push) rather than a brittle
-    # source-shape match.
+    # source-shape match. `reset()` starts from the `viewer_defaults` the task
+    # hands over, so an app that configures nothing must be handed an empty list.
     it "defaults the model selection to an empty list" do
-      expect(generated_html).to include("selectModels.value = []")
+      handed_over = JSON.parse(generated_html[%r{<script>window\.VIEWER_DEFAULTS=(.*?)</script>}m, 1])
+      expect(handed_over["models"]).to eq([])
       expect(generated_html).not_to match(/schemaData\.Models\.forEach\([^)]*\)\s*=>\s*\{\s*selectModels\.value\.push/)
     end
 
@@ -253,6 +255,69 @@ describe "rake mermaid_erd" do
     expect(JSON.parse(payload)).to eq(JSON.parse(hostile.to_json))
   ensure
     FileUtils.rm_f(tmp_path) if tmp_path
+  end
+end
+
+describe "rake mermaid_erd viewer defaults" do
+  let(:tmp_path) { Rails.root.join("tmp/mermaid_erd_viewer_defaults_spec.html") }
+
+  let(:schema) do
+    {
+      Models: %w[User Post].map do |name|
+        {TableName: name.downcase, TableComment: nil, ModelName: name, IsModelExist: true, Columns: [{name: "id", type: :integer, key: "PK", comment: nil}]}
+      end,
+      Relations: []
+    }
+  end
+
+  before do
+    Rake::Task.define_task(:environment) unless Rake::Task.task_defined?(:environment)
+    Rails.application.load_tasks unless Rake::Task.task_defined?("mermaid_erd")
+    FileUtils.mkdir_p(File.dirname(tmp_path))
+    allow(RailsMermaidErd::Builder).to receive(:model_data).and_return(schema)
+    allow(RailsMermaidErd.configuration).to receive(:result_path).and_return(tmp_path.relative_path_from(Rails.root).to_s)
+    allow(RailsMermaidErd.configuration).to receive(:viewer_defaults).and_return(configured)
+  end
+
+  after { FileUtils.rm_f(tmp_path) }
+
+  def generate
+    Rake::Task["mermaid_erd"].reenable
+    Rake::Task["mermaid_erd"].invoke
+  end
+
+  def hand_over
+    JSON.parse(File.read(tmp_path)[%r{<script>window\.VIEWER_DEFAULTS=(.*?)</script>}m, 1])
+  end
+
+  context "when every listed model is in the diagram" do
+    let(:configured) { {models: %w[Post], columns: "keys"} }
+
+    it "hands the viewer the configured defaults without a warning about them" do
+      expect { generate }.not_to output(/viewer_defaults/).to_stderr
+
+      expect(hand_over).to eq({"models" => %w[Post], "columns" => "keys"})
+    end
+  end
+
+  context "when a listed model is not in the diagram" do
+    let(:configured) { {models: %w[Post Ghost], columns: "all"} }
+
+    it "warns naming the model and leaves it out of the preselection" do
+      expect { generate }.to output(/viewer_defaults\.models.*Ghost, which is not in the diagram/m).to_stderr
+
+      expect(hand_over).to eq({"models" => %w[Post], "columns" => "all"})
+    end
+  end
+
+  context "when several listed models are not in the diagram" do
+    let(:configured) { {models: %w[Ghost Phantom], columns: "all"} }
+
+    it "warns naming all of them" do
+      expect { generate }.to output(/Ghost, Phantom, which are not in the diagram/).to_stderr
+
+      expect(hand_over).to eq({"models" => [], "columns" => "all"})
+    end
   end
 end
 

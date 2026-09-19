@@ -108,6 +108,7 @@ The setting items are as follows.
 | --- | --- | --- |
 | `result_path` | Destination of generated files. | `mermaid_erd/index.html` |
 | `ignore_tables` | Array of regular-expression strings. Tables whose `table_name` matches any pattern are dropped from the generated ERD, along with any relations that point at them. Useful for excluding audit-log models, soft-deleted/legacy tables, or other large noise you don't want to render. Patterns are compiled with `Regexp.new`, so escape backslashes inside YAML strings (e.g. `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | The view the viewer opens on when the URL carries no saved state, and the one **Reset** returns to; a link with its own state always wins. `models`: array of model names selected at first (a name that is not in the diagram is skipped with a warning when the file is generated). `columns`: `all`, `keys` (primary and foreign keys only) or `none`, the same choices as Columns in the sidebar. Useful for opening a large app on the models people usually start from. | `models: []` (nothing selected), `columns: all` |
 
 <!--
 TODO:

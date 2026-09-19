@@ -347,6 +347,7 @@
   <script><%= vue_js %></script>
 
   <script>window.SCHEMA_DATA=<%= result.to_json %></script>
+  <script>window.VIEWER_DEFAULTS=<%= viewer_defaults.to_json %></script>
   <script>
     window.locales = [
       { code: 'en', label: 'English', dir: 'ltr' },
@@ -1133,6 +1134,9 @@
           ...window.SCHEMA_DATA,
           Models: window.SCHEMA_DATA.Models.sort((a, b) => a.ModelName < b.ModelName ? -1 : 1)
         }
+        // The view the app's config/mermaid_erd.yml asks for on a first visit and
+        // after Reset: `{models: [...], columns: 'all' | 'keys' | 'none'}`.
+        const viewerDefaults = window.VIEWER_DEFAULTS
         const selectModels = Vue.ref([])
         const isPreviewRelations = Vue.ref(false)
         const isShowRelationComment = Vue.ref(false)
@@ -1474,17 +1478,19 @@
           }
           try {
             const parsedData = JSON.parse(atob(raw))
-            selectModels.value = parsedData.selectModels || []
+            selectModels.value = parsedData.selectModels || [...viewerDefaults.models]
             isPreviewRelations.value = !!parsedData.isPreviewRelations
             isShowRelationComment.value = !!parsedData.isShowRelationComment
             isShowKey.value = !!parsedData.isShowKey
             isShowComment.value = !!parsedData.isShowComment
             isShowTableComment.value = !!parsedData.isShowTableComment
             // Links shared before the column choice existed carry the old
-            // `isHideColumns` checkbox instead.
-            columnMode.value = COLUMN_MODES.includes(parsedData.columns)
-              ? parsedData.columns
+            // `isHideColumns` checkbox instead. A link that names neither
+            // leaves the choice to the app's default.
+            const legacyColumns = parsedData.isHideColumns === undefined
+              ? viewerDefaults.columns
               : (parsedData.isHideColumns ? 'none' : 'all')
+            columnMode.value = COLUMN_MODES.includes(parsedData.columns) ? parsedData.columns : legacyColumns
             isSnapshotMode.value = !!parsedData.isSnapshotMode
           } catch (err) {
             console.warn('mermaid_erd: could not restore from URL hash, resetting to defaults.', err)
@@ -1492,18 +1498,19 @@
           }
         }
 
-        // Default to NO models selected. Issue #169: on schemas with hundreds of
-        // models, rendering the full diagram up front made Safari/Firefox crawl
-        // — and most users only want a focused slice anyway. Users can still
-        // bulk-select via the "All" button in the sidebar.
+        // Default to NO models selected unless the app's config lists some.
+        // Issue #169: on schemas with hundreds of models, rendering the full
+        // diagram up front made Safari/Firefox crawl — and most users only want
+        // a focused slice anyway. Users can still bulk-select via the "All"
+        // button in the sidebar.
         const reset = () => {
-          selectModels.value = []
+          selectModels.value = [...viewerDefaults.models]
           isPreviewRelations.value = false
           isShowRelationComment.value = false
           isShowKey.value = false
           isShowComment.value = false
           isShowTableComment.value = false
-          columnMode.value = 'all'
+          columnMode.value = viewerDefaults.columns
           isSnapshotMode.value = false
           updateHash()
         }

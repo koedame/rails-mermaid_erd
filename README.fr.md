@@ -110,6 +110,7 @@ Les paramètres de configuration sont les suivants.
 | --- | --- | --- |
 | `result_path` | Destination des fichiers générés. | `mermaid_erd/index.html` |
 | `ignore_tables` | Tableau de chaînes d'expressions régulières. Les tables dont le `table_name` correspond à l'un des motifs sont exclues du diagramme ERD généré, ainsi que toutes les relations qui les ciblent. Utile pour exclure les modèles de journaux d'audit, les tables supprimées logiquement ou héritées, ou tout autre bruit que vous ne souhaitez pas afficher. Les motifs sont compilés avec `Regexp.new`, il faut donc échapper les barres obliques inverses dans les chaînes YAML (par ex. `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | Vue avec laquelle le visualiseur s'ouvre quand l'URL ne porte aucun état enregistré, et à laquelle **Réinitialiser** revient ; un lien qui contient son propre état l'emporte toujours. `models` : tableau des noms de modèles sélectionnés au départ (un nom absent de l'ERD est ignoré avec un avertissement lors de la génération du fichier). `columns` : `all`, `keys` (clés primaires et étrangères uniquement) ou `none`, les mêmes choix que « Colonnes » dans la barre latérale. Utile pour ouvrir une grande application sur les modèles par lesquels on commence d'habitude. | `models: []` (aucune sélection), `columns: all` |
 
 <!--
 TODO:

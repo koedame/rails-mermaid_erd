@@ -110,6 +110,7 @@ As opções disponíveis são as seguintes.
 | --- | --- | --- |
 | `result_path` | Destino dos arquivos gerados. | `mermaid_erd/index.html` |
 | `ignore_tables` | Array de strings de expressões regulares. Tabelas cujo `table_name` corresponda a qualquer padrão são removidas do ERD gerado, junto com quaisquer relações que apontem para elas. Útil para excluir modelos de log de auditoria, tabelas com exclusão lógica/legadas ou outro ruído indesejado no diagrama. Os padrões são compilados com `Regexp.new`, portanto escape as barras invertidas dentro de strings YAML (ex.: `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | Visualização com que o visualizador abre quando a URL não traz um estado salvo, e para a qual **Redefinir** volta; um link com estado próprio sempre tem prioridade. `models`: array com os nomes dos modelos selecionados no início (um nome que não está no ERD é ignorado com um aviso ao gerar o arquivo). `columns`: `all`, `keys` (somente chaves primárias e estrangeiras) ou `none`, as mesmas opções de "Colunas" na barra lateral. Útil para abrir um aplicativo grande nos modelos por onde se costuma começar. | `models: []` (nada selecionado), `columns: all` |
 
 <!--
 TODO:
