@@ -346,8 +346,9 @@
   <script><%= mermaid_js %></script>
   <script><%= vue_js %></script>
 
-  <script>window.SCHEMA_DATA=<%= result.to_json %></script>
-  <script>window.VIEWER_DEFAULTS=<%= viewer_defaults.to_json %></script>
+  <%# json_escape keeps `</script>` in app metadata from closing the tag, whatever the app sets for escape_html_entities_in_json %>
+  <script>window.SCHEMA_DATA=<%= ERB::Util.json_escape(result.to_json) %></script>
+  <script>window.VIEWER_DEFAULTS=<%= ERB::Util.json_escape(viewer_defaults.to_json) %></script>
   <script>
     window.locales = [
       { code: 'en', label: 'English', dir: 'ltr' },
