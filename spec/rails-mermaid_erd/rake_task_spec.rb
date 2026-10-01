@@ -36,8 +36,25 @@ describe "rake mermaid_erd" do
     end
   end
 
-  it "inlines Tailwind, Mermaid, and Vue bundles" do
-    # Tailwind Play CDN bundle is an IIFE prelude.
+  # The Tailwind Play CDN script is a development-only build with no licence
+  # that allows redistributing it, so the page must carry a stylesheet built
+  # with the Tailwind CLI instead. The bare host name is checked, not a URL:
+  # the Play CDN script also names itself in a console warning.
+  it "does not include the Tailwind Play CDN script" do
+    expect(generated_html).not_to include("cdn.tailwindcss.com")
+    expect(generated_html).not_to include("should not be used in production")
+    expect(generated_html).not_to include("tailwind.config") # Play CDN runtime API
+  end
+
+  it "inlines a Tailwind stylesheet that covers the viewer's classes" do
+    stylesheet = generated_html[%r{<style>(/\*! tailwindcss.*?)</style>}m, 1]
+
+    expect(stylesheet).to include("tailwindcss v3.1.8 | MIT License") # banner the CLI keeps
+    expect(stylesheet).to include("[dir=rtl] .rtl\\:border-l{")
+    expect(stylesheet).to include(".w-\\[250px\\]{")
+  end
+
+  it "inlines Mermaid and Vue bundles" do
     expect(generated_html).to include("__esbuild_esm_mermaid_nm") # Mermaid 11.x bundle marker
     expect(generated_html).to include('globalThis["mermaid"]')    # Mermaid exposes itself globally
     expect(generated_html).to match(/var Vue\s*=/)                # Vue 3 global build

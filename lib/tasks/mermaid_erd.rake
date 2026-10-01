@@ -27,7 +27,7 @@ task mermaid_erd: :environment do
   version = RailsMermaidErd::VERSION
   app_name = ::Rails.application.class.try(:parent_name) || ::Rails.application.class.try(:module_parent_name)
   logo = RailsMermaidErd.read_gem_asset("./assets/logo.svg")
-  tailwindcss_js = RailsMermaidErd.read_gem_asset("./templates/vendor/tailwindcss.js")
+  tailwind_css = RailsMermaidErd.read_gem_asset("./templates/vendor/tailwind.css")
   mermaid_js = RailsMermaidErd.read_gem_asset("./templates/vendor/mermaid.min.js")
   vue_js = RailsMermaidErd.read_gem_asset("./templates/vendor/vue.global.prod.min.js")
   erb = ERB.new(RailsMermaidErd.read_gem_asset("./templates/index.html.erb"))
