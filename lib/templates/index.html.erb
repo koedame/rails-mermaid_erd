@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml;base64,<%= Base64.encode64(logo) %>">
+  <style><%= tailwind_css %></style>
   <style>
     #mermaid-erd {
       fill: #9c9c9c !important;
@@ -342,7 +343,6 @@
     </footer>
   </div>
 
-  <script><%= tailwindcss_js %></script>
   <script><%= mermaid_js %></script>
   <script><%= vue_js %></script>
 

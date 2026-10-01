@@ -12,11 +12,11 @@ Rails Mermaid ERD is a Ruby gem that generates Mermaid format ER diagrams from R
 ### Frontend
 - Vue.js 3.2.40 (production build, vendored at `lib/templates/vendor/vue.global.prod.min.js`)
 - Mermaid.js 11.15.0 (ERD generation, vendored at `lib/templates/vendor/mermaid.min.js`)
-- TailwindCSS 3.1.8 Play CDN bundle (vendored at `lib/templates/vendor/tailwindcss.js`)
+- TailwindCSS 3.1.8, built with the official CLI into a static stylesheet (checked in at `lib/templates/vendor/tailwind.css`; inputs in `script/tailwind/`)
   - Forms plugin 0.5.2
   - Typography plugin 0.5.4
 
-All three bundles are inlined into the generated HTML at render time, so the output has no runtime CDN dependency. See `lib/templates/vendor/README.md` for the refresh procedure and `CHECKSUMS.txt` for SHA-256 verification.
+The two JS bundles and the stylesheet are inlined into the generated HTML at render time, so the output has no runtime CDN dependency. Do not use the Tailwind Play CDN script (`cdn.tailwindcss.com`): it is a development-only build with no licence that allows redistributing it. After changing a class in `lib/templates/index.html.erb`, rebuild the stylesheet (see `lib/templates/vendor/README.md`). That file also has the refresh procedure for the JS bundles and `CHECKSUMS.txt` for SHA-256 verification.
 
 ### Development Environment
 - Docker/Docker Compose V2

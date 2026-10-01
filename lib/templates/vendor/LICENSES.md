@@ -1,6 +1,6 @@
 # Third-party licenses
 
-The bundles in this directory are redistributed under the MIT License.
+The files in this directory are redistributed under the MIT License.
 Each upstream copyright notice is reproduced below in full as required
 by the license.
 
@@ -70,10 +70,18 @@ THE SOFTWARE.
 
 ---
 
-## Tailwind CSS Play CDN (`tailwindcss.js`)
+## Tailwind CSS (`tailwind.css`)
 
-Source: <https://github.com/tailwindlabs/tailwindcss> (Play CDN bundle
-at <https://cdn.tailwindcss.com>)
+`tailwind.css` is not a copy of a third-party file. It is generated from
+`script/tailwind/` with the official Tailwind CSS command-line tool (see
+`README.md`) and contains Tailwind's base styles, the utility classes the
+viewer uses, and the styles of the `@tailwindcss/forms` plugin. All three
+packages are MIT-licensed:
+
+- `tailwindcss` 3.1.8: <https://github.com/tailwindlabs/tailwindcss>
+- `@tailwindcss/forms` 0.5.2: <https://github.com/tailwindlabs/tailwindcss-forms>
+- `@tailwindcss/typography` 0.5.4: <https://github.com/tailwindlabs/tailwindcss-typography>
+  (configured, but the viewer uses no `prose` class, so none of its styles end up in the file)
 
 ```
 MIT License
@@ -98,6 +106,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
-The Tailwind Play CDN bundle embeds the `@tailwindcss/forms` and
-`@tailwindcss/typography` plugins (also MIT, Copyright Tailwind Labs).
