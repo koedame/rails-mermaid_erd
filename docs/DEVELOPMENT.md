@@ -144,6 +144,8 @@ The test suite includes coverage reporting via SimpleCov. The coverage report wi
 ## License
 This project is released under the MIT License.
 
+The logo (`lib/assets/logo.svg`, also used as the favicon of the generated HTML) was drawn by the project author and is covered by the same MIT License as the gem. It is not derived from any third-party artwork or template.
+
 ## Contributing
 
 The `develop` branch is the default integration branch; `main` only ever moves on release. All feature work targets `develop`.
