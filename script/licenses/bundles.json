@@ -1,0 +1,19 @@
+{
+  "mermaid": { "version": "11.15.0", "file": "mermaid.min.js" },
+  "vue": {
+    "version": "3.2.40",
+    "file": "vue.global.prod.min.js",
+    "globalBuildPackages": [
+      "@vue/shared",
+      "@vue/reactivity",
+      "@vue/runtime-core",
+      "@vue/runtime-dom",
+      "@vue/compiler-core",
+      "@vue/compiler-dom"
+    ]
+  },
+  "tailwind": { "packages": ["tailwindcss", "@tailwindcss/forms"] },
+  "heroicons": { "version": "2.0.18" },
+  "licenseChoice": { "dompurify": "Apache-2.0" },
+  "declaredLicense": { "khroma": "MIT" }
+}

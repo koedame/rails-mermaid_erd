@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<!--
+<%= license_notices %>
+-->
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
@@ -26,7 +29,7 @@
             <select v-model="language" @change="setLanguage(language)" class="text-xs border-0 rounded py-1 pl-3 pr-8 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-600">
               <option v-for="loc in locales" :key="loc.code" :value="loc.code">{{ loc.label }}</option>
             </select>
-            <a href="https://github.com/koedame/rails-mermaid_erd" class="text-white hover:text-red-200" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/koedame/rails-mermaid_erd" class="text-white" target="_blank" rel="noopener noreferrer">
               <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   fillRule="evenodd"

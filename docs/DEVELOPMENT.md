@@ -142,7 +142,9 @@ docker compose exec devcontainer bundle exec rspec
 The test suite includes coverage reporting via SimpleCov. The coverage report will be generated in the `/coverage` directory.
 
 ## License
-This project is released under the MIT License.
+This project is released under the MIT License; the text, with the copyright holder's name, is in `LICENSE`, which is the license file the gem ships.
+
+The gem and every generated `index.html` also carry the notices of what is bundled in them (Mermaid, Vue, Tailwind CSS, Heroicons and their dependencies): `lib/templates/vendor/LICENSES.md` in the gem, and the same text in a comment at the top of the HTML. It is generated; after changing a bundled file run `node script/licenses/generate.mjs` (see `lib/templates/vendor/README.md`).
 
 The logo (`lib/assets/logo.svg`, also used as the favicon of the generated HTML) was drawn by the project author and is covered by the same MIT License as the gem. It is not derived from any third-party artwork or template.
 
