@@ -54,6 +54,42 @@ describe "rake mermaid_erd" do
     expect(stylesheet).to include(".w-\\[250px\\]{")
   end
 
+  describe "license notices" do
+    # Mermaid, Vue, Tailwind and Heroicons are redistributed inside the page,
+    # and a user shares that page as a single file, so the notices have to be
+    # in it.
+    let(:notices) { generated_html[/\A<!DOCTYPE html>\n<!--\n(.*?)\n-->\n/m, 1] }
+
+    it "carries the copyright notices of Mermaid, Vue, Tailwind CSS and Heroicons in a comment at the top" do
+      expect(notices).to include("Copyright (c) 2014 - 2022 Knut Sveidqvist")
+      expect(notices).to include("Copyright (c) 2018-present, Yuxi (Evan) You")
+      expect(notices).to include("Copyright (c) Tailwind Labs, Inc.")
+      expect(notices).to include("Copyright (c) 2020 Refactoring UI Inc.")
+      expect(notices).to include("Copyright 2010-2023 Mike Bostock")
+      expect(notices).to include("Permission is hereby granted, free of charge")
+      expect(notices).to include("Apache License")
+    end
+
+    it "carries the gem's own license and the whole third-party list, not a part of it" do
+      license = File.read(File.expand_path("../../LICENSE", __dir__)).strip
+      list = File.read(File.expand_path("../../lib/templates/vendor/LICENSES.md", __dir__)).strip
+
+      expect(notices).to include(license)
+      expect(notices).to include(list)
+    end
+
+    it "adds no script tag, so the page's scripts and the schema embedding are unaffected" do
+      expect(notices).not_to match(/<\/?script/i)
+    end
+  end
+
+  # The GitHub mark may be linked to the repository but not recoloured.
+  it "does not change the colour of the GitHub mark on hover" do
+    link = generated_html[%r{<a href="https://github\.com/koedame/rails-mermaid_erd"[^>]*>}]
+
+    expect(link).not_to include("hover:")
+  end
+
   it "inlines Mermaid and Vue bundles" do
     expect(generated_html).to include("__esbuild_esm_mermaid_nm") # Mermaid 11.x bundle marker
     expect(generated_html).to include('globalThis["mermaid"]')    # Mermaid exposes itself globally
