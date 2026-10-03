@@ -115,6 +115,49 @@ describe "generated viewer network traffic" do
     end
   end
 
+  context "when a column or relationship comment contains an image tag" do
+    let(:schema) do
+      {
+        Models: [
+          {
+            TableName: "users", TableComment: nil, ModelName: "User", IsModelExist: true,
+            Columns: [
+              {name: "id", type: :integer, key: "PK", comment: nil},
+              {name: "name", type: :string, key: "", comment: "<img src=\"http://injected.invalid/column.png\">"}
+            ]
+          },
+          {
+            TableName: "posts", TableComment: nil, ModelName: "Post", IsModelExist: true,
+            Columns: [
+              {name: "id", type: :integer, key: "PK", comment: nil},
+              {name: "user_id", type: :integer, key: "FK", comment: nil}
+            ]
+          }
+        ],
+        Relations: [
+          {LeftModelName: "User", LeftValue: "||", Line: "--", RightValue: "o{", RightModelName: "Post", Comment: "<img src=\"http://injected.invalid/relation.png\">"}
+        ]
+      }
+    end
+
+    it "draws the comments as text without adding elements or requesting the image" do
+      open_viewer(selectModels: %w[User Post], isShowKey: true, isShowComment: true, isShowRelationComment: true)
+      wait_until("the diagram to draw User") { drawn_text.include?("User") }
+      sleep 0.5
+
+      expect(@browser.evaluate("document.querySelectorAll('#preview img, #preview svg img').length")).to eq(0)
+      expect(requests_outside_the_file).to eq([])
+    end
+
+    it "keeps the markup readable as text, quotes included" do
+      open_viewer(selectModels: %w[User Post], isShowKey: true, isShowComment: true, isShowRelationComment: true)
+      wait_until("the diagram to draw User") { drawn_text.include?("User") }
+
+      expect(drawn_text).to include(%(<img src="http://injected.invalid/column.png">))
+      expect(drawn_text).to include(%(<img src="http://injected.invalid/relation.png">))
+    end
+  end
+
   context "when opening a link saved in snapshot mode" do
     it "requests nothing except the file itself and data: URLs" do
       open_viewer(selectModels: %w[User Post], isSnapshotMode: true)

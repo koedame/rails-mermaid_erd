@@ -1654,12 +1654,16 @@
         // wasted work on schemas that re-render frequently. Init once here.
         // `securityLevel: 'strict'` is also the Mermaid 10+ default, but pin it
         // explicitly so a future upstream change can't silently regress to
-        // 'loose' (which would eval user-supplied labels as HTML).
+        // 'loose' (which would eval user-supplied labels as HTML). The ER
+        // diagram reads the top-level `htmlLabels`, not the flowchart one, so
+        // both are off: otherwise a column or relationship comment holding an
+        // `<img src=...>` becomes a real element and the browser fetches it.
         mermaid.initialize({
           theme: 'dark',
           maxTextSize: 99999999,
           startOnLoad: false,
           securityLevel: 'strict',
+          htmlLabels: false,
           flowchart: { htmlLabels: false },
           er: { useMaxWidth: false }
         })
@@ -1688,6 +1692,7 @@
         // Track the in-flight render so a late-completing render can't
         // overwrite a more recent one when the user toggles options rapidly.
         let renderToken = 0
+        const QUOTE_STAND_IN = '\uE000'
         const reRender = async () => {
           const myToken = ++renderToken
           const source = mermaidErd.value
@@ -1719,8 +1724,11 @@
 
           let svg
           try {
-            const result = await mermaid.render('mermaid-erd', source)
-            svg = result.svg
+            // With HTML labels off, Mermaid draws a `#quot;` entity as the
+            // literal text `&quot;`. Hand it a private-use stand-in and turn
+            // that into a real entity in the SVG it returns.
+            const result = await mermaid.render('mermaid-erd', source.replaceAll('#quot;', QUOTE_STAND_IN))
+            svg = result.svg.replaceAll(QUOTE_STAND_IN, '&quot;')
           } catch (err) {
             // Deliberately do NOT update lastRenderKey on failure — otherwise
             // the next attempt with the same selection would short-circuit
