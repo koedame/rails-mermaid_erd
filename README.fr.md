@@ -121,3 +121,7 @@ Contribution directions go here.
 
 ## Licence
 La gem est disponible en open source selon les termes de la [MIT License](https://opensource.org/licenses/MIT).
+
+## Marques
+
+Ce projet n'est affilié ni à Rails, ni à The Rails Foundation, ni au projet Mermaid, ni à Mermaid Chart Inc., et n'est ni approuvé ni parrainé par eux. Rails et Ruby on Rails sont des marques déposées de David Heinemeier Hansson. Mermaid Chart Inc. a déposé ou enregistré les marques MERMAID CHART et MERMAID aux États-Unis. Toutes les autres marques appartiennent à leurs propriétaires respectifs.
