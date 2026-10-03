@@ -121,3 +121,7 @@ Contribution directions go here.
 
 ## 라이선스
 이 gem은 [MIT License](https://opensource.org/licenses/MIT) 조건에 따라 오픈 소스로 제공됩니다.
+
+## 상표
+
+이 프로젝트는 Rails, The Rails Foundation, Mermaid 프로젝트, Mermaid Chart Inc.와 제휴 관계가 없으며, 이들의 승인이나 후원을 받지 않았습니다. Rails와 Ruby on Rails는 David Heinemeier Hansson의 등록 상표입니다. Mermaid Chart Inc.는 미국에서 MERMAID CHART와 MERMAID 상표를 등록했거나 출원했습니다. 그 밖의 상표는 각 권리자의 자산입니다.

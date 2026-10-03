@@ -121,3 +121,7 @@ Contribution directions go here.
 
 ## 许可证
 该 gem 以开源形式提供，遵循 [MIT License](https://opensource.org/licenses/MIT) 条款。
+
+## 商标
+
+本项目与 Rails、The Rails Foundation、Mermaid 项目、Mermaid Chart Inc. 均无关联，也未获得它们的认可或赞助。Rails 和 Ruby on Rails 是 David Heinemeier Hansson 的注册商标。Mermaid Chart Inc. 已在美国注册或申请注册 MERMAID CHART 和 MERMAID 商标。其他商标归各自权利人所有。

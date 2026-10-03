@@ -122,3 +122,7 @@ Contribution directions go here.
 ## Лицензия
 
 Gem распространяется как открытое программное обеспечение на условиях [лицензии MIT](https://opensource.org/licenses/MIT).
+
+## Товарные знаки
+
+Этот проект не связан с Rails, The Rails Foundation, проектом Mermaid и Mermaid Chart Inc., не одобрен и не спонсируется ими. Rails и Ruby on Rails — зарегистрированные товарные знаки David Heinemeier Hansson. Mermaid Chart Inc. зарегистрировала или подала заявки на товарные знаки MERMAID CHART и MERMAID в США. Все прочие товарные знаки принадлежат их владельцам.
