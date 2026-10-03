@@ -62,6 +62,8 @@ mermaid_erd
 
 If you share this file, it can be used by those who do not have a Ruby on Rails environment. Or, you can upload the file to a web server and share it with the same URL.
 
+The generated file contains your application's schema, including table and column names and comments. Share it, or host it, only as widely as you would share the schema itself.
+
 It would be very smart to generate it automatically using CI.
 
 ### Print the Mermaid source to stdout
@@ -88,7 +90,7 @@ The Ruby × Rails combinations exercised by CI on every push and pull request:
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |

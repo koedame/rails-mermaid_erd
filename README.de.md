@@ -64,6 +64,8 @@ mermaid_erd
 
 Wenn Sie diese Datei teilen, kann sie auch von Personen ohne Ruby-on-Rails-Umgebung verwendet werden. Alternativ können Sie die Datei auf einen Webserver hochladen und über dieselbe URL teilen.
 
+Die erzeugte Datei enthält das Schema Ihrer Anwendung, einschließlich Tabellen- und Spaltennamen sowie Kommentaren. Geben Sie sie nur in dem Kreis weiter oder hosten Sie sie nur dort, in dem Sie auch das Schema selbst teilen würden.
+
 Es wäre sehr sinnvoll, sie mithilfe von CI automatisch zu erzeugen.
 
 ### Die Mermaid-Quelle auf stdout ausgeben
@@ -90,7 +92,7 @@ Die Ruby-×-Rails-Kombinationen, die CI bei jedem Push und Pull Request überpr�
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |

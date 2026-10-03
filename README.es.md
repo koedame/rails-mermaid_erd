@@ -64,6 +64,8 @@ mermaid_erd
 
 Si compartes este archivo, puede ser usado por quienes no tengan un entorno Ruby on Rails. O bien, puedes subir el archivo a un servidor web y compartirlo con la misma URL.
 
+El archivo generado contiene el esquema de su aplicación, incluidos los nombres de tablas y columnas y los comentarios. Compártalo o alójelo solo con el mismo alcance con el que compartiría el propio esquema.
+
 Sería muy inteligente generarlo automáticamente usando CI.
 
 ### Imprimir el código fuente de Mermaid en stdout
@@ -90,7 +92,7 @@ Las combinaciones de Ruby × Rails verificadas por CI en cada push y pull reques
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
