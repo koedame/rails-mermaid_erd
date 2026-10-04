@@ -1,0 +1,13 @@
+{
+  "name": "rails-mermaid_erd-tailwind",
+  "private": true,
+  "description": "Builds lib/templates/vendor/tailwind.css. Not shipped in the gem.",
+  "scripts": {
+    "build": "tailwindcss -c tailwind.config.js -i input.css -o ../../lib/templates/vendor/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "0.5.2",
+    "@tailwindcss/typography": "0.5.4",
+    "tailwindcss": "3.1.8"
+  }
+}

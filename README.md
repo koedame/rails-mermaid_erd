@@ -62,6 +62,8 @@ mermaid_erd
 
 If you share this file, it can be used by those who do not have a Ruby on Rails environment. Or, you can upload the file to a web server and share it with the same URL.
 
+The generated file contains your application's schema, including table and column names and comments. Share it, or host it, only as widely as you would share the schema itself.
+
 It would be very smart to generate it automatically using CI.
 
 ### Print the Mermaid source to stdout
@@ -88,7 +90,7 @@ The Ruby × Rails combinations exercised by CI on every push and pull request:
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -108,6 +110,7 @@ The setting items are as follows.
 | --- | --- | --- |
 | `result_path` | Destination of generated files. | `mermaid_erd/index.html` |
 | `ignore_tables` | Array of regular-expression strings. Tables whose `table_name` matches any pattern are dropped from the generated ERD, along with any relations that point at them. Useful for excluding audit-log models, soft-deleted/legacy tables, or other large noise you don't want to render. Patterns are compiled with `Regexp.new`, so escape backslashes inside YAML strings (e.g. `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | The view the viewer opens on when the URL carries no saved state, and the one **Reset** returns to; a link with its own state always wins. `models`: array of model names selected at first (a name that is not in the diagram is skipped with a warning when the file is generated). `columns`: `all`, `keys` (primary and foreign keys only) or `none`, the same choices as Columns in the sidebar. Useful for opening a large app on the models people usually start from. | `models: []` (nothing selected), `columns: all` |
 
 <!--
 TODO:
@@ -118,3 +121,7 @@ Contribution directions go here.
 
 ## License
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## Trademarks
+
+This project is not affiliated with, endorsed by, or sponsored by Rails, The Rails Foundation, the Mermaid project, or Mermaid Chart Inc. Rails and Ruby on Rails are registered trademarks of David Heinemeier Hansson. Mermaid Chart Inc. has registered or applied for the trademarks MERMAID CHART and MERMAID in the United States. All other trademarks are the property of their respective owners.

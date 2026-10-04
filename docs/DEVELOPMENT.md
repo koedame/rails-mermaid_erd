@@ -12,11 +12,11 @@ Rails Mermaid ERD is a Ruby gem that generates Mermaid format ER diagrams from R
 ### Frontend
 - Vue.js 3.2.40 (production build, vendored at `lib/templates/vendor/vue.global.prod.min.js`)
 - Mermaid.js 11.15.0 (ERD generation, vendored at `lib/templates/vendor/mermaid.min.js`)
-- TailwindCSS 3.1.8 Play CDN bundle (vendored at `lib/templates/vendor/tailwindcss.js`)
+- TailwindCSS 3.1.8, built with the official CLI into a static stylesheet (checked in at `lib/templates/vendor/tailwind.css`; inputs in `script/tailwind/`)
   - Forms plugin 0.5.2
   - Typography plugin 0.5.4
 
-All three bundles are inlined into the generated HTML at render time, so the output has no runtime CDN dependency. See `lib/templates/vendor/README.md` for the refresh procedure and `CHECKSUMS.txt` for SHA-256 verification.
+The two JS bundles and the stylesheet are inlined into the generated HTML at render time, so the output has no runtime CDN dependency. Do not use the Tailwind Play CDN script (`cdn.tailwindcss.com`): it is a development-only build with no licence that allows redistributing it. After changing a class in `lib/templates/index.html.erb`, rebuild the stylesheet (see `lib/templates/vendor/README.md`). That file also has the refresh procedure for the JS bundles and `CHECKSUMS.txt` for SHA-256 verification.
 
 ### Development Environment
 - Docker/Docker Compose V2
@@ -142,7 +142,11 @@ docker compose exec devcontainer bundle exec rspec
 The test suite includes coverage reporting via SimpleCov. The coverage report will be generated in the `/coverage` directory.
 
 ## License
-This project is released under the MIT License.
+This project is released under the MIT License; the text, with the copyright holder's name, is in `LICENSE`, which is the license file the gem ships.
+
+The gem and every generated `index.html` also carry the notices of what is bundled in them (Mermaid, Vue, Tailwind CSS, Heroicons and their dependencies): `lib/templates/vendor/LICENSES.md` in the gem, and the same text in a comment at the top of the HTML. It is generated; after changing a bundled file run `node script/licenses/generate.mjs` (see `lib/templates/vendor/README.md`).
+
+The logo (`lib/assets/logo.svg`, also used as the favicon of the generated HTML) was drawn by the project author and is covered by the same MIT License as the gem. It is not derived from any third-party artwork or template.
 
 ## Contributing
 
@@ -151,11 +155,11 @@ The `develop` branch is the default integration branch; `main` only ever moves o
 ### Branch naming
 Pick the prefix that matches the change:
 
-| Purpose      | Pattern                  | Example                                |
-| ------------ | ------------------------ | -------------------------------------- |
-| New feature  | `feature/<kebab-case>`   | `feature/improve-erd-viewer-operation` |
-| Release      | `release/vX.Y.Z`         | `release/v0.6.0`                       |
-| Dependabot   | (auto-generated)         | `dependabot/bundler/rails-8.0.1`       |
+| Purpose     | Pattern                | Example                                                                           |
+| ----------- | ---------------------- | --------------------------------------------------------------------------------- |
+| New feature | `feature/<kebab-case>` | `feature/improve-erd-viewer-operation`                                            |
+| Release     | `release/vX.Y.Z`       | `release/v0.6.0`                                                                  |
+| Dependabot  | (auto-generated)       | `dependabot/bundler/rails-8.0.1`, `dependabot/bundler/bundler-minor-patch-<hash>` |
 
 Outside contributors occasionally use bare slugs (e.g. `typo`, `readme-require-false`); maintainers keep the `feature/` prefix.
 
@@ -202,7 +206,9 @@ Three GitHub Actions workflows run on each contribution:
 | `.github/workflows/coding-style-check.yml`  | push / PR to `main` or `develop`                      | `bundle exec standardrb` (StandardRb) on Ruby 3.4                                                         |
 | `.github/workflows/codeql-analysis.yml`     | push / PR to `develop`, plus a weekly cron            | CodeQL Ruby analysis                                                                                      |
 
-CI uses `ruby/setup-ruby` and a `services.postgres` container directly — no `compose.ci.yml`. Dependabot watches three ecosystems — Docker, Bundler, and GitHub Actions (see `.github/dependabot.yml`) — and its PRs are merged once CI is green.
+CI uses `ruby/setup-ruby` and a `services.postgres` container directly — no `compose.ci.yml`. Dependabot watches three ecosystems — Docker, Bundler, and GitHub Actions (see `.github/dependabot.yml`). Minor and patch gem updates arrive together as one weekly PR on a `dependabot/bundler/bundler-minor-patch-<hash>` branch (titled "Bump the bundler-minor-patch group with N updates", or "Bump <gem> from X to Y in the bundler-minor-patch group" when only one gem changed), so `Gemfile.lock` is updated and tested once instead of conflicting across many PRs. Major gem updates and security updates still open one PR per gem. Dependabot PRs are merged once CI is green.
+
+If one gem in the group PR breaks CI, comment `@dependabot ignore <gem> minor version` (or `patch version`, or just `@dependabot ignore <gem>`) on it. Dependabot closes the PR and leaves that gem out of later group PRs; `@dependabot unignore <gem>` brings it back.
 
 ### Matrix testing with Appraisal
 The supported Ruby × Rails matrix is declared in `Appraisals` at the repo root. Each appraisal produces a separate `gemfiles/*.gemfile` (committed). The per-Rails `*.gemfile.lock` files are **gitignored** (a single lockfile cannot satisfy every Ruby in a row's range, so CI resolves them fresh on each job). CI iterates all combinations declared in `.github/workflows/run-test.yml`.

@@ -9,13 +9,28 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    groups:
+      docker-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
 
   - package-ecosystem: 'bundler'
     directory: '/'
     schedule:
       interval: 'weekly'
+    groups:
+      bundler-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
+    groups:
+      github-actions-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'

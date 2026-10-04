@@ -64,6 +64,8 @@ mermaid_erd
 
 如果你分享此檔案，沒有 Ruby on Rails 環境的人也可以使用。或者，你可以將檔案上傳到 Web 伺服器，透過相同 URL 進行共享。
 
+產生的檔案包含應用程式的 schema，包括資料表名稱、欄位名稱與註解。請僅在可以公開 schema 本身的範圍內分享或託管它。
+
 使用 CI 自動產生是非常明智的做法。
 
 ### 將 Mermaid 原始碼輸出到標準輸出
@@ -90,7 +92,7 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -110,6 +112,7 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 | --- | --- | --- |
 | `result_path` | 產生檔案的輸出路徑。 | `mermaid_erd/index.html` |
 | `ignore_tables` | 正規表示式字串陣列。`table_name` 與任意模式相符的資料表，連同指向它們的所有關聯，都將從產生的 ERD 中排除。適用於排除稽核日誌模型、軟刪除/舊版資料表或其他不想渲染的大量雜訊。模式透過 `Regexp.new` 編譯，因此在 YAML 字串中需要跳脫反斜線（例如 `"\\Aaudit_"`）。 | `[]` |
+| `viewer_defaults` | URL 中沒有已儲存狀態時檢視器開啟的初始檢視，也是按下**重設**後回到的檢視；帶有自身狀態的連結一律優先。`models`：初始選取的模型名稱陣列（不在 ERD 中的名稱會在產生檔案時顯示警告並被忽略）。`columns`：`all` / `keys`（僅主鍵與外鍵）/ `none`，與側邊欄「欄位」的選項相同。適合在大型應用程式中從常用的模型開始檢視。 | `models: []`（不選取任何模型），`columns: all` |
 
 <!--
 TODO:
@@ -120,3 +123,7 @@ Contribution directions go here.
 
 ## 授權條款
 該 gem 以開源形式提供，遵循 [MIT License](https://opensource.org/licenses/MIT) 條款。
+
+## 商標
+
+本專案與 Rails、The Rails Foundation、Mermaid 專案、Mermaid Chart Inc. 均無關聯，也未獲得它們的認可或贊助。Rails 與 Ruby on Rails 是 David Heinemeier Hansson 的註冊商標。Mermaid Chart Inc. 已在美國註冊或申請註冊 MERMAID CHART 與 MERMAID 商標。其他商標歸各自權利人所有。

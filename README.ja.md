@@ -62,6 +62,7 @@ mermaid_erd
 `<app_root>/mermaid_erd/index.html` は自己完結したシングル HTML ファイルです。Tailwind / Mermaid / Vue を含むすべてのフロントエンド依存は HTML 内にインライン展開されているため、CDN への接続が無いオフライン環境や厳格なプロキシ下でも動作します。バンドルが同梱されている都合上、ファイルサイズは約 4 MB 程度になります。
 
 このファイルを共有すれば、Ruby on Rails環境が無くても使用できます。サーバーにアップロードすれば、同じURLを共有することもできます。
+生成したファイルには、テーブル名・カラム名・コメントなど、アプリケーションのスキーマがそのまま含まれます。スキーマそのものを公開してよい範囲にだけ共有・配置してください。
 CIと連携して生成から共有までを自動化するのはとても有効な手段です。
 
 ### Mermaid ソースを標準出力する
@@ -88,7 +89,7 @@ push / pull request ごとに CI で検証している Ruby × Rails の組み�
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -108,6 +109,7 @@ push / pull request ごとに CI で検証している Ruby × Rails の組み�
 | --- | --- | --- |
 | `result_path` | 生成されるファイルのパス。 | `mermaid_erd/index.html` |
 | `ignore_tables` | 正規表現文字列の配列。`table_name` がいずれかのパターンに一致するテーブルは、それに紐づく関連線も含めて生成されるERDから除外されます。監査ログ系のモデル・論理削除済み/レガシーなテーブル・ノイズが多くて描画したくないテーブルを除外したい場合に有用です。パターンは `Regexp.new` でコンパイルされるため、YAML文字列内ではバックスラッシュをエスケープしてください(例: `"\\Aaudit_"`)。 | `[]` |
+| `viewer_defaults` | URL に保存済みの状態が無いときにビューアが最初に開く表示と、**リセット**で戻る表示。状態を持つリンクは常にそちらが優先されます。`models`: 最初に選択しておくモデル名の配列(ERD に無い名前は、ファイル生成時に警告を出して無視されます)。`columns`: `all` / `keys`(主キーと外部キーのみ)/ `none`。サイドバーの「カラム」と同じ選択肢です。大きなアプリで、いつも最初に見るモデルから開きたいときに使います。 | `models: []`(何も選択しない)、`columns: all` |
 
 <!--
 TODO:
@@ -119,3 +121,7 @@ Contribution directions go here.
 ## ライセンス
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## 商標
+
+このプロジェクトは、Rails、The Rails Foundation、Mermaid プロジェクト、Mermaid Chart Inc. と提携しておらず、これらの公認・後援も受けていません。Rails と Ruby on Rails は David Heinemeier Hansson の登録商標です。Mermaid Chart Inc. は、米国で MERMAID CHART と MERMAID の商標を登録または出願しています。そのほかの商標は、それぞれの権利者に帰属します。

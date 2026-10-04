@@ -10,3 +10,16 @@ result_path: doc/erd.html
 ignore_tables:
   - "\\Aaudit_"
   - "_legacy\\z"
+
+# The view the viewer opens on when the URL carries no saved state, and the one
+# Reset returns to. A link that carries its own state always wins.
+viewer_defaults:
+  # Models selected at first. A name that is not in the diagram is skipped with
+  # a warning when the file is generated. Default: [] (nothing selected, which
+  # keeps the first draw light on an app with hundreds of models).
+  models:
+    - User
+    - Order
+  # Columns each model draws: all, keys (primary and foreign keys only) or none.
+  # Default: all.
+  columns: keys

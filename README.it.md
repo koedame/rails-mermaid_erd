@@ -64,6 +64,8 @@ mermaid_erd
 
 Se condividi questo file, può essere utilizzato anche da chi non dispone di un ambiente Ruby on Rails. In alternativa, puoi caricare il file su un server web e condividerlo tramite lo stesso URL.
 
+Il file generato contiene lo schema della tua applicazione, inclusi i nomi di tabelle e colonne e i commenti. Condividilo od ospitalo solo con la stessa cerchia con cui condivideresti lo schema stesso.
+
 Sarebbe molto efficiente generarlo automaticamente tramite CI.
 
 ### Stampa la sorgente Mermaid sullo stdout
@@ -90,7 +92,7 @@ Le combinazioni Ruby × Rails verificate dalla CI ad ogni push e pull request:
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -110,6 +112,7 @@ Le opzioni disponibili sono le seguenti.
 | --- | --- | --- |
 | `result_path` | Destinazione dei file generati. | `mermaid_erd/index.html` |
 | `ignore_tables` | Array di stringhe di espressioni regolari. Le tabelle il cui `table_name` corrisponde a uno qualsiasi dei pattern vengono escluse dall'ERD generato, insieme a tutte le relazioni che le coinvolgono. Utile per escludere modelli di audit log, tabelle con eliminazione logica/legacy o altro rumore indesiderato nel diagramma. I pattern vengono compilati con `Regexp.new`, quindi è necessario fare l'escaping dei backslash nelle stringhe YAML (es. `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | Vista con cui si apre il visualizzatore quando l'URL non contiene uno stato salvato, e a cui torna **Reimposta**; un link con un proprio stato ha sempre la precedenza. `models`: array dei nomi dei modelli selezionati all'inizio (un nome che non è nell'ERD viene saltato con un avviso durante la generazione del file). `columns`: `all`, `keys` (solo chiavi primarie ed esterne) o `none`, le stesse scelte di "Colonne" nella barra laterale. Utile per aprire una grande applicazione sui modelli da cui si parte di solito. | `models: []` (nessuna selezione), `columns: all` |
 
 <!--
 TODO:
@@ -121,3 +124,7 @@ Contribution directions go here.
 ## Licenza
 
 Il gem è disponibile come open source nei termini della [Licenza MIT](https://opensource.org/licenses/MIT).
+
+## Marchi
+
+Questo progetto non è affiliato a Rails, alla Rails Foundation, al progetto Mermaid né a Mermaid Chart Inc., e non è da essi approvato o sponsorizzato. Rails e Ruby on Rails sono marchi registrati di David Heinemeier Hansson. Mermaid Chart Inc. ha registrato o depositato i marchi MERMAID CHART e MERMAID negli Stati Uniti. Tutti gli altri marchi appartengono ai rispettivi proprietari.

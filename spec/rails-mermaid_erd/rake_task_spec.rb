@@ -36,11 +36,76 @@ describe "rake mermaid_erd" do
     end
   end
 
-  it "inlines Tailwind, Mermaid, and Vue bundles" do
-    # Tailwind Play CDN bundle is an IIFE prelude.
+  # The Tailwind Play CDN script is a development-only build with no licence
+  # that allows redistributing it, so the page must carry a stylesheet built
+  # with the Tailwind CLI instead. The bare host name is checked, not a URL:
+  # the Play CDN script also names itself in a console warning.
+  it "does not include the Tailwind Play CDN script" do
+    expect(generated_html).not_to include("cdn.tailwindcss.com")
+    expect(generated_html).not_to include("should not be used in production")
+    expect(generated_html).not_to include("tailwind.config") # Play CDN runtime API
+  end
+
+  it "inlines a Tailwind stylesheet that covers the viewer's classes" do
+    stylesheet = generated_html[%r{<style>(/\*! tailwindcss.*?)</style>}m, 1]
+
+    expect(stylesheet).to include("tailwindcss v3.1.8 | MIT License") # banner the CLI keeps
+    expect(stylesheet).to include("[dir=rtl] .rtl\\:border-l{")
+    expect(stylesheet).to include(".w-\\[250px\\]{")
+  end
+
+  describe "license notices" do
+    # Mermaid, Vue, Tailwind and Heroicons are redistributed inside the page,
+    # and a user shares that page as a single file, so the notices have to be
+    # in it.
+    let(:notices) { generated_html[/\A<!DOCTYPE html>\n<!--\n(.*?)\n-->\n/m, 1] }
+
+    it "carries the copyright notices of Mermaid, Vue, Tailwind CSS and Heroicons in a comment at the top" do
+      expect(notices).to include("Copyright (c) 2014 - 2022 Knut Sveidqvist")
+      expect(notices).to include("Copyright (c) 2018-present, Yuxi (Evan) You")
+      expect(notices).to include("Copyright (c) Tailwind Labs, Inc.")
+      expect(notices).to include("Copyright (c) 2020 Refactoring UI Inc.")
+      expect(notices).to include("Copyright 2010-2023 Mike Bostock")
+      expect(notices).to include("Permission is hereby granted, free of charge")
+      expect(notices).to include("Apache License")
+    end
+
+    it "carries the gem's own license and the whole third-party list, not a part of it" do
+      license = File.read(File.expand_path("../../LICENSE", __dir__)).strip
+      list = File.read(File.expand_path("../../lib/templates/vendor/LICENSES.md", __dir__)).strip
+
+      expect(notices).to include(license)
+      expect(notices).to include(list)
+    end
+
+    it "adds no script tag, so the page's scripts and the schema embedding are unaffected" do
+      expect(notices).not_to match(/<\/?script/i)
+    end
+  end
+
+  # The GitHub mark may be linked to the repository but not recoloured.
+  it "does not change the colour of the GitHub mark on hover" do
+    link = generated_html[%r{<a href="https://github\.com/koedame/rails-mermaid_erd"[^>]*>}]
+
+    expect(link).not_to include("hover:")
+  end
+
+  it "inlines Mermaid and Vue bundles" do
     expect(generated_html).to include("__esbuild_esm_mermaid_nm") # Mermaid 11.x bundle marker
     expect(generated_html).to include('globalThis["mermaid"]')    # Mermaid exposes itself globally
     expect(generated_html).to match(/var Vue\s*=/)                # Vue 3 global build
+  end
+
+  # The viewer draws whatever SCHEMA_DATA lists, so a single table inheritance
+  # subclass must not reach it as a model or a relation endpoint.
+  it "hands the viewer a single table inheritance hierarchy as one model" do
+    payload = generated_html[%r{<script>window\.SCHEMA_DATA=(.*?)</script>}m, 1]
+    schema = JSON.parse(payload)
+    model_names = schema["Models"].map { |m| m["ModelName"] }
+    endpoints = schema["Relations"].flat_map { |r| [r["LeftModelName"], r["RightModelName"]] }
+
+    expect(model_names.count("Comment")).to eq(1)
+    expect(model_names + endpoints).not_to include("Complaint")
   end
 
   # The front-end diagram builder must sanitise comment metadata the same way
@@ -59,9 +124,11 @@ describe "rake mermaid_erd" do
     # the page on a hundreds-of-models schema lays out the full diagram before
     # the user has any chance to narrow it down. We assert the behavioural
     # intent (empty default, no `Models.forEach` push) rather than a brittle
-    # source-shape match.
+    # source-shape match. `reset()` starts from the `viewer_defaults` the task
+    # hands over, so an app that configures nothing must be handed an empty list.
     it "defaults the model selection to an empty list" do
-      expect(generated_html).to include("selectModels.value = []")
+      handed_over = JSON.parse(generated_html[%r{<script>window\.VIEWER_DEFAULTS=(.*?)</script>}m, 1])
+      expect(handed_over["models"]).to eq([])
       expect(generated_html).not_to match(/schemaData\.Models\.forEach\([^)]*\)\s*=>\s*\{\s*selectModels\.value\.push/)
     end
 
@@ -206,41 +273,112 @@ describe "rake mermaid_erd" do
   end
 
   # Regression guard: a table/column comment containing `</script>` must not
-  # close the SCHEMA_DATA script tag early. ActiveSupport's default JSON
-  # encoder escapes `<` and `>` as `<`/`>` (controlled by
-  # `ActiveSupport::JSON::Encoding.escape_html_entities_in_json`), so the
-  # hostile bytes never reach the rendered HTML. This test drives the
-  # actual rake task with hostile data so a future Rails change that flips
-  # that default would fail here instead of shipping a broken ERD.
-  it "renders SCHEMA_DATA safely when host-app metadata contains </script>" do
-    hostile = {
-      Models: [{
-        TableName: "evil",
-        TableComment: "</script><script>alert(1)</script>",
-        ModelName: "Evil",
-        IsModelExist: true,
-        Columns: [{name: "id", type: :integer, key: "PK", comment: nil}]
-      }],
+  # close the SCHEMA_DATA script tag early. The template escapes the JSON for
+  # a <script> context itself instead of relying on ActiveSupport's
+  # `escape_html_entities_in_json`, which a host app is free to turn off
+  # (APIs often do). This test drives the actual rake task with hostile data
+  # under both settings, so neither the app's config nor a future Rails
+  # default can let the hostile bytes reach the rendered HTML.
+  [true, false].each do |escape_html_entities|
+    it "renders SCHEMA_DATA safely when host-app metadata contains </script> " \
+       "(escape_html_entities_in_json = #{escape_html_entities})" do
+      original_setting = ActiveSupport.escape_html_entities_in_json
+      ActiveSupport.escape_html_entities_in_json = escape_html_entities
+      hostile = {
+        Models: [{
+          TableName: "evil",
+          TableComment: "</script><script>alert(1)</script>",
+          ModelName: "Evil",
+          IsModelExist: true,
+          Columns: [{name: "id", type: :integer, key: "PK", comment: "<!-- \u2028 -->"}]
+        }],
+        Relations: []
+      }
+      tmp_path = Rails.root.join("tmp/mermaid_erd_escape_spec.html")
+      FileUtils.mkdir_p(File.dirname(tmp_path))
+
+      allow(RailsMermaidErd::Builder).to receive(:model_data).and_return(hostile)
+      allow(RailsMermaidErd.configuration).to receive(:result_path).and_return(tmp_path.relative_path_from(Rails.root).to_s)
+
+      Rake::Task["mermaid_erd"].reenable
+      Rake::Task["mermaid_erd"].invoke
+
+      html = File.read(tmp_path)
+      expect(html).not_to include("<script>alert(1)")
+      # Slice the bytes between `window.SCHEMA_DATA=` and the next literal
+      # `</script>`. If hostile bytes reach the page unescaped, the first
+      # `</script>` lands inside the JSON, `payload` is truncated, and
+      # `JSON.parse` raises.
+      payload = html[/window\.SCHEMA_DATA=(.*?)<\/script>/m, 1]
+      expect(payload).not_to be_nil
+      expect(JSON.parse(payload)).to eq(JSON.parse(JSON.generate(hostile)))
+    ensure
+      ActiveSupport.escape_html_entities_in_json = original_setting
+      FileUtils.rm_f(tmp_path) if tmp_path
+    end
+  end
+end
+
+describe "rake mermaid_erd viewer defaults" do
+  let(:tmp_path) { Rails.root.join("tmp/mermaid_erd_viewer_defaults_spec.html") }
+
+  let(:schema) do
+    {
+      Models: %w[User Post].map do |name|
+        {TableName: name.downcase, TableComment: nil, ModelName: name, IsModelExist: true, Columns: [{name: "id", type: :integer, key: "PK", comment: nil}]}
+      end,
       Relations: []
     }
-    tmp_path = Rails.root.join("tmp/mermaid_erd_escape_spec.html")
+  end
+
+  before do
+    Rake::Task.define_task(:environment) unless Rake::Task.task_defined?(:environment)
+    Rails.application.load_tasks unless Rake::Task.task_defined?("mermaid_erd")
     FileUtils.mkdir_p(File.dirname(tmp_path))
-
-    allow(RailsMermaidErd::Builder).to receive(:model_data).and_return(hostile)
+    allow(RailsMermaidErd::Builder).to receive(:model_data).and_return(schema)
     allow(RailsMermaidErd.configuration).to receive(:result_path).and_return(tmp_path.relative_path_from(Rails.root).to_s)
+    allow(RailsMermaidErd.configuration).to receive(:viewer_defaults).and_return(configured)
+  end
 
+  after { FileUtils.rm_f(tmp_path) }
+
+  def generate
     Rake::Task["mermaid_erd"].reenable
     Rake::Task["mermaid_erd"].invoke
+  end
 
-    # Slice the bytes between `window.SCHEMA_DATA=` and the next literal
-    # `</script>`. If hostile bytes reach the page unescaped, the first
-    # `</script>` lands inside the JSON, `payload` is truncated, and
-    # `JSON.parse` raises.
-    payload = File.read(tmp_path)[/window\.SCHEMA_DATA=(.*?)<\/script>/m, 1]
-    expect(payload).not_to be_nil
-    expect(JSON.parse(payload)).to eq(JSON.parse(hostile.to_json))
-  ensure
-    FileUtils.rm_f(tmp_path) if tmp_path
+  def hand_over
+    JSON.parse(File.read(tmp_path)[%r{<script>window\.VIEWER_DEFAULTS=(.*?)</script>}m, 1])
+  end
+
+  context "when every listed model is in the diagram" do
+    let(:configured) { {models: %w[Post], columns: "keys"} }
+
+    it "hands the viewer the configured defaults without a warning about them" do
+      expect { generate }.not_to output(/viewer_defaults/).to_stderr
+
+      expect(hand_over).to eq({"models" => %w[Post], "columns" => "keys"})
+    end
+  end
+
+  context "when a listed model is not in the diagram" do
+    let(:configured) { {models: %w[Post Ghost], columns: "all"} }
+
+    it "warns naming the model and leaves it out of the preselection" do
+      expect { generate }.to output(/viewer_defaults\.models.*Ghost, which is not in the diagram/m).to_stderr
+
+      expect(hand_over).to eq({"models" => %w[Post], "columns" => "all"})
+    end
+  end
+
+  context "when several listed models are not in the diagram" do
+    let(:configured) { {models: %w[Ghost Phantom], columns: "all"} }
+
+    it "warns naming all of them" do
+      expect { generate }.to output(/Ghost, Phantom, which are not in the diagram/).to_stderr
+
+      expect(hand_over).to eq({"models" => [], "columns" => "all"})
+    end
   end
 end
 
@@ -269,6 +407,15 @@ describe "rake mermaid_erd:print" do
     # that the model_data spec already pins.
     expect(output).to include("    AuditLog {")
     expect(output).to match(/^\s+integer id PK ""$/)
+  end
+
+  # `Complaint < Comment` shares the `comments` table, so the dump must draw
+  # that table once and never name the subclass.
+  it "prints a single table inheritance hierarchy as one entity" do
+    output = run_print_task
+
+    expect(output.scan(/^    Comment \{$/).size).to eq(1)
+    expect(output).not_to match(/\bComplaint\b/)
   end
 
   # The whole point of the task is a clean pipe: stdout must carry the diagram

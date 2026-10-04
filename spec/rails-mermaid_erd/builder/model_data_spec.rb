@@ -3,6 +3,9 @@ require "spec_helper"
 describe RailsMermaidErd::Builder.model_data do
   let(:result) { RailsMermaidErd::Builder.model_data }
 
+  # Before Rails 7.1 a composite primary key reads as no primary key at all.
+  let(:composite_primary_key_key) { (ActiveRecord.version >= Gem::Version.new("7.1")) ? "PK" : "" }
+
   it "Model includes" do
     expect(result[:Models]).to match_array([{
       TableName: "audit_logs",
@@ -59,6 +62,7 @@ describe RailsMermaidErd::Builder.model_data do
       Columns: [
         {name: "id", type: :integer, key: "PK", comment: nil},
         {name: "created_at", type: :datetime, key: "", comment: nil},
+        {name: "editor_id", type: :integer, key: "FK", comment: nil},
         {name: "title", type: :string, key: "", comment: "post title"},
         {name: "updated_at", type: :datetime, key: "", comment: nil},
         {name: "user_id", type: :integer, key: "FK", comment: nil}
@@ -72,7 +76,9 @@ describe RailsMermaidErd::Builder.model_data do
         {name: "id", type: :integer, key: "PK", comment: nil},
         {name: "body", type: :string, key: "", comment: nil},
         {name: "created_at", type: :datetime, key: "", comment: nil},
+        {name: "flagged_comment_id", type: :integer, key: "FK", comment: nil},
         {name: "post_id", type: :integer, key: "FK", comment: nil},
+        {name: "type", type: :string, key: "", comment: nil},
         {name: "updated_at", type: :datetime, key: "", comment: nil},
         {name: "user_id", type: :integer, key: "FK", comment: nil}
       ]
@@ -142,20 +148,54 @@ describe RailsMermaidErd::Builder.model_data do
         {name: "id", type: :integer, key: "PK", comment: nil},
         {name: "care_type_id", type: :integer, key: "FK", comment: nil},
         {name: "created_at", type: :datetime, key: "", comment: nil},
-        {name: "matching_info_id", type: :integer, key: "", comment: nil},
+        {name: "matching_info_id", type: :integer, key: "FK", comment: nil},
         {name: "matching_info_type", type: :string, key: "", comment: nil},
         {name: "updated_at", type: :datetime, key: "", comment: nil}
+      ]
+    }, {
+      TableName: "bookmarks",
+      TableComment: "",
+      ModelName: "Bookmark",
+      IsModelExist: true,
+      Columns: [
+        {name: "id", type: :integer, key: "PK", comment: nil},
+        {name: "created_at", type: :datetime, key: "", comment: nil},
+        {name: "post_id", type: :integer, key: "FK", comment: nil},
+        {name: "reader_id", type: :integer, key: "FK", comment: nil},
+        {name: "updated_at", type: :datetime, key: "", comment: nil}
+      ]
+    }, {
+      TableName: "notes",
+      TableComment: "",
+      ModelName: "Note",
+      IsModelExist: true,
+      Columns: [
+        {name: "id", type: :integer, key: "PK", comment: nil},
+        {name: "body", type: :string, key: "", comment: nil},
+        {name: "created_at", type: :datetime, key: "", comment: nil},
+        {name: "post_id", type: :integer, key: "FK", comment: nil},
+        {name: "updated_at", type: :datetime, key: "", comment: nil}
+      ]
+    }, {
+      TableName: "memberships",
+      TableComment: "",
+      ModelName: "Membership",
+      IsModelExist: true,
+      Columns: [
+        {name: "member_code", type: :string, key: composite_primary_key_key, comment: nil},
+        {name: "organization_code", type: :string, key: composite_primary_key_key, comment: nil},
+        {name: "role", type: :string, key: "", comment: nil}
       ]
     }])
   end
 
   it "Relation includes" do
     expect(result[:Relations]).to match_array([{
-      LeftModelName: "AuditLog",
-      LeftValue: "}o",
+      LeftModelName: "Author",
+      LeftValue: "||",
       Line: "--",
-      RightModelName: "Author",
-      RightValue: "||",
+      RightModelName: "AuditLog",
+      RightValue: "o{",
       Comment: "BT:user, HM:audit_logs"
     }, {
       LeftModelName: "Author",
@@ -166,11 +206,18 @@ describe RailsMermaidErd::Builder.model_data do
       Comment: "HM:posts, BT:author"
     }, {
       LeftModelName: "Author",
+      LeftValue: "|o",
+      Line: "--",
+      RightModelName: "Post",
+      RightValue: "o{",
+      Comment: "BT:editor"
+    }, {
+      LeftModelName: "Author",
       LeftValue: "||",
       Line: "--",
       RightModelName: "Comment",
       RightValue: "o{",
-      Comment: "HM:comments, BT:author"
+      Comment: "HM:comments, HM:recent_comments, BT:author"
     }, {
       LeftModelName: "Author",
       LeftValue: "}o",
@@ -186,6 +233,13 @@ describe RailsMermaidErd::Builder.model_data do
       RightValue: "o{",
       Comment: "HM:images, BT:user"
     }, {
+      LeftModelName: "AuthorProfile",
+      LeftValue: "|o",
+      Line: "..",
+      RightModelName: "UserImage",
+      RightValue: "o{",
+      Comment: "HOT:profile"
+    }, {
       LeftModelName: "Author",
       LeftValue: "||",
       Line: "--",
@@ -193,12 +247,40 @@ describe RailsMermaidErd::Builder.model_data do
       RightValue: "o|",
       Comment: "HO:profile, BT:author"
     }, {
-      LeftModelName: "Comment",
-      LeftValue: "}o",
+      LeftModelName: "Post",
+      LeftValue: "||",
       Line: "--",
-      RightModelName: "Post",
-      RightValue: "||",
-      Comment: "BT:post, HM:comments"
+      RightModelName: "Comment",
+      RightValue: "o{",
+      Comment: "BT:post, HM:comments, HM:complaints"
+    }, {
+      LeftModelName: "Comment",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "Comment",
+      RightValue: "o{",
+      Comment: "BT:flagged_comment"
+    }, {
+      LeftModelName: "Post",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "Bookmark",
+      RightValue: "o{",
+      Comment: "BT:post"
+    }, {
+      LeftModelName: "Author",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "Bookmark",
+      RightValue: "o{",
+      Comment: "BT:reader"
+    }, {
+      LeftModelName: "Post",
+      LeftValue: "||",
+      Line: "--",
+      RightModelName: "Note",
+      RightValue: "o{",
+      Comment: "HM:notes"
     }, {
       LeftModelName: "Post",
       LeftValue: "}o",
@@ -207,19 +289,19 @@ describe RailsMermaidErd::Builder.model_data do
       RightValue: "o{",
       Comment: "HABTM"
     }, {
-      LeftModelName: "PostsTag",
-      LeftValue: "}o",
+      LeftModelName: "Post",
+      LeftValue: "||",
       Line: "--",
-      RightModelName: "Post",
-      RightValue: "||",
+      RightModelName: "PostsTag",
+      RightValue: "o{",
       Comment: "BT:post"
     }, {
-      LeftModelName: "PostsTag",
-      LeftValue: "}o",
+      LeftModelName: "Tag",
+      LeftValue: "||",
       Line: "--",
-      RightModelName: "Tag",
-      RightValue: "||",
-      Comment: "BT:tag"
+      RightModelName: "PostsTag",
+      RightValue: "o{",
+      Comment: "BT:tag, HM:posts_tags"
     }, {
       LeftModelName: "CareType",
       LeftValue: "||",

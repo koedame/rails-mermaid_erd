@@ -64,6 +64,8 @@ mermaid_erd
 
 이 파일을 공유하면 Ruby on Rails 환경이 없는 사람도 사용할 수 있습니다. 또는 파일을 웹 서버에 업로드하여 동일한 URL로 공유할 수도 있습니다.
 
+생성된 파일에는 테이블 및 컬럼 이름과 코멘트를 포함한 애플리케이션의 스키마가 그대로 들어 있습니다. 스키마 자체를 공유해도 되는 범위에서만 공유하거나 호스팅하세요.
+
 CI를 사용하여 자동으로 생성하는 것이 매우 효율적입니다.
 
 ### Mermaid 소스를 표준 출력으로 출력
@@ -90,7 +92,7 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -110,6 +112,7 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 | --- | --- | --- |
 | `result_path` | 생성된 파일의 저장 경로. | `mermaid_erd/index.html` |
 | `ignore_tables` | 정규식 문자열의 배열. `table_name`이 패턴 중 하나와 일치하는 테이블은 해당 테이블을 가리키는 모든 관계와 함께 생성된 ERD에서 제외됩니다. 감사 로그 모델, 소프트 삭제/레거시 테이블, 또는 렌더링하고 싶지 않은 대량의 노이즈를 제외하는 데 유용합니다. 패턴은 `Regexp.new`로 컴파일되므로 YAML 문자열 내에서 백슬래시를 이스케이프해야 합니다(예: `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | URL에 저장된 상태가 없을 때 뷰어가 처음 여는 화면이자 **초기화**를 눌렀을 때 돌아가는 화면입니다. 자체 상태를 담은 링크가 항상 우선합니다. `models`: 처음에 선택해 둘 모델 이름의 배열(ERD에 없는 이름은 파일을 생성할 때 경고를 출력하고 무시됩니다). `columns`: `all` / `keys`(기본 키와 외래 키만) / `none`. 사이드바의 "컬럼"과 같은 선택지입니다. 큰 애플리케이션에서 자주 보는 모델부터 열고 싶을 때 사용합니다. | `models: []`(선택 없음), `columns: all` |
 
 <!--
 TODO:
@@ -120,3 +123,7 @@ Contribution directions go here.
 
 ## 라이선스
 이 gem은 [MIT License](https://opensource.org/licenses/MIT) 조건에 따라 오픈 소스로 제공됩니다.
+
+## 상표
+
+이 프로젝트는 Rails, The Rails Foundation, Mermaid 프로젝트, Mermaid Chart Inc.와 제휴 관계가 없으며, 이들의 승인이나 후원을 받지 않았습니다. Rails와 Ruby on Rails는 David Heinemeier Hansson의 등록 상표입니다. Mermaid Chart Inc.는 미국에서 MERMAID CHART와 MERMAID 상표를 등록했거나 출원했습니다. 그 밖의 상표는 각 권리자의 자산입니다.

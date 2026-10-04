@@ -64,6 +64,8 @@ mermaid_erd
 
 Si vous partagez ce fichier, il peut être utilisé par ceux qui ne disposent pas d'un environnement Ruby on Rails. Vous pouvez également télécharger le fichier sur un serveur web et le partager via la même URL.
 
+Le fichier généré contient le schéma de votre application, y compris les noms de tables et de colonnes ainsi que les commentaires. Ne le partagez ou ne l'hébergez qu'avec le même public que celui avec lequel vous partageriez le schéma lui-même.
+
 Il serait très judicieux de le générer automatiquement à l'aide d'un CI.
 
 ### Imprimer la source Mermaid sur stdout
@@ -90,7 +92,7 @@ Les combinaisons Ruby × Rails vérifiées par CI à chaque push et pull request
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -110,6 +112,7 @@ Les paramètres de configuration sont les suivants.
 | --- | --- | --- |
 | `result_path` | Destination des fichiers générés. | `mermaid_erd/index.html` |
 | `ignore_tables` | Tableau de chaînes d'expressions régulières. Les tables dont le `table_name` correspond à l'un des motifs sont exclues du diagramme ERD généré, ainsi que toutes les relations qui les ciblent. Utile pour exclure les modèles de journaux d'audit, les tables supprimées logiquement ou héritées, ou tout autre bruit que vous ne souhaitez pas afficher. Les motifs sont compilés avec `Regexp.new`, il faut donc échapper les barres obliques inverses dans les chaînes YAML (par ex. `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | Vue avec laquelle le visualiseur s'ouvre quand l'URL ne porte aucun état enregistré, et à laquelle **Réinitialiser** revient ; un lien qui contient son propre état l'emporte toujours. `models` : tableau des noms de modèles sélectionnés au départ (un nom absent de l'ERD est ignoré avec un avertissement lors de la génération du fichier). `columns` : `all`, `keys` (clés primaires et étrangères uniquement) ou `none`, les mêmes choix que « Colonnes » dans la barre latérale. Utile pour ouvrir une grande application sur les modèles par lesquels on commence d'habitude. | `models: []` (aucune sélection), `columns: all` |
 
 <!--
 TODO:
@@ -120,3 +123,7 @@ Contribution directions go here.
 
 ## Licence
 La gem est disponible en open source selon les termes de la [MIT License](https://opensource.org/licenses/MIT).
+
+## Marques
+
+Ce projet n'est affilié ni à Rails, ni à The Rails Foundation, ni au projet Mermaid, ni à Mermaid Chart Inc., et n'est ni approuvé ni parrainé par eux. Rails et Ruby on Rails sont des marques déposées de David Heinemeier Hansson. Mermaid Chart Inc. a déposé ou enregistré les marques MERMAID CHART et MERMAID aux États-Unis. Toutes les autres marques appartiennent à leurs propriétaires respectifs.

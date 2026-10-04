@@ -3,9 +3,9 @@ require "rake"
 require "ferrum"
 require "json"
 
-# Layout is only observable in a real browser: the viewer's Tailwind classes
-# are compiled at runtime and the page height depends on the rendered model
-# list. These examples render the generated HTML in headless Chrome and
+# Layout is only observable in a real browser: class names say nothing about
+# whether the stylesheet covers them, and the page height depends on the
+# rendered model list. These examples render the generated HTML in headless Chrome and
 # measure it, so they fail on the way the page actually looks rather than on
 # the class names it happens to use.
 describe "generated viewer layout" do
@@ -56,8 +56,8 @@ describe "generated viewer layout" do
     wait_for_stable_layout
   end
 
-  # Vue mounts and the Tailwind runtime generates styles asynchronously, and
-  # each can trigger the other again, so wait until two samples in a row agree.
+  # Vue mounts asynchronously and re-renders as the model list is measured,
+  # so wait until two samples in a row agree.
   def wait_for_stable_layout
     previous = nil
     50.times do

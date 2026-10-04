@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<!--
+<%= license_notices %>
+-->
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
@@ -6,6 +9,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml;base64,<%= Base64.encode64(logo) %>">
+  <style><%= tailwind_css %></style>
   <style>
     #mermaid-erd {
       fill: #9c9c9c !important;
@@ -25,7 +29,7 @@
             <select v-model="language" @change="setLanguage(language)" class="text-xs border-0 rounded py-1 pl-3 pr-8 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-600">
               <option v-for="loc in locales" :key="loc.code" :value="loc.code">{{ loc.label }}</option>
             </select>
-            <a href="https://github.com/koedame/rails-mermaid_erd" class="text-white hover:text-red-200" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/koedame/rails-mermaid_erd" class="text-white" target="_blank" rel="noopener noreferrer">
               <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   fillRule="evenodd"
@@ -121,7 +125,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isPreviewRelations"
                   @change="updateHash"
                 />
@@ -133,7 +137,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isShowRelationComment"
                   @change="updateHash"
                 />
@@ -141,41 +145,58 @@
               </label>
             </div>
 
+            <fieldset class="min-w-0 flex-1 text-sm">
+              <legend class="text-xs text-gray-900">{{i18n[language]["options"]["columns"]}}</legend>
+              <div class="space-y-1 mt-1 ml-6 rtl:ml-0 rtl:mr-6">
+                <label v-for="mode in COLUMN_MODES" :key="mode" class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
+                  <input
+                    type="radio"
+                    name="columns"
+                    class="h-4 w-4 border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                    :value="mode"
+                    v-model="columnMode"
+                    @change="updateHash"
+                  />
+                  <span class="text-xs text-gray-900">{{i18n[language]["options"][`columns_${mode}`]}}</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="min-w-0 flex-1 text-sm">
+              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ columnMode === 'none' ? 'cursor-not-allowed' : 'cursor-pointer' }`">
+                <input
+                  type="checkbox"
+                  :class="`h-4 w-4 rounded border-gray-300 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
+                  v-model="isShowKey"
+                  @change="updateHash"
+                  :disabled="columnMode === 'none'"
+                />
+                <span :class="`text-xs ${ columnMode === 'none' ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_key"]}}</span>
+              </label>
+            </div>
+
+            <div class="min-w-0 flex-1 text-sm">
+              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ columnMode === 'none' ? 'cursor-not-allowed' : 'cursor-pointer' }`">
+                <input
+                  type="checkbox"
+                  :class="`h-4 w-4 rounded border-gray-300 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
+                  v-model="isShowComment"
+                  @change="updateHash"
+                  :disabled="columnMode === 'none'"
+                />
+                <span :class="`text-xs ${ columnMode === 'none' ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_column_comment"]}}</span>
+              </label>
+            </div>
+
             <div class="min-w-0 flex-1 text-sm">
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
-                  v-model="isHideColumns"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                  v-model="isShowTableComment"
                   @change="updateHash"
                 />
-                <span class="text-xs text-gray-900">{{i18n[language]["options"]["hide_columns"]}}</span>
-              </label>
-            </div>
-
-            <div class="min-w-0 flex-1 text-sm">
-              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ isHideColumns ? 'cursor-not-allowed' : 'cursor-pointer' }`">
-                <input
-                  type="checkbox"
-                  :class="`h-4 w-4 rounded border-gray-300 mr-2 focus:ring-red-600 ${ isHideColumns ? 'text-gray-400' : 'text-red-600'}`"
-                  v-model="isShowKey"
-                  @change="updateHash"
-                  :disabled="isHideColumns"
-                />
-                <span :class="`text-xs ${ isHideColumns ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_key"]}}</span>
-              </label>
-            </div>
-
-            <div class="min-w-0 flex-1 text-sm">
-              <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ isHideColumns ? 'cursor-not-allowed' : 'cursor-pointer' }`">
-                <input
-                  type="checkbox"
-                  :class="`h-4 w-4 rounded border-gray-300 mr-2 focus:ring-red-600 ${ isHideColumns ? 'text-gray-400' : 'text-red-600'}`"
-                  v-model="isShowComment"
-                  @change="updateHash"
-                  :disabled="isHideColumns"
-                />
-                <span :class="`text-xs ${ isHideColumns ? 'text-gray-400' : 'text-gray-900'}`">{{i18n[language]["options"]["show_column_comment"]}}</span>
+                <span class="text-xs text-gray-900">{{i18n[language]["options"]["show_table_comment"]}}</span>
               </label>
             </div>
 
@@ -183,7 +204,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded" :title="i18n[language]['options']['snapshot_mode_hint']">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isSnapshotMode"
                   @change="updateHash"
                 />
@@ -238,7 +259,7 @@
               <div class="min-w-0 flex-1 text-xs text-gray-900 inline-flex items-center">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 focus:ring-red-600 shrink-0"
+                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 shrink-0"
                   :value="model.ModelName"
                   :checked="selectModels.includes(model.ModelName)"
                   @change="onChange"
@@ -284,14 +305,14 @@
           </div>
 
           <div class="absolute bottom-0 left-1/2 -translate-x-1/2 p-4">
-            <div class="bg-gray-800 text-white text-[10px] px-3 py-1.5 rounded inline-flex items-center space-x-6">
-              <div class="inline-flex items-center">
+            <div class="bg-gray-800 text-white text-[10px] px-3 py-1.5 rounded flex flex-col space-y-0.5">
+              <div>
                 <span class="font-medium">{{i18n[language]["controls"]["movement"]}}:</span>
-                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["space_drag"]}} / {{i18n[language]["controls"]["middle_drag"]}}</span>
+                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["scroll"]}} / {{i18n[language]["controls"]["arrow_keys"]}} / {{i18n[language]["controls"]["space_drag"]}} / {{i18n[language]["controls"]["middle_drag"]}}</span>
               </div>
-              <div class="inline-flex items-center">
+              <div>
                 <span class="font-medium">{{i18n[language]["controls"]["zoom"]}}:</span>
-                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["mouse_wheel"]}} / {{i18n[language]["controls"]["pinch"]}}</span>
+                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["ctrl_scroll"]}} / {{i18n[language]["controls"]["pinch"]}} / {{i18n[language]["controls"]["zoom_keys"]}}</span>
               </div>
             </div>
           </div>
@@ -300,7 +321,7 @@
             <div class="space-x-2 flex items-center">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomIn">+</button>
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="zoomOut">-</button>
-              <button :title="i18n[language]['controls']['reset_view']" :aria-label="i18n[language]['controls']['reset_view']" class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="resetView">⌂</button>
+              <button :title="`${i18n[language]['controls']['reset_view']} (0)`" :aria-label="i18n[language]['controls']['reset_view']" class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="resetView">⌂</button>
             </div>
             <div class="flex items-center space-x-2">
               <button class="text-xs py-1 px-2 rounded hover:bg-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-400 text-gray-900" @click="moveLeft">←</button>
@@ -325,11 +346,12 @@
     </footer>
   </div>
 
-  <script><%= tailwindcss_js %></script>
   <script><%= mermaid_js %></script>
   <script><%= vue_js %></script>
 
-  <script>window.SCHEMA_DATA=<%= result.to_json %></script>
+  <%# json_escape keeps `</script>` in app metadata from closing the tag, whatever the app sets for escape_html_entities_in_json %>
+  <script>window.SCHEMA_DATA=<%= ERB::Util.json_escape(result.to_json) %></script>
+  <script>window.VIEWER_DEFAULTS=<%= ERB::Util.json_escape(viewer_defaults.to_json) %></script>
   <script>
     window.locales = [
       { code: 'en', label: 'English', dir: 'ltr' },
@@ -365,7 +387,11 @@
           show_relationship_comment: 'Show Relationship Comment',
           show_key: 'Show Key',
           show_column_comment: 'Show Column Comment',
-          hide_columns: 'Hide Columns',
+          show_table_comment: 'Show Table Comment',
+          columns: 'Columns',
+          columns_all: 'All',
+          columns_keys: 'Keys Only',
+          columns_none: 'None',
           snapshot_mode: 'Snapshot Mode',
           snapshot_mode_hint: 'Rasterise the diagram after each render. Pan and zoom become much faster on Safari and Firefox at the cost of text selection.',
         },
@@ -397,7 +423,10 @@
           zoom: 'Zoom',
           space_drag: 'Space + Mouse Drag',
           middle_drag: 'Middle Click + Drag',
-          mouse_wheel: 'Mouse Wheel',
+          scroll: 'Scroll',
+          arrow_keys: 'Arrow Keys',
+          ctrl_scroll: 'Ctrl/⌘ + Scroll',
+          zoom_keys: '+/- Keys',
           pinch: 'Pinch In/Out',
           reset_view: 'Reset View',
         }
@@ -421,7 +450,11 @@
           show_relationship_comment: 'リレーションのコメントを表示',
           show_key: 'キーを表示',
           show_column_comment: 'コメントを表示',
-          hide_columns: 'カラムを非表示',
+          show_table_comment: 'テーブルコメントを表示',
+          columns: 'カラム',
+          columns_all: 'すべて',
+          columns_keys: 'キーのみ',
+          columns_none: 'なし',
           snapshot_mode: 'スナップショットモード',
           snapshot_mode_hint: '描画後に図を画像化します。Safari / Firefox での拡大縮小やパン操作が高速になりますが、テキスト選択はできなくなります。',
         },
@@ -453,7 +486,10 @@
           zoom: '拡大/縮小',
           space_drag: 'スペースキー + マウスドラッグ',
           middle_drag: '中クリック + ドラッグ',
-          mouse_wheel: 'マウスホイール',
+          scroll: 'スクロール',
+          arrow_keys: '矢印キー',
+          ctrl_scroll: 'Ctrl/⌘ + スクロール',
+          zoom_keys: '+/- キー',
           pinch: 'ピンチイン/アウト',
           reset_view: 'ビューをリセット',
         }
@@ -477,7 +513,11 @@
           show_relationship_comment: '显示关系注释',
           show_key: '显示键',
           show_column_comment: '显示字段注释',
-          hide_columns: '隐藏字段',
+          show_table_comment: '显示表注释',
+          columns: '字段',
+          columns_all: '全部',
+          columns_keys: '仅显示键',
+          columns_none: '无',
           snapshot_mode: '快照模式',
           snapshot_mode_hint: '每次渲染后将图表栅格化。在 Safari 和 Firefox 上平移和缩放会快很多，但代价是无法选择文本。',
         },
@@ -509,7 +549,10 @@
           zoom: '缩放',
           space_drag: '空格 + 鼠标拖动',
           middle_drag: '中键 + 拖动',
-          mouse_wheel: '鼠标滚轮',
+          scroll: '滚动',
+          arrow_keys: '方向键',
+          ctrl_scroll: 'Ctrl/⌘ + 滚动',
+          zoom_keys: '+/- 键',
           pinch: '双指缩放',
           reset_view: '重置视图',
         }
@@ -533,7 +576,11 @@
           show_relationship_comment: '顯示關聯註解',
           show_key: '顯示鍵',
           show_column_comment: '顯示欄位註解',
-          hide_columns: '隱藏欄位',
+          show_table_comment: '顯示資料表註解',
+          columns: '欄位',
+          columns_all: '全部',
+          columns_keys: '僅顯示鍵',
+          columns_none: '無',
           snapshot_mode: '快照模式',
           snapshot_mode_hint: '每次算繪後將圖表點陣化。在 Safari 與 Firefox 上平移與縮放會快很多，但代價是無法選取文字。',
         },
@@ -565,7 +612,10 @@
           zoom: '縮放',
           space_drag: '空白鍵 + 滑鼠拖曳',
           middle_drag: '中鍵 + 拖曳',
-          mouse_wheel: '滑鼠滾輪',
+          scroll: '捲動',
+          arrow_keys: '方向鍵',
+          ctrl_scroll: 'Ctrl/⌘ + 捲動',
+          zoom_keys: '+/- 鍵',
           pinch: '雙指縮放',
           reset_view: '重設檢視',
         }
@@ -589,7 +639,11 @@
           show_relationship_comment: '관계 주석 표시',
           show_key: '키 표시',
           show_column_comment: '컬럼 주석 표시',
-          hide_columns: '컬럼 숨기기',
+          show_table_comment: '테이블 주석 표시',
+          columns: '컬럼',
+          columns_all: '전체',
+          columns_keys: '키만',
+          columns_none: '없음',
           snapshot_mode: '스냅샷 모드',
           snapshot_mode_hint: '렌더링할 때마다 다이어그램을 래스터화합니다. Safari와 Firefox에서 이동과 확대/축소가 훨씬 빨라지지만 텍스트를 선택할 수 없게 됩니다.',
         },
@@ -621,7 +675,10 @@
           zoom: '확대/축소',
           space_drag: '스페이스 + 마우스 드래그',
           middle_drag: '가운데 클릭 + 드래그',
-          mouse_wheel: '마우스 휠',
+          scroll: '스크롤',
+          arrow_keys: '화살표 키',
+          ctrl_scroll: 'Ctrl/⌘ + 스크롤',
+          zoom_keys: '+/- 키',
           pinch: '핀치 확대/축소',
           reset_view: '보기 초기화',
         }
@@ -645,7 +702,11 @@
           show_relationship_comment: 'Mostrar comentario de la relación',
           show_key: 'Mostrar clave',
           show_column_comment: 'Mostrar comentario de la columna',
-          hide_columns: 'Ocultar columnas',
+          show_table_comment: 'Mostrar comentario de la tabla',
+          columns: 'Columnas',
+          columns_all: 'Todas',
+          columns_keys: 'Solo claves',
+          columns_none: 'Ninguna',
           snapshot_mode: 'Modo instantánea',
           snapshot_mode_hint: 'Rasteriza el diagrama después de cada renderizado. El desplazamiento y el zoom son mucho más rápidos en Safari y Firefox, a costa de no poder seleccionar texto.',
         },
@@ -677,7 +738,10 @@
           zoom: 'Zoom',
           space_drag: 'Espacio + arrastrar con el ratón',
           middle_drag: 'Clic central + arrastrar',
-          mouse_wheel: 'Rueda del ratón',
+          scroll: 'Desplazamiento',
+          arrow_keys: 'Teclas de flecha',
+          ctrl_scroll: 'Ctrl/⌘ + desplazamiento',
+          zoom_keys: 'Teclas +/-',
           pinch: 'Pellizcar para acercar/alejar',
           reset_view: 'Restablecer vista',
         }
@@ -701,7 +765,11 @@
           show_relationship_comment: 'Afficher le commentaire de la relation',
           show_key: 'Afficher la clé',
           show_column_comment: 'Afficher le commentaire de la colonne',
-          hide_columns: 'Masquer les colonnes',
+          show_table_comment: 'Afficher le commentaire de la table',
+          columns: 'Colonnes',
+          columns_all: 'Toutes',
+          columns_keys: 'Clés uniquement',
+          columns_none: 'Aucune',
           snapshot_mode: 'Mode instantané',
           snapshot_mode_hint: 'Pixellise le diagramme après chaque rendu. Le déplacement et le zoom deviennent beaucoup plus rapides sur Safari et Firefox, au prix de la sélection du texte.',
         },
@@ -733,7 +801,10 @@
           zoom: 'Zoom',
           space_drag: 'Espace + glisser avec la souris',
           middle_drag: 'Clic du milieu + glisser',
-          mouse_wheel: 'Molette de la souris',
+          scroll: 'Défilement',
+          arrow_keys: 'Touches fléchées',
+          ctrl_scroll: 'Ctrl/⌘ + défilement',
+          zoom_keys: 'Touches +/-',
           pinch: 'Pincer pour zoomer',
           reset_view: 'Réinitialiser la vue',
         }
@@ -757,7 +828,11 @@
           show_relationship_comment: 'Beziehungskommentar anzeigen',
           show_key: 'Schlüssel anzeigen',
           show_column_comment: 'Spaltenkommentar anzeigen',
-          hide_columns: 'Spalten ausblenden',
+          show_table_comment: 'Tabellenkommentar anzeigen',
+          columns: 'Spalten',
+          columns_all: 'Alle',
+          columns_keys: 'Nur Schlüssel',
+          columns_none: 'Keine',
           snapshot_mode: 'Schnappschussmodus',
           snapshot_mode_hint: 'Rastert das Diagramm nach jedem Rendern. Verschieben und Zoomen werden in Safari und Firefox deutlich schneller, allerdings auf Kosten der Textauswahl.',
         },
@@ -789,7 +864,10 @@
           zoom: 'Zoom',
           space_drag: 'Leertaste + Maus ziehen',
           middle_drag: 'Mittelklick + Ziehen',
-          mouse_wheel: 'Mausrad',
+          scroll: 'Scrollen',
+          arrow_keys: 'Pfeiltasten',
+          ctrl_scroll: 'Strg/⌘ + Scrollen',
+          zoom_keys: 'Tasten +/-',
           pinch: 'Zwei-Finger-Zoom',
           reset_view: 'Ansicht zurücksetzen',
         }
@@ -813,7 +891,11 @@
           show_relationship_comment: 'Mostra commento della relazione',
           show_key: 'Mostra chiave',
           show_column_comment: 'Mostra commento della colonna',
-          hide_columns: 'Nascondi colonne',
+          show_table_comment: 'Mostra commento della tabella',
+          columns: 'Colonne',
+          columns_all: 'Tutte',
+          columns_keys: 'Solo chiavi',
+          columns_none: 'Nessuna',
           snapshot_mode: 'Modalità istantanea',
           snapshot_mode_hint: 'Rasterizza il diagramma dopo ogni rendering. Lo spostamento e lo zoom diventano molto più veloci su Safari e Firefox, a scapito della selezione del testo.',
         },
@@ -845,7 +927,10 @@
           zoom: 'Zoom',
           space_drag: 'Spazio + trascina con il mouse',
           middle_drag: 'Clic centrale + trascina',
-          mouse_wheel: 'Rotellina del mouse',
+          scroll: 'Scorrimento',
+          arrow_keys: 'Tasti freccia',
+          ctrl_scroll: 'Ctrl/⌘ + scorrimento',
+          zoom_keys: 'Tasti +/-',
           pinch: 'Pizzica per zoomare',
           reset_view: 'Reimposta vista',
         }
@@ -869,7 +954,11 @@
           show_relationship_comment: 'Mostrar comentário do relacionamento',
           show_key: 'Mostrar chave',
           show_column_comment: 'Mostrar comentário da coluna',
-          hide_columns: 'Ocultar colunas',
+          show_table_comment: 'Mostrar comentário da tabela',
+          columns: 'Colunas',
+          columns_all: 'Todas',
+          columns_keys: 'Somente chaves',
+          columns_none: 'Nenhuma',
           snapshot_mode: 'Modo instantâneo',
           snapshot_mode_hint: 'Rasteriza o diagrama após cada renderização. Mover e dar zoom ficam muito mais rápidos no Safari e no Firefox, ao custo da seleção de texto.',
         },
@@ -901,7 +990,10 @@
           zoom: 'Zoom',
           space_drag: 'Espaço + arrastar com o mouse',
           middle_drag: 'Clique do meio + arrastar',
-          mouse_wheel: 'Roda do mouse',
+          scroll: 'Rolagem',
+          arrow_keys: 'Setas do teclado',
+          ctrl_scroll: 'Ctrl/⌘ + rolagem',
+          zoom_keys: 'Teclas +/-',
           pinch: 'Pinçar para ampliar/reduzir',
           reset_view: 'Redefinir visualização',
         }
@@ -925,7 +1017,11 @@
           show_relationship_comment: 'Показать комментарий связи',
           show_key: 'Показать ключ',
           show_column_comment: 'Показать комментарий столбца',
-          hide_columns: 'Скрыть столбцы',
+          show_table_comment: 'Показать комментарий таблицы',
+          columns: 'Столбцы',
+          columns_all: 'Все',
+          columns_keys: 'Только ключи',
+          columns_none: 'Нет',
           snapshot_mode: 'Режим снимка',
           snapshot_mode_hint: 'Растрировать диаграмму после каждой отрисовки. Панорамирование и масштабирование становятся намного быстрее в Safari и Firefox, но текст нельзя будет выделить.',
         },
@@ -957,7 +1053,10 @@
           zoom: 'Масштаб',
           space_drag: 'Пробел + перетаскивание мышью',
           middle_drag: 'Средняя кнопка + перетаскивание',
-          mouse_wheel: 'Колесо мыши',
+          scroll: 'Прокрутка',
+          arrow_keys: 'Клавиши со стрелками',
+          ctrl_scroll: 'Ctrl/⌘ + прокрутка',
+          zoom_keys: 'Клавиши +/-',
           pinch: 'Щипок для масштабирования',
           reset_view: 'Сбросить вид',
         }
@@ -981,7 +1080,11 @@
           show_relationship_comment: 'إظهار تعليق العلاقة',
           show_key: 'إظهار المفتاح',
           show_column_comment: 'إظهار تعليق العمود',
-          hide_columns: 'إخفاء الأعمدة',
+          show_table_comment: 'إظهار تعليق الجدول',
+          columns: 'الأعمدة',
+          columns_all: 'الكل',
+          columns_keys: 'المفاتيح فقط',
+          columns_none: 'لا شيء',
           snapshot_mode: 'وضع اللقطة',
           snapshot_mode_hint: 'تحويل المخطط إلى صورة نقطية بعد كل عرض. يصبح التحريك والتكبير أسرع بكثير في Safari وFirefox، لكن على حساب إمكانية تحديد النص.',
         },
@@ -1013,7 +1116,10 @@
           zoom: 'التكبير',
           space_drag: 'المسافة + سحب الماوس',
           middle_drag: 'النقر الأوسط + السحب',
-          mouse_wheel: 'عجلة الماوس',
+          scroll: 'التمرير',
+          arrow_keys: 'مفاتيح الأسهم',
+          ctrl_scroll: 'Ctrl/⌘ + التمرير',
+          zoom_keys: 'المفتاحان +/-',
           pinch: 'القرص للتكبير/التصغير',
           reset_view: 'إعادة تعيين العرض',
         }
@@ -1032,12 +1138,20 @@
           ...window.SCHEMA_DATA,
           Models: window.SCHEMA_DATA.Models.sort((a, b) => a.ModelName < b.ModelName ? -1 : 1)
         }
+        // The view the app's config/mermaid_erd.yml asks for on a first visit and
+        // after Reset: `{models: [...], columns: 'all' | 'keys' | 'none'}`.
+        const viewerDefaults = window.VIEWER_DEFAULTS
         const selectModels = Vue.ref([])
         const isPreviewRelations = Vue.ref(false)
         const isShowRelationComment = Vue.ref(false)
         const isShowKey = Vue.ref(false)
         const isShowComment = Vue.ref(false)
-        const isHideColumns = Vue.ref(false)
+        const isShowTableComment = Vue.ref(false)
+        // Which columns each model box draws. Keys Only keeps the columns the
+        // schema marks as a primary or foreign key, so a large diagram stays
+        // small without dropping the columns its relations are declared on.
+        const COLUMN_MODES = ['all', 'keys', 'none']
+        const columnMode = Vue.ref('all')
         // Snapshot mode bakes the rendered SVG into a raster image so pan/zoom
         // transforms a single <img> instead of relaying out hundreds of <g>
         // elements. Safari and Firefox get the biggest win; Chromium handles
@@ -1051,15 +1165,18 @@
 
         const MIN_SCALE = 0.1
         const MAX_SCALE = 5
-        // Wheel delta in pixels → zoom factor. Exponential keeps each step perceptually uniform
-        // across the whole range, and lets trackpad (small deltas) and mouse-wheel (large deltas)
-        // share the same code path.
-        const WHEEL_ZOOM_SENSITIVITY = 0.0015
+        // Ctrl + wheel delta in pixels → zoom factor. Browsers other than Safari report a trackpad
+        // pinch as Ctrl + wheel events; Chromium sets deltaY = -100 * ln(pinch scale), so this
+        // sensitivity makes the diagram follow the fingers.
+        const WHEEL_ZOOM_SENSITIVITY = 0.01
         const BUTTON_ZOOM_FACTOR = 1.2
+        // A mouse wheel notch arrives as one large delta (around 100px) that would zoom by ~2.7x.
+        // Capping each event at the delta that equals one button step makes a notch zoom like the
+        // + / - buttons, while pinch events (a few pixels each) stay under the cap.
+        const WHEEL_ZOOM_MAX_DELTA_PX = Math.log(BUTTON_ZOOM_FACTOR) / WHEEL_ZOOM_SENSITIVITY
         const PAN_STEP_PX = 60
-        // Approximate pixels-per-line / pixels-per-page for wheel events that don't report
-        // DOM_DELTA_PIXEL. Firefox defaults to DOM_DELTA_LINE (deltaMode === 1, e.g. ±3 per detent)
-        // — without normalisation, exp(-3 * 0.0015) ≈ 0.9955 produces almost no visible zoom.
+        // Approximate pixels-per-line for wheel events that report DOM_DELTA_LINE
+        // (Firefox's default for mouse wheels, e.g. ±3 per notch).
         const WHEEL_LINE_HEIGHT_PX = 16
 
         const scale = Vue.ref(1)
@@ -1075,6 +1192,8 @@
         const isDragging = Vue.ref(false)
         // Record distance between two touch points
         let lastTouchDistance = 0
+        // Safari's gesture events report the scale since the gesture started, not per event
+        let lastGestureScale = 1
         // Record mouse position
         let lastMouseX = 0
         let lastMouseY = 0
@@ -1189,7 +1308,58 @@
           }
         }
 
-        // Handle key down (space key for drag mode toggle)
+        // Safari has no Ctrl + wheel pinch: a trackpad pinch arrives as gesturestart /
+        // gesturechange / gestureend. Without preventDefault Safari zooms the whole page instead.
+        // iOS Safari sends the same gesture events alongside the touch events of a two-finger
+        // pinch, which the touch handlers already zoom by, so a pinch in progress is left to them.
+        const handleGestureStart = (e) => {
+          if (!viewport.value || !viewport.value.contains(e.target)) return
+          e.preventDefault()
+          lastGestureScale = e.scale || 1
+        }
+
+        const handleGestureChange = (e) => {
+          if (!viewport.value || !viewport.value.contains(e.target)) return
+          e.preventDefault()
+          if (lastTouchDistance === 0 && lastGestureScale > 0 && e.scale > 0) {
+            zoomAt(e.clientX, e.clientY, e.scale / lastGestureScale)
+          }
+          lastGestureScale = e.scale
+        }
+
+        const handleGestureEnd = (e) => {
+          if (!viewport.value || !viewport.value.contains(e.target)) return
+          e.preventDefault()
+          lastGestureScale = 1
+        }
+
+        // Keys typed into these belong to the control, not to the diagram. Checkboxes only
+        // react to Space, so zoom keys still reach the diagram from the model list.
+        const isTypingTarget = (element) => {
+          if (!element) return false
+          if (element.isContentEditable) return true
+          if (element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') return true
+          return element.tagName === 'INPUT' && element.type !== 'checkbox'
+        }
+
+        // Arrow keys scroll the model list while the user is working in the sidebar (last clicked
+        // or tabbed into), and move the diagram otherwise.
+        let isSidebarActive = false
+        const ARROW_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
+
+        const KEY_ACTIONS = {
+          ArrowUp: () => moveUp(),
+          ArrowDown: () => moveDown(),
+          ArrowLeft: () => moveLeft(),
+          ArrowRight: () => moveRight(),
+          '+': () => zoomIn(),
+          // `=` shares the + key on US layouts, so zooming in doesn't need Shift
+          '=': () => zoomIn(),
+          '-': () => zoomOut(),
+          '0': () => resetView(),
+        }
+
+        // Handle key down: space toggles drag mode; arrows move, + / - zoom and 0 resets the view
         const handleKeyDown = (e) => {
           if (e.code === 'Space' && !isSpacePressed.value) {
             if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
@@ -1197,7 +1367,15 @@
             }
             isSpacePressed.value = true
             e.preventDefault()
+            return
           }
+          const action = KEY_ACTIONS[e.key]
+          // Ctrl / Command / Alt combinations are the browser's (page zoom, history navigation)
+          if (!action || tab.value !== 'erd' || e.ctrlKey || e.metaKey || e.altKey) return
+          if (isTypingTarget(document.activeElement)) return
+          if (ARROW_KEYS.includes(e.key) && (isSidebarActive || (sidebar.value && sidebar.value.contains(document.activeElement)))) return
+          e.preventDefault()
+          action()
         }
 
         // Handle key up
@@ -1210,6 +1388,7 @@
 
         // Handle mouse down (start dragging)
         const handleMouseDown = (e) => {
+          isSidebarActive = !!(sidebar.value && sidebar.value.contains(e.target))
           if (isSpacePressed.value || e.button === 1) {
             isDragging.value = true
             lastMouseX = e.clientX
@@ -1239,28 +1418,35 @@
           isDragging.value = false
         }
 
-        // Handle mouse wheel (zoom). Exponential factor derived from wheel delta gives smooth,
-        // device-agnostic zooming and anchors the zoom at the cursor.
+        // Handle wheel: scrolling (a mouse wheel or a two-finger trackpad swipe) moves the diagram;
+        // Ctrl / Command + scrolling and trackpad pinches (which browsers send as Ctrl + wheel)
+        // zoom it, anchored at the cursor.
         const handleWheel = (e) => {
           // Use `viewport` rather than `#preview` so snapshot mode (which swaps `#preview` for
-          // an <img> sibling under the same viewport) keeps responding to wheel zoom.
+          // an <img> sibling under the same viewport) keeps responding to the wheel.
           if (!viewport.value || !viewport.value.contains(e.target)) return
-          // Pure horizontal trackpad swipes (deltaY === 0) shouldn't be swallowed — the user is
-          // navigating, not zooming. Returning without preventDefault lets the browser handle it.
-          if (e.deltaY === 0) return
+          if (e.deltaX === 0 && e.deltaY === 0) return
           e.preventDefault()
-          // Normalise non-pixel deltaMode (Firefox defaults to line mode); otherwise the
-          // exp() factor collapses to ~1.0 and the wheel feels unresponsive. For page mode,
-          // scale against the zoomable area's own height — page-mode events are rare, but
-          // when they fire we want a step proportional to the surface being zoomed, not the
-          // whole document viewport.
-          const pageHeightPx = (viewport.value && viewport.value.clientHeight) || window.innerHeight
-          const pixelDeltaY = e.deltaMode === 1
-            ? e.deltaY * WHEEL_LINE_HEIGHT_PX
+          // Normalise non-pixel deltaMode (Firefox defaults to line mode). Page mode is rare;
+          // scale it against the diagram area itself rather than the whole document.
+          const toPixels = (delta, pagePx) => e.deltaMode === 1
+            ? delta * WHEEL_LINE_HEIGHT_PX
             : e.deltaMode === 2
-              ? e.deltaY * pageHeightPx
-              : e.deltaY
-          zoomAt(e.clientX, e.clientY, Math.exp(-pixelDeltaY * WHEEL_ZOOM_SENSITIVITY))
+              ? delta * pagePx
+              : delta
+          const pixelDeltaX = toPixels(e.deltaX, viewport.value.clientWidth)
+          const pixelDeltaY = toPixels(e.deltaY, viewport.value.clientHeight)
+          if (e.ctrlKey || e.metaKey) {
+            const zoomDelta = Math.min(Math.max(pixelDeltaY, -WHEEL_ZOOM_MAX_DELTA_PX), WHEEL_ZOOM_MAX_DELTA_PX)
+            zoomAt(e.clientX, e.clientY, Math.exp(-zoomDelta * WHEEL_ZOOM_SENSITIVITY))
+            return
+          }
+          // Browsers that don't turn Shift + mouse wheel into a horizontal scroll still get one
+          if (e.shiftKey && pixelDeltaX === 0) {
+            move(-pixelDeltaY, 0)
+            return
+          }
+          move(-pixelDeltaX, -pixelDeltaY)
         }
 
         const zoomStyle = Vue.computed(() => {
@@ -1296,12 +1482,19 @@
           }
           try {
             const parsedData = JSON.parse(atob(raw))
-            selectModels.value = parsedData.selectModels || []
+            selectModels.value = parsedData.selectModels || [...viewerDefaults.models]
             isPreviewRelations.value = !!parsedData.isPreviewRelations
             isShowRelationComment.value = !!parsedData.isShowRelationComment
             isShowKey.value = !!parsedData.isShowKey
             isShowComment.value = !!parsedData.isShowComment
-            isHideColumns.value = !!parsedData.isHideColumns
+            isShowTableComment.value = !!parsedData.isShowTableComment
+            // Links shared before the column choice existed carry the old
+            // `isHideColumns` checkbox instead. A link that names neither
+            // leaves the choice to the app's default.
+            const legacyColumns = parsedData.isHideColumns === undefined
+              ? viewerDefaults.columns
+              : (parsedData.isHideColumns ? 'none' : 'all')
+            columnMode.value = COLUMN_MODES.includes(parsedData.columns) ? parsedData.columns : legacyColumns
             isSnapshotMode.value = !!parsedData.isSnapshotMode
           } catch (err) {
             console.warn('mermaid_erd: could not restore from URL hash, resetting to defaults.', err)
@@ -1309,17 +1502,19 @@
           }
         }
 
-        // Default to NO models selected. Issue #169: on schemas with hundreds of
-        // models, rendering the full diagram up front made Safari/Firefox crawl
-        // — and most users only want a focused slice anyway. Users can still
-        // bulk-select via the "All" button in the sidebar.
+        // Default to NO models selected unless the app's config lists some.
+        // Issue #169: on schemas with hundreds of models, rendering the full
+        // diagram up front made Safari/Firefox crawl — and most users only want
+        // a focused slice anyway. Users can still bulk-select via the "All"
+        // button in the sidebar.
         const reset = () => {
-          selectModels.value = []
+          selectModels.value = [...viewerDefaults.models]
           isPreviewRelations.value = false
           isShowRelationComment.value = false
           isShowKey.value = false
           isShowComment.value = false
-          isHideColumns.value = false
+          isShowTableComment.value = false
+          columnMode.value = viewerDefaults.columns
           isSnapshotMode.value = false
           updateHash()
         }
@@ -1331,7 +1526,8 @@
             isShowRelationComment: isShowRelationComment.value,
             isShowKey: isShowKey.value,
             isShowComment: isShowComment.value,
-            isHideColumns: isHideColumns.value,
+            isShowTableComment: isShowTableComment.value,
+            columns: columnMode.value,
             isSnapshotMode: isSnapshotMode.value,
           }))
         }
@@ -1402,10 +1598,16 @@
           filteredData.value.Models.forEach(model => {
             lines.push(`    %% table name: ${oneLine(model.TableName)}`)
             lines.push(`    %% table comment: ${oneLine(model.TableComment)}`)
-            lines.push(`    ${model.ModelName.replace(/:/g, '-')} {`)
+            const entityName = model.ModelName.replace(/:/g, '-')
+            // Mermaid's entity alias: the id stays the model name (relations
+            // refer to it), the heading shows "Model / table comment".
+            const entityAlias = isShowTableComment.value && oneLine(model.TableComment) !== ''
+              ? `["${entityName} / ${oneLine(model.TableComment).replace(/"/g, '#quot;')}"]`
+              : ''
+            lines.push(`    ${entityName}${entityAlias} {`)
 
-            if (!isHideColumns.value) {
-              model.Columns.forEach(column => {
+            if (columnMode.value !== 'none') {
+              model.Columns.filter(column => columnMode.value === 'all' || column.key).forEach(column => {
                 lines.push(`        ${column.type} ${column.name} ${isShowKey.value ? column.key : ''} ${isShowComment.value ? quoted(column.comment) : ''}`)
               })
             }
@@ -1452,12 +1654,16 @@
         // wasted work on schemas that re-render frequently. Init once here.
         // `securityLevel: 'strict'` is also the Mermaid 10+ default, but pin it
         // explicitly so a future upstream change can't silently regress to
-        // 'loose' (which would eval user-supplied labels as HTML).
+        // 'loose' (which would eval user-supplied labels as HTML). The ER
+        // diagram reads the top-level `htmlLabels`, not the flowchart one, so
+        // both are off: otherwise a column or relationship comment holding an
+        // `<img src=...>` becomes a real element and the browser fetches it.
         mermaid.initialize({
           theme: 'dark',
           maxTextSize: 99999999,
           startOnLoad: false,
           securityLevel: 'strict',
+          htmlLabels: false,
           flowchart: { htmlLabels: false },
           er: { useMaxWidth: false }
         })
@@ -1478,13 +1684,15 @@
           isShowRelationComment.value,
           isShowKey.value,
           isShowComment.value,
-          isHideColumns.value
+          isShowTableComment.value,
+          columnMode.value
         ])
         let lastRenderKey = null
 
         // Track the in-flight render so a late-completing render can't
         // overwrite a more recent one when the user toggles options rapidly.
         let renderToken = 0
+        const QUOTE_STAND_IN = '\uE000'
         const reRender = async () => {
           const myToken = ++renderToken
           const source = mermaidErd.value
@@ -1516,8 +1724,11 @@
 
           let svg
           try {
-            const result = await mermaid.render('mermaid-erd', source)
-            svg = result.svg
+            // With HTML labels off, Mermaid draws a `#quot;` entity as the
+            // literal text `&quot;`. Hand it a private-use stand-in and turn
+            // that into a real entity in the SVG it returns.
+            const result = await mermaid.render('mermaid-erd', source.replaceAll('#quot;', QUOTE_STAND_IN))
+            svg = result.svg.replaceAll(QUOTE_STAND_IN, '&quot;')
           } catch (err) {
             // Deliberately do NOT update lastRenderKey on failure — otherwise
             // the next attempt with the same selection would short-circuit
@@ -1847,6 +2058,9 @@
           window.addEventListener('touchstart', handleTouchStart, { passive: false })
           window.addEventListener('touchmove', handleTouchMove, { passive: false })
           window.addEventListener('touchend', handleTouchEnd)
+          window.addEventListener('gesturestart', handleGestureStart, { passive: false })
+          window.addEventListener('gesturechange', handleGestureChange, { passive: false })
+          window.addEventListener('gestureend', handleGestureEnd, { passive: false })
           sidebarResizeObserver.observe(sidebar.value)
           sidebarResizeObserver.observe(modelListHeader.value)
         })
@@ -1861,6 +2075,9 @@
           window.removeEventListener('touchstart', handleTouchStart)
           window.removeEventListener('touchmove', handleTouchMove)
           window.removeEventListener('touchend', handleTouchEnd)
+          window.removeEventListener('gesturestart', handleGestureStart)
+          window.removeEventListener('gesturechange', handleGestureChange)
+          window.removeEventListener('gestureend', handleGestureEnd)
           sidebarResizeObserver.disconnect()
         })
 
@@ -1880,6 +2097,7 @@
           isPreviewRelations,
           isShowRelationComment,
           isShowComment,
+          isShowTableComment,
           isShowKey,
           isSnapshotMode,
           snapshotDataUrl,
@@ -1902,7 +2120,8 @@
           setLanguage,
           tab,
           updateHash,
-          isHideColumns,
+          COLUMN_MODES,
+          columnMode,
           zoomStyle,
           zoomArea,
           viewport,

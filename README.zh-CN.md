@@ -64,6 +64,8 @@ mermaid_erd
 
 如果你分享此文件，没有 Ruby on Rails 环境的人也可以使用。或者，你可以将文件上传到 Web 服务器，通过同一 URL 进行共享。
 
+生成的文件包含应用的 schema，包括表名、列名和注释。请仅在可以公开 schema 本身的范围内分享或托管它。
+
 使用 CI 自动生成是非常明智的做法。
 
 ### 将 Mermaid 源码输出到标准输出
@@ -90,7 +92,7 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -110,6 +112,7 @@ $ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 | --- | --- | --- |
 | `result_path` | 生成文件的输出路径。 | `mermaid_erd/index.html` |
 | `ignore_tables` | 正则表达式字符串数组。`table_name` 与任意模式匹配的表，连同指向它们的所有关联，都将从生成的 ERD 中排除。适用于排除审计日志模型、软删除/遗留表或其他不想渲染的大量噪声。模式通过 `Regexp.new` 编译，因此在 YAML 字符串中需要转义反斜杠（例如 `"\\Aaudit_"`）。 | `[]` |
+| `viewer_defaults` | URL 中没有已保存状态时查看器打开的初始视图,也是点击**重置**后恢复到的视图;带有自身状态的链接始终优先。`models`:初始选中的模型名称数组(不在 ERD 中的名称会在生成文件时给出警告并被忽略)。`columns`:`all` / `keys`(仅主键和外键)/ `none`,与侧边栏「字段」的选项相同。适合在大型应用中从常用模型开始查看。 | `models: []`(不选中任何模型),`columns: all` |
 
 <!--
 TODO:
@@ -120,3 +123,7 @@ Contribution directions go here.
 
 ## 许可证
 该 gem 以开源形式提供，遵循 [MIT License](https://opensource.org/licenses/MIT) 条款。
+
+## 商标
+
+本项目与 Rails、The Rails Foundation、Mermaid 项目、Mermaid Chart Inc. 均无关联，也未获得它们的认可或赞助。Rails 和 Ruby on Rails 是 David Heinemeier Hansson 的注册商标。Mermaid Chart Inc. 已在美国注册或申请注册 MERMAID CHART 和 MERMAID 商标。其他商标归各自权利人所有。

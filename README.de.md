@@ -64,6 +64,8 @@ mermaid_erd
 
 Wenn Sie diese Datei teilen, kann sie auch von Personen ohne Ruby-on-Rails-Umgebung verwendet werden. Alternativ können Sie die Datei auf einen Webserver hochladen und über dieselbe URL teilen.
 
+Die erzeugte Datei enthält das Schema Ihrer Anwendung, einschließlich Tabellen- und Spaltennamen sowie Kommentaren. Geben Sie sie nur in dem Kreis weiter oder hosten Sie sie nur dort, in dem Sie auch das Schema selbst teilen würden.
+
 Es wäre sehr sinnvoll, sie mithilfe von CI automatisch zu erzeugen.
 
 ### Die Mermaid-Quelle auf stdout ausgeben
@@ -90,7 +92,7 @@ Die Ruby-×-Rails-Kombinationen, die CI bei jedem Push und Pull Request überpr�
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -110,6 +112,7 @@ Die Konfigurationsparameter sind wie folgt.
 | --- | --- | --- |
 | `result_path` | Zielverzeichnis der erzeugten Dateien. | `mermaid_erd/index.html` |
 | `ignore_tables` | Array von regulären Ausdrücken als Zeichenketten. Tabellen, deren `table_name` einem Muster entspricht, werden zusammen mit allen darauf verweisenden Relationen aus dem erzeugten ERD ausgeschlossen. Nützlich, um Audit-Log-Modelle, weich gelöschte oder veraltete Tabellen oder anderes störendes Rauschen auszublenden. Die Muster werden mit `Regexp.new` kompiliert, daher müssen Backslashes innerhalb von YAML-Zeichenketten escapet werden (z. B. `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | Ansicht, mit der sich der Viewer öffnet, wenn die URL keinen gespeicherten Zustand enthält, und zu der **Zurücksetzen** zurückkehrt; ein Link mit eigenem Zustand hat immer Vorrang. `models`: Array der Modellnamen, die anfangs ausgewählt sind (ein Name, der nicht im ERD vorkommt, wird beim Erzeugen der Datei mit einer Warnung übersprungen). `columns`: `all`, `keys` (nur Primär- und Fremdschlüssel) oder `none` – dieselben Optionen wie „Spalten“ in der Seitenleiste. Praktisch, um eine große Anwendung mit den Modellen zu öffnen, bei denen man meist beginnt. | `models: []` (keine Auswahl), `columns: all` |
 
 <!--
 TODO:
@@ -120,3 +123,7 @@ Contribution directions go here.
 
 ## Lizenz
 Das Gem ist als Open Source unter den Bedingungen der [MIT License](https://opensource.org/licenses/MIT) verfügbar.
+
+## Marken
+
+Dieses Projekt steht in keiner Verbindung zu Rails, der Rails Foundation, dem Mermaid-Projekt oder Mermaid Chart Inc. und wird von ihnen weder unterstützt noch gesponsert. Rails und Ruby on Rails sind eingetragene Marken von David Heinemeier Hansson. Mermaid Chart Inc. hat die Marken MERMAID CHART und MERMAID in den USA eingetragen oder angemeldet. Alle übrigen Marken sind Eigentum ihrer jeweiligen Inhaber.

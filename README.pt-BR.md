@@ -64,6 +64,8 @@ mermaid_erd
 
 Se você compartilhar este arquivo, ele poderá ser usado por quem não tem um ambiente Ruby on Rails. Você também pode fazer o upload para um servidor web e compartilhá-lo com a mesma URL.
 
+O arquivo gerado contém o esquema da sua aplicação, incluindo nomes de tabelas e colunas e comentários. Compartilhe-o ou hospede-o apenas com o mesmo alcance com que compartilharia o próprio esquema.
+
 Seria muito eficiente gerá-lo automaticamente usando CI.
 
 ### Imprimir a fonte Mermaid na saída padrão
@@ -90,7 +92,7 @@ As combinações Ruby × Rails verificadas pela CI a cada push e pull request:
 | ----- | -------------------------------- |
 | 5.2   | 2.7                              |
 | 6.0   | 2.7, 3.0                         |
-| 6.1   | 2.7, 3.0, 3.1, 3.2               |
+| 6.1   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.0   | 2.7, 3.0, 3.1, 3.2, 3.3          |
 | 7.1   | 3.1, 3.2, 3.3, 3.4               |
 | 7.2   | 3.1, 3.2, 3.3, 3.4               |
@@ -110,6 +112,7 @@ As opções disponíveis são as seguintes.
 | --- | --- | --- |
 | `result_path` | Destino dos arquivos gerados. | `mermaid_erd/index.html` |
 | `ignore_tables` | Array de strings de expressões regulares. Tabelas cujo `table_name` corresponda a qualquer padrão são removidas do ERD gerado, junto com quaisquer relações que apontem para elas. Útil para excluir modelos de log de auditoria, tabelas com exclusão lógica/legadas ou outro ruído indesejado no diagrama. Os padrões são compilados com `Regexp.new`, portanto escape as barras invertidas dentro de strings YAML (ex.: `"\\Aaudit_"`). | `[]` |
+| `viewer_defaults` | Visualização com que o visualizador abre quando a URL não traz um estado salvo, e para a qual **Redefinir** volta; um link com estado próprio sempre tem prioridade. `models`: array com os nomes dos modelos selecionados no início (um nome que não está no ERD é ignorado com um aviso ao gerar o arquivo). `columns`: `all`, `keys` (somente chaves primárias e estrangeiras) ou `none`, as mesmas opções de "Colunas" na barra lateral. Útil para abrir um aplicativo grande nos modelos por onde se costuma começar. | `models: []` (nada selecionado), `columns: all` |
 
 <!--
 TODO:
@@ -121,3 +124,7 @@ Contribution directions go here.
 ## Licença
 
 A gem está disponível como open source nos termos da [Licença MIT](https://opensource.org/licenses/MIT).
+
+## Marcas registradas
+
+Este projeto não é afiliado a Rails, à The Rails Foundation, ao projeto Mermaid nem à Mermaid Chart Inc., e não é endossado nem patrocinado por eles. Rails e Ruby on Rails são marcas registradas de David Heinemeier Hansson. A Mermaid Chart Inc. registrou ou solicitou o registro das marcas MERMAID CHART e MERMAID nos Estados Unidos. As demais marcas pertencem aos seus respectivos proprietários.

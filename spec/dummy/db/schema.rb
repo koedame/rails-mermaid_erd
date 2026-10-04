@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_05_20_120000) do
+ActiveRecord::Schema.define(version: 2026_09_19_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,6 +20,13 @@ ActiveRecord::Schema.define(version: 2026_05_20_120000) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
+
+  create_table "bookmarks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "post_id", null: false
+    t.bigint "reader_id", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "care_types", force: :cascade do |t|
@@ -37,9 +44,12 @@ ActiveRecord::Schema.define(version: 2026_05_20_120000) do
   create_table "comments", force: :cascade do |t|
     t.string "body", null: false
     t.datetime "created_at", null: false
+    t.bigint "flagged_comment_id"
     t.bigint "post_id", null: false
+    t.string "type"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["flagged_comment_id"], name: "index_comments_on_flagged_comment_id"
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
@@ -60,11 +70,26 @@ ActiveRecord::Schema.define(version: 2026_05_20_120000) do
     t.index ["matching_info_type", "matching_info_id"], name: "idx_on_matching_info_type_matching_info_id_de942d05f3"
   end
 
+  create_table "memberships", primary_key: ["organization_code", "member_code"], force: :cascade do |t|
+    t.string "member_code", null: false
+    t.string "organization_code", null: false
+    t.string "role"
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.string "body", null: false
+    t.datetime "created_at", null: false
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "posts", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.bigint "editor_id"
     t.string "title", null: false, comment: "post title"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["editor_id"], name: "index_posts_on_editor_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
@@ -107,10 +132,12 @@ ActiveRecord::Schema.define(version: 2026_05_20_120000) do
   end
 
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "comments", "comments", column: "flagged_comment_id"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "matching_info_care_types", "care_types"
   add_foreign_key "posts", "users"
+  add_foreign_key "posts", "users", column: "editor_id"
   add_foreign_key "posts_tags", "posts"
   add_foreign_key "posts_tags", "tags"
   add_foreign_key "user_images", "users"
