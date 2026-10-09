@@ -12,6 +12,7 @@
     "tailwindcss": "4.3.3"
   },
   "overrides": {
-    "@parcel/watcher": "2.6.0"
+    "@parcel/watcher": "2.6.0",
+    "postcss-selector-parser": "^7.1.6"
   }
 }
