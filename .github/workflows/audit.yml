@@ -62,19 +62,5 @@ jobs:
         with:
           node-version: 22
 
-      # tailwindcss 3.x pulls in chokidar -> braces, and braces has no patched
-      # release (GHSA-vfj7-8cjw-p6xm), so a plain `npm audit` cannot pass until
-      # the build moves to Tailwind 4. That advisory is the only one skipped
-      # here; any other high or critical advisory still fails the job.
       - name: Audit the Tailwind build dependencies
-        run: |
-          npm audit --package-lock-only --json > audit.json || true
-          jq -r '
-            [.vulnerabilities[].via[]
-              | select(type == "object")
-              | select(.severity == "high" or .severity == "critical")
-              | select(.url != "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm")
-              | "\(.severity)  \(.name)  \(.title)  \(.url)"]
-            | unique | .[]' audit.json > unexpected.txt
-          cat unexpected.txt
-          test ! -s unexpected.txt
+        run: npm audit --package-lock-only --audit-level=high

@@ -43,9 +43,17 @@ gem, in `script/tailwind/`:
 
 | File | Purpose |
 | ---- | ------- |
-| `package.json` / `package-lock.json` | Pins `tailwindcss` 3.1.8, `@tailwindcss/forms` 0.5.2 and `@tailwindcss/typography` 0.5.4 (all MIT) |
-| `tailwind.config.js` | Scans `lib/templates/index.html.erb` and `lib/assets/logo.svg` for class names and enables the two plugins |
-| `input.css` | The three `@tailwind` directives |
+| `package.json` / `package-lock.json` | Pins `tailwindcss` and `@tailwindcss/cli` 4.3.3, `@tailwindcss/forms` 0.5.11 and `@tailwindcss/typography` 0.5.20 (all MIT) |
+| `input.css` | The Tailwind 4 configuration, which is CSS: `@source` lists `lib/templates/index.html.erb` and `lib/assets/logo.svg` as the files scanned for class names (`source(none)` turns off scanning of everything else), `@plugin` enables the two plugins, and `@theme` and `@layer base` keep what Tailwind 3.1 rendered (see below) |
+
+`package.json` also overrides `@parcel/watcher` to 2.6.0. `@tailwindcss/cli` 4.3.1 and later pin 2.5.1, which pulls in `micromatch` and `braces` (GHSA-vfj7-8cjw-p6xm, no patched `braces` release). The watcher is only used by `--watch`; drop the override once the CLI depends on a release without `micromatch`.
+
+Tailwind 4 changed a few defaults the viewer relied on, so `input.css` puts them back and the stylesheet renders as it did with Tailwind 3.1.8 (checked by comparing the computed style of every element and screenshots, before and after):
+
+- the default sans font stack and the colours the template uses (`@theme`; Tailwind 4 recoloured its palette in oklch)
+- the border colour (gray-200 instead of `currentColor`) and the pointer cursor on buttons (`@layer base`)
+
+Two template classes follow from Tailwind 4 too. Write a bare `ring` as `ring-3` (it is 1px now). The forms plugin styles checkboxes and radios in the base layer, where a utility such as `border-gray-300` wins over its `:checked` rule, so those inputs carry `checked:border-transparent`.
 
 To rebuild after changing a class in the template (or a pinned version):
 

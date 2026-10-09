@@ -49,8 +49,8 @@ describe "rake mermaid_erd" do
   it "inlines a Tailwind stylesheet that covers the viewer's classes" do
     stylesheet = generated_html[%r{<style>(/\*! tailwindcss.*?)</style>}m, 1]
 
-    expect(stylesheet).to include("tailwindcss v3.1.8 | MIT License") # banner the CLI keeps
-    expect(stylesheet).to include("[dir=rtl] .rtl\\:border-l{")
+    expect(stylesheet).to include("tailwindcss v4.3.3 | MIT License") # banner the CLI keeps
+    expect(stylesheet).to include(".rtl\\:border-l:where(:dir(rtl),[dir=rtl],[dir=rtl] *){")
     expect(stylesheet).to include(".w-\\[250px\\]{")
   end
 

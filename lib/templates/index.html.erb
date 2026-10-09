@@ -49,14 +49,14 @@
           <h2 class="font-medium text-gray-900 mb-1">{{i18n[language]["actions"]["title"]}}</h2>
 
           <div class="space-y-2">
-            <button @click="reset" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+            <button @click="reset" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring-3 focus:ring-red-600 focus:ring-offset-2">
               <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
               </svg>
               <span>{{i18n[language]["actions"]["reset"]}}</span>
             </button>
 
-            <button @click="onCopyUrl" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+            <button @click="onCopyUrl" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring-3 focus:ring-red-600 focus:ring-offset-2">
               <template v-if="isCopiedUrl">
                 <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -71,7 +71,7 @@
               </template>
             </button>
 
-            <button @click="onCopyMermaid" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+            <button @click="onCopyMermaid" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring-3 focus:ring-red-600 focus:ring-offset-2">
               <template v-if="isCopiedMermaid">
                 <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -86,7 +86,7 @@
               </template>
             </button>
 
-            <button @click="onCopyMarkdown" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+            <button @click="onCopyMarkdown" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring-3 focus:ring-red-600 focus:ring-offset-2">
               <template v-if="isCopiedMarkdown">
                 <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -101,14 +101,14 @@
               </template>
             </button>
 
-            <button @click="onDownloadSvg" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+            <button @click="onDownloadSvg" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring-3 focus:ring-red-600 focus:ring-offset-2">
               <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
               <span>{{i18n[language]["actions"]["download_svg_file"]}}</span>
             </button>
 
-            <button @click="onDownloadPng" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring focus:ring-red-600 focus:ring-offset-2">
+            <button @click="onDownloadPng" class="text-xs border border-gray-300 rounded py-1 w-full hover:bg-gray-100 flex justify-center items-center focus:ring-3 focus:ring-red-600 focus:ring-offset-2">
               <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
@@ -125,7 +125,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 checked:border-transparent text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isPreviewRelations"
                   @change="updateHash"
                 />
@@ -137,7 +137,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 checked:border-transparent text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isShowRelationComment"
                   @change="updateHash"
                 />
@@ -152,7 +152,7 @@
                   <input
                     type="radio"
                     name="columns"
-                    class="h-4 w-4 border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                    class="h-4 w-4 border-gray-300 checked:border-transparent text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                     :value="mode"
                     v-model="columnMode"
                     @change="updateHash"
@@ -166,7 +166,7 @@
               <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ columnMode === 'none' ? 'cursor-not-allowed' : 'cursor-pointer' }`">
                 <input
                   type="checkbox"
-                  :class="`h-4 w-4 rounded border-gray-300 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
+                  :class="`h-4 w-4 rounded border-gray-300 checked:border-transparent mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
                   v-model="isShowKey"
                   @change="updateHash"
                   :disabled="columnMode === 'none'"
@@ -179,7 +179,7 @@
               <label :class="`relative flex items-start hover:bg-gray-100 rounded ${ columnMode === 'none' ? 'cursor-not-allowed' : 'cursor-pointer' }`">
                 <input
                   type="checkbox"
-                  :class="`h-4 w-4 rounded border-gray-300 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
+                  :class="`h-4 w-4 rounded border-gray-300 checked:border-transparent mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 ${ columnMode === 'none' ? 'text-gray-400' : 'text-red-600'}`"
                   v-model="isShowComment"
                   @change="updateHash"
                   :disabled="columnMode === 'none'"
@@ -192,7 +192,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 checked:border-transparent text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isShowTableComment"
                   @change="updateHash"
                 />
@@ -204,7 +204,7 @@
               <label class="relative flex items-start cursor-pointer hover:bg-gray-100 rounded" :title="i18n[language]['options']['snapshot_mode_hint']">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
+                  class="h-4 w-4 rounded border-gray-300 checked:border-transparent text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600"
                   v-model="isSnapshotMode"
                   @change="updateHash"
                 />
@@ -259,7 +259,7 @@
               <div class="min-w-0 flex-1 text-xs text-gray-900 inline-flex items-center">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 shrink-0"
+                  class="h-4 w-4 rounded border-gray-300 checked:border-transparent text-red-600 mr-2 rtl:mr-0 rtl:ml-2 focus:ring-red-600 shrink-0"
                   :value="model.ModelName"
                   :checked="selectModels.includes(model.ModelName)"
                   @change="onChange"
