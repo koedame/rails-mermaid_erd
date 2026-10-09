@@ -48,6 +48,8 @@ gem, in `script/tailwind/`:
 
 `package.json` also overrides `@parcel/watcher` to 2.6.0. `@tailwindcss/cli` 4.3.1 and later pin 2.5.1, which pulls in `micromatch` and `braces` (GHSA-vfj7-8cjw-p6xm, no patched `braces` release). The watcher is only used by `--watch`; drop the override once the CLI depends on a release without `micromatch`.
 
+`package.json` also overrides `postcss-selector-parser` to `^7.1.6`. `@tailwindcss/typography` 0.5.20 pins 6.0.10 exactly, which parses a flat selector in quadratic time (Dependabot alert 151, medium). The build output is byte-identical with 7.1.6, so drop the override once typography depends on 7.1.6 or later.
+
 Tailwind 4 changed a few defaults the viewer relied on, so `input.css` puts them back and the stylesheet renders as it did with Tailwind 3.1.8 (checked by comparing the computed style of every element and screenshots, before and after):
 
 - the default sans font stack and the colours the template uses (`@theme`; Tailwind 4 recoloured its palette in oklch)
