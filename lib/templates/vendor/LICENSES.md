@@ -9,7 +9,7 @@ notice of each. The text of each license follows the lists.
 | ---- | ------- | ------------- |
 | `mermaid.min.js` | `70137e77bb273bb2ef972b86e8b0400cca8be53cb25bfc45911a186dc98665de` | Mermaid 11.15.0: 72 packages |
 | `vue.global.prod.min.js` | `def6d1d005478eabe6f4adb538a420be6e779feebb02c488935a31315258dadd` | Vue 3.2.40 (global production build): 7 packages |
-| `tailwind.css` | `932e279a52973e8dcccc8b1adc87052db8767d05017229b32fc4d107adf73227` | Tailwind CSS (built from script/tailwind/): 2 packages |
+| `tailwind.css` | `98e3dc60e0d6ac55f22863a427d2f82e4ef54a846f7443cb82f42535107c7148` | Tailwind CSS (built from script/tailwind/): 2 packages |
 | `lib/templates/index.html.erb` | — | Inline icons: 1 package |
 
 The SHA-256 values are those of `CHECKSUMS.txt`. The test suite fails when they
@@ -108,8 +108,8 @@ In `vue.global.prod.min.js`.
 
 In `tailwind.css`.
 
-- **@tailwindcss/forms** 0.5.2 — MIT — Copyright (c) Tailwind Labs, Inc. — <https://github.com/tailwindlabs/tailwindcss-forms>
-- **tailwindcss** 3.1.8 — MIT — Copyright (c) Tailwind Labs, Inc. — <https://github.com/tailwindlabs/tailwindcss>
+- **@tailwindcss/forms** 0.5.11 — MIT — Copyright (c) Tailwind Labs, Inc. — <https://github.com/tailwindlabs/tailwindcss-forms>
+- **tailwindcss** 4.3.3 — MIT — Copyright (c) Tailwind Labs, Inc. — <https://github.com/tailwindlabs/tailwindcss>
 
 ## Inline icons
 
@@ -379,7 +379,7 @@ THIS SOFTWARE.
 
 ### MIT
 
-Applies to: @braintree/sanitize-url 7.1.1, @iconify/utils 3.0.2, @mermaid-js/parser 1.1.1, @tailwindcss/forms 0.5.2, @upsetjs/venn.js 2.0.0, @vue/compiler-core 3.2.40, @vue/compiler-dom 3.2.40, @vue/reactivity 3.2.40, @vue/runtime-core 3.2.40, @vue/runtime-dom 3.2.40, @vue/shared 3.2.40, chevrotain-allstar 0.3.1, cose-base 1.0.3, cose-base 2.2.0, dayjs 1.11.19, heroicons 2.0.18, katex 0.16.25, khroma 2.1.0, langium 4.2.0, layout-base 1.0.2, layout-base 2.0.1, mermaid 11.15.0, roughjs 4.6.6, stylis 4.3.6, tailwindcss 3.1.8, ts-dedent 2.2.0, uuid 14.0.0, vue 3.2.40.
+Applies to: @braintree/sanitize-url 7.1.1, @iconify/utils 3.0.2, @mermaid-js/parser 1.1.1, @tailwindcss/forms 0.5.11, @upsetjs/venn.js 2.0.0, @vue/compiler-core 3.2.40, @vue/compiler-dom 3.2.40, @vue/reactivity 3.2.40, @vue/runtime-core 3.2.40, @vue/runtime-dom 3.2.40, @vue/shared 3.2.40, chevrotain-allstar 0.3.1, cose-base 1.0.3, cose-base 2.2.0, dayjs 1.11.19, heroicons 2.0.18, katex 0.16.25, khroma 2.1.0, langium 4.2.0, layout-base 1.0.2, layout-base 2.0.1, mermaid 11.15.0, roughjs 4.6.6, stylis 4.3.6, tailwindcss 4.3.3, ts-dedent 2.2.0, uuid 14.0.0, vue 3.2.40.
 The copyright notice of each is the one given in the lists above.
 
 ```
