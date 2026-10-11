@@ -91,7 +91,7 @@ jobs:
         run: test -f "$BUNDLE_GEMFILE" || { echo "Missing $BUNDLE_GEMFILE"; exit 1; }
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@e81a8fa391b11a595c1b7ed84177cc0fe02faf83 # v1.328.0
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
