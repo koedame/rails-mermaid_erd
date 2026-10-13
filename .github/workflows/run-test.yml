@@ -115,6 +115,24 @@ jobs:
       - name: Run tests
         run: bundle exec rspec
 
+  # Follows the README's Installation steps on a brand-new Rails app, so a
+  # README that stops working (e.g. a Rakefile instruction that is placed where
+  # the task is never loaded) is noticed here rather than by a new user.
+  readme-install:
+    name: README install steps
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+
+      - name: Follow the README on a new Rails app
+        run: script/check-readme-install.sh
+
   # Single check that branch protection can require — succeeds only when
   # every matrix leg above succeeded. Without this, branch protection would
   # have to enumerate all matrix-cell names individually and rot whenever
