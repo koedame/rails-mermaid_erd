@@ -1,5 +1,5 @@
 # SHA-256 checksums of the vendored front-end assets.
 # Verify with: cd lib/templates/vendor && sha256sum -c CHECKSUMS.txt
-70137e77bb273bb2ef972b86e8b0400cca8be53cb25bfc45911a186dc98665de  mermaid.min.js
+581ed7d74bd9048d0e3a91363927d72ef22942d7722546b27f7cc29e35390eb8  mermaid.min.js
 98e3dc60e0d6ac55f22863a427d2f82e4ef54a846f7443cb82f42535107c7148  tailwind.css
-def6d1d005478eabe6f4adb538a420be6e779feebb02c488935a31315258dadd  vue.global.prod.min.js
+dc4e55e5fb5e344b741e5d37cbf4ffe852f28342896cc1af2b651363c56d793f  vue.global.prod.min.js

@@ -6,7 +6,10 @@ name: audit
 #
 # bundler-audit checks Gemfile.lock against ruby-advisory-db. npm audit checks
 # the lock file of the Tailwind build tool (script/tailwind), which is not
-# shipped in the gem, and fails from "high" up.
+# shipped in the gem, and fails from "high" up. The Mermaid and Vue bundles in
+# lib/templates/vendor are plain files that neither of those sees, so
+# script/audit_vendor.mjs audits the versions named in
+# script/licenses/bundles.json, and fails from "moderate" up.
 
 on:
   pull_request:
@@ -16,6 +19,9 @@ on:
     paths:
       - "Gemfile.lock"
       - "script/tailwind/package-lock.json"
+      - "script/licenses/bundles.json"
+      - "script/audit_vendor.mjs"
+      - "lib/templates/vendor/*.js"
       - ".github/workflows/audit.yml"
   push:
     branches:
@@ -64,3 +70,18 @@ jobs:
 
       - name: Audit the Tailwind build dependencies
         run: npm audit --package-lock-only --audit-level=high
+
+  vendored-js-audit:
+    name: Vendored JS advisories
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Audit the bundled Mermaid and Vue
+        run: node script/audit_vendor.mjs
