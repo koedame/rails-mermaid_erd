@@ -7,30 +7,30 @@ notice of each. The text of each license follows the lists.
 
 | File | SHA-256 | What is in it |
 | ---- | ------- | ------------- |
-| `mermaid.min.js` | `70137e77bb273bb2ef972b86e8b0400cca8be53cb25bfc45911a186dc98665de` | Mermaid 11.15.0: 72 packages |
-| `vue.global.prod.min.js` | `def6d1d005478eabe6f4adb538a420be6e779feebb02c488935a31315258dadd` | Vue 3.2.40 (global production build): 7 packages |
+| `mermaid.min.js` | `581ed7d74bd9048d0e3a91363927d72ef22942d7722546b27f7cc29e35390eb8` | Mermaid 11.17.2: 73 packages |
+| `vue.global.prod.min.js` | `dc4e55e5fb5e344b741e5d37cbf4ffe852f28342896cc1af2b651363c56d793f` | Vue 3.5.44 (global production build): 7 packages |
 | `tailwind.css` | `98e3dc60e0d6ac55f22863a427d2f82e4ef54a846f7443cb82f42535107c7148` | Tailwind CSS (built from script/tailwind/): 2 packages |
 | `lib/templates/index.html.erb` | — | Inline icons: 1 package |
 
 The SHA-256 values are those of `CHECKSUMS.txt`. The test suite fails when they
 differ, which means a file was replaced without regenerating this list.
 
-## Mermaid 11.15.0
+## Mermaid 11.17.2
 
 In `mermaid.min.js`.
 
-- **@braintree/sanitize-url** 7.1.1 — MIT — Copyright (c) 2017 Braintree — <https://github.com/braintree/sanitize-url>
-- **@chevrotain/gast** 11.1.1 — Apache-2.0 — no copyright line in its license file — <https://github.com/Chevrotain/chevrotain>
-- **@chevrotain/regexp-to-ast** 11.1.1 — Apache-2.0 — no copyright line in its license file — <https://github.com/Chevrotain/chevrotain>
-- **@chevrotain/utils** 11.1.1 — Apache-2.0 — no copyright line in its license file (author in package.json: Shahar Soel) — <https://github.com/Chevrotain/chevrotain>
+- **@braintree/sanitize-url** 7.1.2 — MIT — Copyright (c) 2017 Braintree — <https://github.com/braintree/sanitize-url>
+- **@chevrotain/gast** 11.1.2 — Apache-2.0 — no copyright line in its license file — <https://github.com/Chevrotain/chevrotain>
+- **@chevrotain/regexp-to-ast** 11.1.2 — Apache-2.0 — no copyright line in its license file — <https://github.com/Chevrotain/chevrotain>
+- **@chevrotain/utils** 11.1.2 — Apache-2.0 — no copyright line in its license file (author in package.json: Shahar Soel) — <https://github.com/Chevrotain/chevrotain>
 - **@iconify/utils** 3.0.2 — MIT — Copyright (c) 2021-PRESENT Vjacheslav Trushkin — <https://github.com/iconify/iconify>
-- **@mermaid-js/parser** 1.1.1 — MIT — Copyright (c) 2023 Yokozuna59 — <https://github.com/mermaid-js/mermaid>
+- **@mermaid-js/parser** 1.2.1 — MIT — Copyright (c) 2023 Yokozuna59 — <https://github.com/mermaid-js/mermaid>
 - **@upsetjs/venn.js** 2.0.0 — MIT — Copyright (c) 2013 Ben Frederickson; Copyright (c) 2021 Samuel Gratzl — <https://github.com/upsetjs/venn.js>
-- **chevrotain** 11.1.1 — Apache-2.0 — no copyright line in its license file (author in package.json: Shahar Soel) — <https://github.com/Chevrotain/chevrotain>
+- **chevrotain** 11.1.2 — Apache-2.0 — no copyright line in its license file (author in package.json: Shahar Soel) — <https://github.com/Chevrotain/chevrotain>
 - **chevrotain-allstar** 0.3.1 — MIT — Copyright 2022 TypeFox GmbH — <https://github.com/langium/chevrotain-allstar>
 - **cose-base** 1.0.3 — MIT — Copyright (c) 2019 - present, iVis@Bilkent. — <https://github.com/iVis-at-Bilkent/cose-base>
 - **cose-base** 2.2.0 — MIT — Copyright (c) 2019 - present, iVis@Bilkent. — <https://github.com/iVis-at-Bilkent/cose-base>
-- **cytoscape** 3.33.1 — MIT — Copyright (c) 2016-2025, The Cytoscape Consortium. — <https://github.com/cytoscape/cytoscape.js>
+- **cytoscape** 3.34.0 — MIT — Copyright (c) 2016-2026, The Cytoscape Consortium. — <https://github.com/cytoscape/cytoscape.js>
 - **cytoscape-cose-bilkent** 4.1.0 — MIT — Copyright (c) 2016-2018, The Cytoscape Consortium. — <https://github.com/cytoscape/cytoscape.js-cose-bilkent>
 - **cytoscape-fcose** 2.2.0 — MIT — Copyright (c) 2018 - present, iVis-at-Bilkent. — <https://github.com/iVis-at-Bilkent/cytoscape.js-fcose>
 - **d3** 7.9.0 — ISC — Copyright 2010-2023 Mike Bostock — <https://github.com/d3/d3>
@@ -69,20 +69,21 @@ In `mermaid.min.js`.
 - **d3-transition** 3.0.1 — ISC — Copyright 2010-2021 Mike Bostock — <https://github.com/d3/d3-transition>
 - **d3-zoom** 3.0.0 — ISC — Copyright 2010-2021 Mike Bostock — <https://github.com/d3/d3-zoom>
 - **dagre-d3-es** 7.0.14 — MIT — Copyright (c) 2022-2024 Thibaut Lassalle, David Newell, Alois Klink, Sidharth Vinod and dagre-es contributors — <https://github.com/tbo47/dagre-es>
-- **dayjs** 1.11.19 — MIT — Copyright (c) 2018-present, iamkun — <https://github.com/iamkun/dayjs>
-- **dompurify** 3.4.0 — Apache-2.0 (this package is MPL-2.0 OR Apache-2.0; the Apache License is the one taken) — Copyright 2025 Dr.-Ing. Mario Heiderich, Cure53 — <https://github.com/cure53/DOMPurify>
+- **dayjs** 1.11.21 — MIT — Copyright (c) 2018-present, iamkun — <https://github.com/iamkun/dayjs>
+- **dompurify** 3.4.12 — Apache-2.0 (this package is MPL-2.0 OR Apache-2.0; the Apache License is the one taken) — no copyright line in its license file (author in package.json: Dr.-Ing. Mario Heiderich, Cure53 <mario@cure53.de> (https://cure53.de/)) — <https://github.com/cure53/DOMPurify>
 - **es-toolkit** 1.45.1 — MIT — Copyright (c) 2024 Viva Republica, Inc; Copyright OpenJS Foundation and other contributors — <https://github.com/toss/es-toolkit>
+- **fastdom** 1.0.12 — MIT — Copyright (c) 2016 Wilson Page <wilsonpage@me.com> — <https://github.com/wilsonpage/fastdom>
 - **internmap** 2.0.3 — ISC — Copyright 2021 Mike Bostock — <https://github.com/mbostock/internmap>
-- **js-yaml** 4.1.1 — MIT — Copyright (C) 2011-2015 by Vitaly Puzrin — <nodeca/js-yaml>
-- **katex** 0.16.25 — MIT — Copyright (c) 2013-2020 Khan Academy and other contributors — <https://github.com/KaTeX/KaTeX>
+- **js-yaml** 4.3.0 — MIT — Copyright (C) 2011-2015 by Vitaly Puzrin — <nodeca/js-yaml>
+- **katex** 0.16.47 — MIT — Copyright (c) 2013-2020 Khan Academy and other contributors — <https://github.com/KaTeX/KaTeX>
 - **khroma** 2.1.0 — MIT — Copyright (c) 2019-present Fabio Spampinato, Andrew Maney — <github:fabiospampinato/khroma>
-- **langium** 4.2.0 — MIT — Copyright 2021 TypeFox GmbH — <https://github.com/eclipse-langium/langium>
+- **langium** 4.2.1 — MIT — Copyright 2021 TypeFox GmbH — <https://github.com/eclipse-langium/langium>
 - **layout-base** 1.0.2 — MIT — Copyright (c) 2019 iVis@Bilkent — <https://github.com/iVis-at-Bilkent/layout-base>
 - **layout-base** 2.0.1 — MIT — Copyright (c) 2019 iVis@Bilkent — <https://github.com/iVis-at-Bilkent/layout-base>
 - **lodash-es** 4.17.23 — MIT — Copyright OpenJS Foundation and other contributors <https://openjsf.org/>; Copyright and related rights for sample code are waived via CC0. Sample — <lodash/lodash>
 - **lodash-es** 4.18.1 — MIT — Copyright OpenJS Foundation and other contributors <https://openjsf.org/>; Copyright and related rights for sample code are waived via CC0. Sample — <lodash/lodash>
 - **marked** 16.3.0 — MIT — Copyright (c) 2018+, MarkedJS (https://github.com/markedjs/); Copyright (c) 2011-2018, Christopher Jeffrey (https://github.com/chjj/); Copyright © 2004, John Gruber — <https://github.com/markedjs/marked>
-- **mermaid** 11.15.0 — MIT — Copyright (c) 2014 - 2022 Knut Sveidqvist — <https://github.com/mermaid-js/mermaid>
+- **mermaid** 11.17.2 — MIT — Copyright (c) 2014 - 2022 Knut Sveidqvist — <https://github.com/mermaid-js/mermaid>
 - **roughjs** 4.6.6 — MIT — Copyright (c) 2019 Preet Shihn — <https://github.com/pshihn/rough>
 - **stylis** 4.3.6 — MIT — Copyright (c) 2016-present Sultan Tarimo — <https://github.com/thysultan/stylis.js>
 - **ts-dedent** 2.2.0 — MIT — Copyright (c) 2018 Tamino Martinius — <https://github.com/tamino-martinius/node-ts-dedent>
@@ -92,17 +93,17 @@ In `mermaid.min.js`.
 - **vscode-languageserver-textdocument** 1.0.12 — MIT — Copyright (c) Microsoft Corporation — <https://github.com/Microsoft/vscode-languageserver-node>
 - **vscode-languageserver-types** 3.17.5 — MIT — Copyright (c) Microsoft Corporation — <https://github.com/Microsoft/vscode-languageserver-node>
 
-## Vue 3.2.40 (global production build)
+## Vue 3.5.44 (global production build)
 
 In `vue.global.prod.min.js`.
 
-- **@vue/compiler-core** 3.2.40 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
-- **@vue/compiler-dom** 3.2.40 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
-- **@vue/reactivity** 3.2.40 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
-- **@vue/runtime-core** 3.2.40 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
-- **@vue/runtime-dom** 3.2.40 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
-- **@vue/shared** 3.2.40 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
-- **vue** 3.2.40 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
+- **@vue/compiler-core** 3.5.44 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
+- **@vue/compiler-dom** 3.5.44 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
+- **@vue/reactivity** 3.5.44 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
+- **@vue/runtime-core** 3.5.44 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
+- **@vue/runtime-dom** 3.5.44 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
+- **@vue/shared** 3.5.44 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
+- **vue** 3.5.44 — MIT — Copyright (c) 2018-present, Yuxi (Evan) You — <https://github.com/vuejs/core>
 
 ## Tailwind CSS (built from script/tailwind/)
 
@@ -121,7 +122,7 @@ In `lib/templates/index.html.erb`.
 
 ### Apache-2.0
 
-Applies to: @chevrotain/gast 11.1.1, @chevrotain/regexp-to-ast 11.1.1, @chevrotain/utils 11.1.1, chevrotain 11.1.1, dompurify 3.4.0.
+Applies to: @chevrotain/gast 11.1.2, @chevrotain/regexp-to-ast 11.1.2, @chevrotain/utils 11.1.2, chevrotain 11.1.2, dompurify 3.4.12.
 The copyright notice of each is the one given in the lists above.
 
 ```
@@ -379,7 +380,7 @@ THIS SOFTWARE.
 
 ### MIT
 
-Applies to: @braintree/sanitize-url 7.1.1, @iconify/utils 3.0.2, @mermaid-js/parser 1.1.1, @tailwindcss/forms 0.5.11, @upsetjs/venn.js 2.0.0, @vue/compiler-core 3.2.40, @vue/compiler-dom 3.2.40, @vue/reactivity 3.2.40, @vue/runtime-core 3.2.40, @vue/runtime-dom 3.2.40, @vue/shared 3.2.40, chevrotain-allstar 0.3.1, cose-base 1.0.3, cose-base 2.2.0, dayjs 1.11.19, heroicons 2.0.18, katex 0.16.25, khroma 2.1.0, langium 4.2.0, layout-base 1.0.2, layout-base 2.0.1, mermaid 11.15.0, roughjs 4.6.6, stylis 4.3.6, tailwindcss 4.3.3, ts-dedent 2.2.0, uuid 14.0.0, vue 3.2.40.
+Applies to: @braintree/sanitize-url 7.1.2, @iconify/utils 3.0.2, @mermaid-js/parser 1.2.1, @tailwindcss/forms 0.5.11, @upsetjs/venn.js 2.0.0, @vue/compiler-core 3.5.44, @vue/compiler-dom 3.5.44, @vue/reactivity 3.5.44, @vue/runtime-core 3.5.44, @vue/runtime-dom 3.5.44, @vue/shared 3.5.44, chevrotain-allstar 0.3.1, cose-base 1.0.3, cose-base 2.2.0, dayjs 1.11.21, heroicons 2.0.18, katex 0.16.47, khroma 2.1.0, langium 4.2.1, layout-base 1.0.2, layout-base 2.0.1, mermaid 11.17.2, roughjs 4.6.6, stylis 4.3.6, tailwindcss 4.3.3, ts-dedent 2.2.0, uuid 14.0.0, vue 3.5.44.
 The copyright notice of each is the one given in the lists above.
 
 ```
@@ -408,10 +409,10 @@ SOFTWARE.
 
 These packages' license files differ from the standard text, so they are given as they are.
 
-#### cytoscape 3.33.1
+#### cytoscape 3.34.0
 
 ```
-Copyright (c) 2016-2025, The Cytoscape Consortium.
+Copyright (c) 2016-2026, The Cytoscape Consortium.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the “Software”), to deal in
@@ -643,7 +644,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-#### js-yaml 4.1.1
+#### fastdom 1.0.12
+
+```
+(The MIT License)
+
+Copyright (c) 2016 Wilson Page <wilsonpage@me.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+#### js-yaml 4.3.0
 
 ```
 (The MIT License)
