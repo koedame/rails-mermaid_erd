@@ -1579,11 +1579,13 @@
 
         const mermaidErd = Vue.computed(() => {
           // Comment metadata is arbitrary DB text. A newline would split a
-          // label or terminate a `%%` line mid-diagram, and a literal `"`
-          // closes a quoted label early — so collapse newlines to a space and
-          // escape `"` as Mermaid's `#quot;` entity. Kept in lockstep with the
-          // Ruby renderer (lib/rails-mermaid_erd/mermaid_text.rb).
-          const oneLine = (v) => String(v ?? '').replace(/[\r\n]+/g, ' ')
+          // label or terminate a `%%` line mid-diagram, a `%%` run could be
+          // read as a Mermaid comment or `%%{...}%%` directive rather than as
+          // text, and a literal `"` closes a quoted label early — so collapse
+          // newlines to a space, break up any `%%` run (a directive needs the
+          // literal `%%{`), and escape `"` as Mermaid's `#quot;` entity. Kept
+          // in lockstep with the Ruby renderer (lib/rails-mermaid_erd/mermaid_text.rb).
+          const oneLine = (v) => String(v ?? '').replace(/[\r\n]+/g, ' ').replace(/%%+/g, '%')
           const quoted = (v) => `"${oneLine(v).replace(/"/g, '#quot;')}"`
 
           const lines = []
@@ -1608,7 +1610,7 @@
 
             if (columnMode.value !== 'none') {
               model.Columns.filter(column => columnMode.value === 'all' || column.key).forEach(column => {
-                lines.push(`        ${column.type} ${column.name} ${isShowKey.value ? column.key : ''} ${isShowComment.value ? quoted(column.comment) : ''}`)
+                lines.push(`        ${oneLine(column.type)} ${oneLine(column.name)} ${isShowKey.value ? column.key : ''} ${isShowComment.value ? quoted(column.comment) : ''}`)
               })
             }
 

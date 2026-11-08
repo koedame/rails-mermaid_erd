@@ -47,7 +47,7 @@ class RailsMermaidErd::MermaidText
         alias_label = comment.empty? ? "" : %(["#{name} / #{comment.gsub('"', "#quot;")}"])
         lines << "    #{name}#{alias_label} {"
         model[:Columns].each do |column|
-          lines << "        #{column[:type]} #{column[:name]} #{column[:key]} #{quoted(column[:comment])}"
+          lines << "        #{one_line(column[:type])} #{one_line(column[:name])} #{column[:key]} #{quoted(column[:comment])}"
         end
         lines << "    }"
         lines << ""
@@ -64,10 +64,14 @@ class RailsMermaidErd::MermaidText
 
     private
 
-    # Collapse newlines so a value can't split a label or terminate a `%%`
-    # comment line mid-diagram.
+    # Make an arbitrary metadata value safe to drop into the diagram source:
+    # collapse newlines (a newline would split a label or terminate a `%%` line
+    # mid-diagram) and break up any `%%` run so the value can't be read as a
+    # Mermaid comment or a `%%{...}%%` directive rather than as the text it is.
+    # `%%` -> `%` defeats both (a directive needs the literal `%%{`). Kept
+    # byte-aligned with the viewer's `oneLine` (index.html.erb).
     def one_line(value)
-      value.to_s.gsub(/[\r\n]+/, " ")
+      value.to_s.gsub(/[\r\n]+/, " ").gsub(/%%+/, "%")
     end
 
     # A Mermaid quoted label: newline-free, with `"` escaped to the `#quot;`

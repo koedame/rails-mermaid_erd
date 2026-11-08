@@ -158,6 +158,39 @@ describe "generated viewer network traffic" do
     end
   end
 
+  context "when a column comment looks like Mermaid directive syntax" do
+    let(:schema) do
+      {
+        Models: [
+          {
+            TableName: "users", TableComment: nil, ModelName: "User", IsModelExist: true,
+            Columns: [
+              {name: "id", type: :integer, key: "PK", comment: nil},
+              {name: "name", type: :string, key: "", comment: "%%{init: {'htmlLabels': true}}%%"},
+              {name: "bio", type: :string, key: "", comment: "<img src=\"http://injected.invalid/directive.png\">"}
+            ]
+          },
+          {
+            TableName: "posts", TableComment: nil, ModelName: "Post", IsModelExist: true,
+            Columns: [{name: "id", type: :integer, key: "PK", comment: nil}]
+          }
+        ],
+        Relations: [
+          {LeftModelName: "User", LeftValue: "||", Line: "--", RightValue: "o{", RightModelName: "Post", Comment: ""}
+        ]
+      }
+    end
+
+    it "draws it as text without adding elements or requesting anything" do
+      open_viewer(selectModels: %w[User Post], isShowKey: true, isShowComment: true)
+      wait_until("the diagram to draw User") { drawn_text.include?("User") }
+      sleep 0.5
+
+      expect(@browser.evaluate("document.querySelectorAll('#preview img, #preview svg img, #preview foreignObject').length")).to eq(0)
+      expect(requests_outside_the_file).to eq([])
+    end
+  end
+
   context "when opening a link saved in snapshot mode" do
     it "requests nothing except the file itself and data: URLs" do
       open_viewer(selectModels: %w[User Post], isSnapshotMode: true)
