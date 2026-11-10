@@ -108,6 +108,20 @@ jobs:
             *) echo "MISMATCH: matrix label '${{ matrix.gemfile }}' expects Rails $expected.x but resolved $actual" >&2; exit 1 ;;
           esac
 
+      - name: Chrome cold start diagnostics
+        run: |
+          chrome=$(readlink -f "$(command -v google-chrome)")
+          google-chrome --version
+          du -sh "$(dirname "$chrome")"
+          fc-list | wc -l
+          s=$(date +%s.%N); fc-list > /dev/null; echo "fc-list: $(echo "$(date +%s.%N) - $s" | bc)s"
+          s=$(date +%s.%N); cat "$(dirname "$chrome")"/* > /dev/null 2>&1; echo "read chrome dir: $(echo "$(date +%s.%N) - $s" | bc)s"
+          for i in 1 2; do
+            s=$(date +%s.%N)
+            timeout 90 google-chrome --headless --no-sandbox --disable-gpu --user-data-dir="$(mktemp -d)" --dump-dom about:blank > /dev/null 2>&1
+            echo "chrome --dump-dom #$i: $(echo "$(date +%s.%N) - $s" | bc)s"
+          done
+
       - name: Setup database
         working-directory: spec/dummy
         run: bundle exec rails db:create db:schema:load
