@@ -115,7 +115,7 @@ jobs:
           du -sh "$(dirname "$chrome")"
           fc-list | wc -l
           s=$(date +%s.%N); fc-list > /dev/null; echo "fc-list: $(echo "$(date +%s.%N) - $s" | bc)s"
-          s=$(date +%s.%N); cat "$(dirname "$chrome")"/* > /dev/null 2>&1; echo "read chrome dir: $(echo "$(date +%s.%N) - $s" | bc)s"
+          s=$(date +%s.%N); find "$(dirname "$chrome")" -type f -exec cat {} + > /dev/null; echo "read chrome dir: $(echo "$(date +%s.%N) - $s" | bc)s"
           for i in 1 2; do
             s=$(date +%s.%N)
             timeout 90 google-chrome --headless --no-sandbox --disable-gpu --user-data-dir="$(mktemp -d)" --dump-dom about:blank > /dev/null 2>&1
