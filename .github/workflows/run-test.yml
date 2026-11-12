@@ -108,6 +108,15 @@ jobs:
             *) echo "MISMATCH: matrix label '${{ matrix.gemfile }}' expects Rails $expected.x but resolved $actual" >&2; exit 1 ;;
           esac
 
+      # A fresh runner's disk is cold, and reading Chrome's ~450 MB off it takes
+      # 3-25 s. Left to the first spec that launches Chrome, that read counts
+      # against Ferrum's 30 s wait for the browser to start and now and then
+      # exhausts it (Ferrum::ProcessTimeoutError). Read it here, where nothing
+      # is timing it.
+      - name: Warm up Chrome
+        timeout-minutes: 5
+        run: time find "$(dirname "$(readlink -f "$(command -v google-chrome)")")" -type f -exec cat {} + > /dev/null
+
       - name: Setup database
         working-directory: spec/dummy
         run: bundle exec rails db:create db:schema:load
