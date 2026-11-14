@@ -7,16 +7,11 @@
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
 [![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
 
-توليد [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram) من تطبيق Ruby on Rails الخاص بك.
+نفّذ الأمر `rails mermaid_erd` لتحصل على ملف HTML واحد مستقل يحتوي على مخطط قاعدة بيانات تطبيق Rails الخاص بك، دون الحاجة إلى حزم gem أو خدمات إضافية. تأتي Tailwind وMermaid وVue مضمَّنة داخله، لذا يمكن فتحه دون اتصال بالإنترنت وخلف وكيل (proxy) الشركة. اختر في المتصفح الجداول التي تريدها وصدِّرها بصيغة كود Mermaid أو SVG أو PNG؛ وللمشاركة يكفي إرسال ملف HTML أو وضعه على خادم ويب.
 
 [<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
 
 [صفحة العرض التوضيحي](https://koedame.github.io/rails-mermaid_erd/example.html)
-
-يمكن توليد مخطط ERD في أي وقت.
-يمكن نسخ المخطط المولَّد بصيغة Markdown، مما يسهّل مشاركته على GitHub.
-كما يمكن حفظه كصورة، فيصبح مفيداً في البيئات التي لا يتوفر فيها Mermaid.
-المحرر عبارة عن ملف HTML واحد يمكن مشاركته بالكامل مع الآخرين.
 
 ## التثبيت
 

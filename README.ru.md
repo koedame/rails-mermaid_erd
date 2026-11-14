@@ -7,16 +7,11 @@
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
 [![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
 
-Генерация [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram) из вашего приложения Ruby on Rails.
+Выполните `rails mermaid_erd` — и вы получите один самодостаточный HTML-файл со схемой вашего Rails-приложения, без дополнительных гемов и сервисов. Tailwind, Mermaid и Vue встроены в файл, поэтому он открывается офлайн и за корпоративным прокси. В браузере выберите нужные таблицы и экспортируйте их как код Mermaid, SVG или PNG; чтобы поделиться схемой, передайте HTML-файл или разместите его на веб-сервере.
 
 [<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
 
 [Демонстрационная страница](https://koedame.github.io/rails-mermaid_erd/example.html)
-
-ERD можно генерировать в любое время.
-Сгенерированную ERD можно скопировать в формате Markdown, что позволяет легко делиться ею на GitHub.
-Также есть возможность сохранить диаграмму в виде изображения — это удобно в средах, где Mermaid недоступен.
-Редактор представляет собой единый HTML-файл, который можно целиком передавать другим пользователям.
 
 ## Установка
 

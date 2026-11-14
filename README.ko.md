@@ -7,16 +7,11 @@
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
 [![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
 
-Ruby on Rails 애플리케이션에서 [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram)를 생성합니다.
+`rails mermaid_erd`를 실행하면 Rails 스키마가 하나의 독립된 HTML 파일로 만들어집니다. 추가 gem이나 서비스는 필요하지 않습니다. Tailwind, Mermaid, Vue가 내장되어 있어 오프라인이나 사내 프록시 환경에서도 열 수 있습니다. 브라우저에서 원하는 테이블을 선택해 Mermaid 코드, SVG, PNG로 내보낼 수 있으며, 공유할 때는 HTML 파일을 전달하거나 웹 서버에 올려 두기만 하면 됩니다.
 
 [<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
 
 [데모 페이지](https://koedame.github.io/rails-mermaid_erd/example.html)
-
-Mermaid ERD를 자유롭게 생성할 수 있습니다.
-생성된 ERD는 Markdown 형식으로 복사할 수 있어 GitHub에서 쉽게 공유할 수 있습니다.
-이미지로 저장할 수도 있어 Mermaid를 사용할 수 없는 환경에서도 활용 가능합니다.
-에디터는 단일 HTML 파일이므로 에디터 자체를 공유할 수도 있습니다.
 
 ## 설치
 
