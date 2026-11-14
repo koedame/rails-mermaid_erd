@@ -35,12 +35,19 @@ $ bundle install
 Добавьте следующую строку в Rakefile вашего приложения:
 
 ```ruby
+# Rakefile
+require_relative "config/application"
+
 begin
   require "rails-mermaid_erd"
 rescue LoadError
   # Do nothing.
 end
+
+Rails.application.load_tasks
 ```
+
+Поставьте её **перед** `Rails.application.load_tasks`. Задача регистрируется во время выполнения `load_tasks`, поэтому `require` после него (например, в конце файла) завершается ошибкой `Unrecognized command "mermaid_erd"`.
 
 ## Использование
 
