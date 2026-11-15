@@ -52,7 +52,7 @@ class RailsMermaidErd::Builder
         table_name = defined_model.table_name
         model = {
           TableName: table_name,
-          TableComment: ::ActiveRecord::Base.connection.table_comment(table_name.to_sym) || "",
+          TableComment: defined_model.connection_pool.with_connection { |connection| connection.table_comment(table_name.to_sym) } || "",
           ModelName: defined_model.name,
           IsModelExist: true,
           Columns: []
