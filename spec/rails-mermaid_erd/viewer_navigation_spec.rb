@@ -42,6 +42,9 @@ describe "generated viewer navigation" do
 
     @browser.resize(width: 1280, height: 800)
     @browser.goto("file://#{output_path}")
+    # The scroll choice is remembered per device: start each example without one.
+    @browser.evaluate("window.localStorage.clear()")
+    @browser.refresh
     wait_for_viewer
   end
 
@@ -106,17 +109,112 @@ describe "generated viewer navigation" do
     [(x - view["x"]) / view["scale"], (y - view["y"]) / view["scale"]]
   end
 
-  context "when scrolling over the diagram without a modifier key" do
-    it "moves the diagram by the scrolled distance without zooming" do
-      wheel(at: diagram_point(300, 200), delta_x: 40, delta_y: 100)
+  # Dispatches a wheel event with the values a given device reports. Chrome's
+  # DevTools input always produces a mouse wheel's shape (wheelDeltaY of 120 per
+  # notch), so the shapes of a trackpad, Safari and Firefox are built by hand.
+  def device_wheel(at:, delta_y: 0, delta_x: 0, wheel_delta_y: nil, delta_mode: 0)
+    x, y = at
+    @browser.evaluate(<<~JS)
+      (() => {
+        const event = new WheelEvent('wheel', { bubbles: true, cancelable: true, clientX: #{x}, clientY: #{y}, deltaX: #{delta_x}, deltaY: #{delta_y}, deltaMode: #{delta_mode} })
+        #{"Object.defineProperty(event, 'wheelDeltaY', { value: #{wheel_delta_y} })" unless wheel_delta_y.nil?}
+        document.elementFromPoint(#{x}, #{y}).dispatchEvent(event)
+        return event.defaultPrevented
+      })()
+    JS
+  end
+
+  def choose_two_finger_scroll(label)
+    @browser.evaluate(<<~JS)
+      [...document.querySelectorAll('button[aria-pressed]')].find((b) => b.textContent.trim() === #{label.to_json}).click()
+    JS
+    settle
+  end
+
+  context "when scrolling a mouse wheel over the diagram" do
+    it "zooms in around the pointer by one zoom-in button step per notch" do
+      before_zoom = view
+      wheel(at: diagram_point(300, 200), delta_y: -100)
+      after_zoom = view
+
+      expect(after_zoom["scale"]).to be_within(0.001).of(1.2)
+      layer_point_under(after_zoom, 300, 200).zip(layer_point_under(before_zoom, 300, 200)).each do |after, before|
+        expect(after).to be_within(0.01).of(before)
+      end
+    end
+
+    it "zooms out by the same step when scrolled the other way, without moving the diagram" do
+      wheel(at: diagram_point(300, 200), delta_y: 100)
+
+      expect(view["scale"]).to be_within(0.001).of(1 / 1.2)
+    end
+
+    it "zooms the same for one notch whatever values the device reports" do
+      at = diagram_point(300, 200)
+      notches = {
+        "Chrome on a Mac" => {delta_y: -4.000244140625, wheel_delta_y: 120},
+        "Safari on a Mac" => {delta_y: -4.000244140625, wheel_delta_y: 12},
+        "Chrome on Windows" => {delta_y: -100, wheel_delta_y: 120},
+        "Firefox" => {delta_y: -3, delta_mode: 1}
+      }
+
+      notches.each do |device, values|
+        @browser.evaluate("document.querySelector('[aria-label=\"Reset View\"]').click()")
+        device_wheel(at: at, **values)
+        settle
+        expect(view["scale"]).to be_within(0.001).of(1.2), "one notch on #{device} zoomed to #{view["scale"]}"
+      end
+    end
+
+    it "zooms around the pointer rather than moving the diagram when Shift is held" do
+      wheel(at: diagram_point(300, 200), delta_y: 100, modifiers: shift)
+
+      expect(view["scale"]).to be < 1
+    end
+  end
+
+  context "when swiping two fingers over the diagram" do
+    # A trackpad reports wheelDeltaY as -3 times the delta, a mouse wheel as a multiple of 120.
+    def swipe(delta_x: 40, delta_y: 100)
+      device_wheel(at: diagram_point(300, 200), delta_x: delta_x, delta_y: delta_y, wheel_delta_y: -3 * delta_y)
+      settle
+    end
+
+    it "zooms by default, so that a mouse reporting itself as a trackpad can still zoom" do
+      swipe(delta_x: 0, delta_y: -100)
+
+      expect(view["scale"]).to be > 1
+    end
+
+    it "moves the diagram by the swiped distance without zooming once movement is chosen" do
+      choose_two_finger_scroll("Movement")
+      swipe
 
       expect(view).to eq("x" => -40, "y" => -100, "scale" => 1)
     end
 
-    it "moves the diagram sideways when Shift turns a vertical mouse wheel into a horizontal scroll" do
-      wheel(at: diagram_point(300, 200), delta_y: 100, modifiers: shift)
+    it "still zooms with a mouse wheel notch once movement is chosen" do
+      choose_two_finger_scroll("Movement")
+      wheel(at: diagram_point(300, 200), delta_y: -100)
 
-      expect(view).to eq("x" => -100, "y" => 0, "scale" => 1)
+      expect(view["scale"]).to be_within(0.001).of(1.2)
+    end
+
+    it "remembers the choice when the viewer is opened again" do
+      choose_two_finger_scroll("Movement")
+      @browser.refresh
+      wait_for_viewer
+      swipe
+
+      expect(view).to eq("x" => -40, "y" => -100, "scale" => 1)
+    end
+
+    it "lists two-finger scrolling under zoom or movement according to the choice" do
+      legend = -> { @browser.evaluate("document.querySelector('button[aria-pressed]').closest('.flex-col').textContent.replace(/\\s+/g, ' ')") }
+
+      expect(legend.call).to match(/Movement:Arrow Keys.*Zoom:Scroll/)
+      choose_two_finger_scroll("Movement")
+      expect(legend.call).to match(/Movement:Two-finger Scroll.*Zoom:Mouse Wheel/)
     end
   end
 
