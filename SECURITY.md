@@ -6,6 +6,8 @@ Please report security problems privately through
 [GitHub's private vulnerability reporting](https://github.com/koedame/rails-mermaid_erd/security/advisories/new).
 Do not open a public issue for them.
 
+We will reply within 7 days to confirm that we received your report.
+
 ## Supported versions
 
 Security fixes are released for the latest version only.

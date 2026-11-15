@@ -145,6 +145,19 @@ const NOTICE_FILE = /^notice([-._].*)?$/i;
 const COPYRIGHT_LINE = /^\s*(Copyright\b(?!\s+(licen[sc]e|notice|owner|holder))|©|\(c\)\s*\d|All [Rr]ights [Rr]eserved)/;
 const TITLE_LINE = /^\s*(the )?[\w. -]*licen[sc]e( \([\w.-]+\))?:?\s*$/i;
 
+// A few packages (fastdom) ship no license file but print the full permission
+// text under a "License" heading in their README. Use that, and nothing less.
+function licenseFromReadme(dir, label) {
+  const readme = fs.readdirSync(dir).find((f) => /^readme(\.md)?$/i.test(f));
+  const section = readme && fs
+    .readFileSync(path.join(dir, readme), "utf8")
+    .replace(/\r\n/g, "\n")
+    .match(/^#+\s*licen[sc]e\s*\n([\s\S]*?)(?=^#+\s|$(?![\s\S]))/im)?.[1]
+    ?.trim();
+  if (!section || !/permission is hereby granted/i.test(section)) throw new Error(`${label} has no license file`);
+  return section;
+}
+
 async function describe({ name, version }) {
   const dir = await fetchPackage(name, version);
   const pkg = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"));
@@ -156,10 +169,9 @@ async function describe({ name, version }) {
   const spdx = choice ?? declared ?? config.declaredLicense[name];
   if (!spdx) throw new Error(`${name}@${version} declares no license; add it to declaredLicense in bundles.json (after reading its license file)`);
   if (/GPL/i.test(spdx)) throw new Error(`${name}@${version} is ${spdx}: stop and report instead of shipping it`);
-  if (licenseFiles.length === 0) throw new Error(`${name}@${version} has no license file`);
-  const text = licenseFiles
-    .map((f) => fs.readFileSync(path.join(dir, f), "utf8").replace(/\r\n/g, "\n").trim())
-    .join("\n\n");
+  const text = licenseFiles.length > 0
+    ? licenseFiles.map((f) => fs.readFileSync(path.join(dir, f), "utf8").replace(/\r\n/g, "\n").trim()).join("\n\n")
+    : licenseFromReadme(dir, `${name}@${version}`);
   const copyright = text
     .split("\n")
     .filter((line) => COPYRIGHT_LINE.test(line) && !/\[(yyyy|name)/i.test(line))

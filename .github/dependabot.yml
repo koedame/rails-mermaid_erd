@@ -30,6 +30,9 @@ updates:
     schedule:
       interval: 'weekly'
     groups:
+      codeql-action:
+        patterns:
+          - 'github/codeql-action/*'
       github-actions-minor-patch:
         update-types:
           - 'minor'

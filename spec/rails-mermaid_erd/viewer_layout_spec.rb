@@ -14,9 +14,7 @@ describe "generated viewer layout" do
   before(:all) do
     Rake::Task.define_task(:environment) unless Rake::Task.task_defined?(:environment)
     Rails.application.load_tasks unless Rake::Task.task_defined?("mermaid_erd")
-    @browser = Ferrum::Browser.new(
-      timeout: 20,
-      process_timeout: 30,
+    @browser = HeadlessBrowser.launch(
       # Ferrum hides scrollbars by default, which would make an always-on
       # scrollbar invisible to the examples below; drop that single default.
       ignore_default_browser_options: true,

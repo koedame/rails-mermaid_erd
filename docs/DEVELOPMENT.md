@@ -10,8 +10,8 @@ Rails Mermaid ERD is a Ruby gem that generates Mermaid format ER diagrams from R
 - PostgreSQL 14 (Test database)
 
 ### Frontend
-- Vue.js 3.2.40 (production build, vendored at `lib/templates/vendor/vue.global.prod.min.js`)
-- Mermaid.js 11.15.0 (ERD generation, vendored at `lib/templates/vendor/mermaid.min.js`)
+- Vue.js 3.5.44 (production build, vendored at `lib/templates/vendor/vue.global.prod.min.js`)
+- Mermaid.js 11.17.2 (ERD generation, vendored at `lib/templates/vendor/mermaid.min.js`)
 - TailwindCSS 4.3.3, built with the official CLI into a static stylesheet (checked in at `lib/templates/vendor/tailwind.css`; inputs in `script/tailwind/`)
   - Forms plugin 0.5.11
   - Typography plugin 0.5.20

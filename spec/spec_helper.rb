@@ -8,6 +8,7 @@ end
 
 require File.expand_path("./dummy/config/environment", __dir__)
 require "rspec/rails"
+require_relative "support/headless_browser"
 
 RSpec.configure do |config|
   # If you"re not using ActiveRecord, or you"d prefer not to run each of your

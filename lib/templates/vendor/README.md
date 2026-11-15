@@ -15,15 +15,15 @@ head of every generated `index.html`; see "Licenses" below.
 
 | File | Upstream URL | Version |
 | ---- | ------------ | ------- |
-| `mermaid.min.js` | `https://unpkg.com/mermaid@11.15.0/dist/mermaid.min.js` | Mermaid 11.15.0 |
-| `vue.global.prod.min.js` | `https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.40/vue.global.prod.min.js` | Vue 3.2.40 (production build) |
+| `mermaid.min.js` | `https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js` | Mermaid 11.17.2 |
+| `vue.global.prod.min.js` | `https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.44/vue.global.prod.min.js` | Vue 3.5.44 (production build) |
 
 To refresh, re-run the equivalent of:
 
 ```sh
 cd lib/templates/vendor
-curl -sSfL -o mermaid.min.js          'https://unpkg.com/mermaid@11.15.0/dist/mermaid.min.js'
-curl -sSfL -o vue.global.prod.min.js  'https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.40/vue.global.prod.min.js'
+curl -sSfL -o mermaid.min.js          'https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js'
+curl -sSfL -o vue.global.prod.min.js  'https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.44/vue.global.prod.min.js'
 sha256sum *.js
 ```
 
@@ -33,6 +33,8 @@ Mermaid across a major version (9 → 10 → 11) requires updating
 `lib/templates/index.html.erb` because the render API became async in
 Mermaid 10. Bumping Vue across a major may require Composition API
 adjustments.
+
+The `audit` workflow runs `node script/audit_vendor.mjs` on pull requests that touch these files and every week. Bundler-audit and Dependabot do not see plain files, so the script takes the versions from `script/licenses/bundles.json`, checks that each bundle really is that version, and runs `npm audit --audit-level=moderate` on them. When it fails, refresh the bundle as above to a release that fixes the advisory, and set the same version in `bundles.json`.
 
 ## Stylesheet (`tailwind.css`)
 

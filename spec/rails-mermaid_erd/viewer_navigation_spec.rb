@@ -17,9 +17,7 @@ describe "generated viewer navigation" do
   before(:all) do
     Rake::Task.define_task(:environment) unless Rake::Task.task_defined?(:environment)
     Rails.application.load_tasks unless Rake::Task.task_defined?("mermaid_erd")
-    @browser = Ferrum::Browser.new(
-      timeout: 20,
-      process_timeout: 30,
+    @browser = HeadlessBrowser.launch(
       # The dev container runs Chrome as root, which requires disabling the sandbox.
       browser_options: {"no-sandbox" => nil}
     )

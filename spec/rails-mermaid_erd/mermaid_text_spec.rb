@@ -72,6 +72,24 @@ describe RailsMermaidErd::MermaidText do
       expect(output).to include(%(        string size  "width in #quot;px#quot; or mm"))
     end
 
+    it "breaks up `%%` in metadata so it can't be read as a Mermaid comment or directive" do
+      result = {
+        Models: [{
+          TableName: "a%%b", TableComment: "c%%{d}%%e",
+          ModelName: "User", IsModelExist: true,
+          Columns: [{name: "n%%{x}%%", type: "t%%y", key: "", comment: "k%%{z}%%"}]
+        }],
+        Relations: []
+      }
+
+      output = described_class.build(result)
+
+      expect(output).not_to include("%%{")
+      expect(output).to include("    %% table name: a%b")
+      expect(output).to include("    %% table comment: c%{d}%e")
+      expect(output).to include(%(        t%y n%{x}%  "k%{z}%"))
+    end
+
     it "draws a model that has a table comment under a heading of its name and the comment, keeping the name as the entity id" do
       result = {
         Models: [
