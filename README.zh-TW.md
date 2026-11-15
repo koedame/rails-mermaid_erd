@@ -7,16 +7,11 @@
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
 [![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
 
-從你的 Ruby on Rails 應用程式產生 [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram)。
+執行 `rails mermaid_erd`，即可將你的 Rails 資料庫結構產生為單一、自包含的 HTML 檔案，不需要額外的 gem 或服務。Tailwind、Mermaid 與 Vue 都已內嵌其中，因此可以離線開啟，在企業 Proxy 內也能正常使用。在瀏覽器中選擇需要的資料表，即可匯出為 Mermaid 程式碼、SVG 或 PNG；分享時只需傳送該 HTML 檔案，或放到 Web 伺服器上。
 
 [<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
 
 [示範頁面](https://koedame.github.io/rails-mermaid_erd/example.html)
-
-可以隨時產生 Mermaid ERD。
-產生的 ERD 可以以 Markdown 格式複製，因此可以輕鬆在 GitHub 上分享。
-也可以儲存為圖片，在不支援 Mermaid 的環境中也能使用。
-編輯器是單一 HTML 檔案，因此可以直接共享整個編輯器。
 
 ## 安裝
 
