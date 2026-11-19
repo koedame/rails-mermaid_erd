@@ -2,16 +2,32 @@
 
 > 本文件是 [英文 README](./README.md) 的翻譯版本。如有差異，以英文版為準。
 
+<div align="center">
+
 # Rails Mermaid ERD
 
+**將你的 Rails 應用程式產生為單一自包含 HTML 檔案形式的互動式 Mermaid ERD。**
+
+<a href="https://koedame.github.io/rails-mermaid_erd/example.html"><img alt="Rails Mermaid ERD 檢視器，顯示五個帶有主鍵與外鍵的模型，並以關聯線連接。" src="docs/images/hero.png" width="880"></a>
+
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
-[![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
+[![Gem Version](https://img.shields.io/gem/v/rails-mermaid_erd?color=dc2626)](https://rubygems.org/gems/rails-mermaid_erd)
+![Rails 5.2 – 8.1](https://img.shields.io/badge/rails-5.2%20%E2%80%93%208.1-dc2626)
+![License: MIT](https://img.shields.io/badge/license-MIT-dc2626)
+
+[示範頁面](https://koedame.github.io/rails-mermaid_erd/example.html) · [安裝](#安裝) · [使用方式](#使用方式) · [支援的版本](#支援的版本) · [設定](#設定)
+
+</div>
 
 執行 `rails mermaid_erd`，即可將你的 Rails 資料庫結構產生為單一、自包含的 HTML 檔案，不需要額外的 gem 或服務。Tailwind、Mermaid 與 Vue 都已內嵌其中，因此可以離線開啟，在企業 Proxy 內也能正常使用。在瀏覽器中選擇需要的資料表，即可匯出為 Mermaid 程式碼、SVG 或 PNG；分享時只需傳送該 HTML 檔案，或放到 Web 伺服器上。
 
-[<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
+## 亮點
 
-[示範頁面](https://koedame.github.io/rails-mermaid_erd/example.html)
+- **一個檔案，不需另外安裝。** 輸出是約 4 MB 的單一 HTML 檔案，內嵌了 Tailwind、Mermaid 與 Vue，因此可以離線開啟，在企業 Proxy 內也能使用。
+- **只畫你需要的部分。** 可選擇模型，顯示全部欄位、僅鍵或不顯示欄位，也可加入註解與關聯標籤。
+- **匯出與分享。** 可複製 Mermaid 或 Markdown 程式碼，下載 SVG 或 PNG，也可複製能還原目前檢視的連結。
+- **廣泛支援 Rails。** CI 涵蓋 Rails 5.2 到 8.1，以及 Ruby 2.7 到 4.0。
+- **12 種語言。** 檢視器會依瀏覽器語言顯示，並支援由右至左書寫的阿拉伯文。
 
 ## 安裝
 
@@ -24,7 +40,7 @@ gem "rails-mermaid_erd", group: :development, require: false
 然後執行：
 
 ```bash
-$ bundle install
+bundle install
 ```
 
 將以下行加入你的應用程式 Rakefile 中：
@@ -42,9 +58,9 @@ end
 執行 Rake 任務 `mermaid_erd` 將會產生 `<app_root>/mermaid_erd/index.html`。
 
 ```bash
-$ bundle exec rails mermaid_erd
+bundle exec rails mermaid_erd
 # or
-$ bundle exec rake mermaid_erd
+bundle exec rake mermaid_erd
 ```
 
 直接在瀏覽器中開啟產生的 `<app_root>/mermaid_erd/index.html` 即可。
@@ -68,9 +84,9 @@ mermaid_erd
 執行 Rake 任務 `mermaid_erd:print`，將原始 `erDiagram` 原始碼輸出到標準輸出，而不是產生 HTML 查看器。這可以直接管道傳輸給其他工具：
 
 ```bash
-$ bundle exec rails mermaid_erd:print
-$ bundle exec rails mermaid_erd:print > er.mmd
-$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+bundle exec rails mermaid_erd:print
+bundle exec rails mermaid_erd:print > er.mmd
+bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 ```
 
 輸出包含完整的圖表——所有資料表、欄位、鍵、註解和關聯——相當於啟用了 HTML 查看器所有詳細資訊切換後的狀態。
@@ -116,9 +132,9 @@ TODO:
 Contribution directions go here.
 -->
 
-## 授權條款
-該 gem 以開源形式提供，遵循 [MIT License](https://opensource.org/licenses/MIT) 條款。
-
 ## 商標
 
 本專案與 Rails、The Rails Foundation、Mermaid 專案、Mermaid Chart Inc. 均無關聯，也未獲得它們的認可或贊助。Rails 與 Ruby on Rails 是 David Heinemeier Hansson 的註冊商標。Mermaid Chart Inc. 已在美國註冊或申請註冊 MERMAID CHART 與 MERMAID 商標。其他商標歸各自權利人所有。
+
+## 授權條款
+該 gem 以開源形式提供，遵循 [MIT License](https://opensource.org/licenses/MIT) 條款。

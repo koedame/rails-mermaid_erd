@@ -2,16 +2,32 @@
 
 > 이 문서는 [영어 README](./README.md)의 번역본입니다. 내용이 다를 경우 영어판이 기준입니다.
 
+<div align="center">
+
 # Rails Mermaid ERD
 
+**Rails 앱의 Mermaid ERD를 하나의 독립된 HTML 파일로 생성합니다.**
+
+<a href="https://koedame.github.io/rails-mermaid_erd/example.html"><img alt="기본 키와 외래 키를 가진 모델 다섯 개가 관계선으로 연결된 Rails Mermaid ERD 뷰어." src="docs/images/hero.png" width="880"></a>
+
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
-[![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
+[![Gem Version](https://img.shields.io/gem/v/rails-mermaid_erd?color=dc2626)](https://rubygems.org/gems/rails-mermaid_erd)
+![Rails 5.2 – 8.1](https://img.shields.io/badge/rails-5.2%20%E2%80%93%208.1-dc2626)
+![License: MIT](https://img.shields.io/badge/license-MIT-dc2626)
+
+[데모 페이지](https://koedame.github.io/rails-mermaid_erd/example.html) · [설치](#설치) · [사용 방법](#사용-방법) · [지원 버전](#지원-버전) · [설정](#설정)
+
+</div>
 
 `rails mermaid_erd`를 실행하면 Rails 스키마가 하나의 독립된 HTML 파일로 만들어집니다. 추가 gem이나 서비스는 필요하지 않습니다. Tailwind, Mermaid, Vue가 내장되어 있어 오프라인이나 사내 프록시 환경에서도 열 수 있습니다. 브라우저에서 원하는 테이블을 선택해 Mermaid 코드, SVG, PNG로 내보낼 수 있으며, 공유할 때는 HTML 파일을 전달하거나 웹 서버에 올려 두기만 하면 됩니다.
 
-[<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
+## 주요 기능
 
-[데모 페이지](https://koedame.github.io/rails-mermaid_erd/example.html)
+- **파일 하나로 끝.** Tailwind, Mermaid, Vue가 내장된 약 4MB의 HTML 파일 하나라서 오프라인이나 사내 프록시 환경에서도 열 수 있습니다.
+- **필요한 부분만 그리기.** 모델을 고르고, 컬럼은 전체·키만·숨김 중에서 선택하며, 주석과 관계 라벨도 추가할 수 있습니다.
+- **내보내기와 공유.** Mermaid나 Markdown 코드를 복사하고, SVG나 PNG를 내려받고, 현재 화면을 복원하는 링크를 복사할 수 있습니다.
+- **폭넓은 Rails 지원.** CI는 Rails 5.2부터 8.1까지, Ruby 2.7부터 4.0까지를 검증합니다.
+- **12개 언어.** 브라우저 언어에 맞춰 표시하며, 오른쪽에서 왼쪽으로 쓰는 아랍어도 지원합니다.
 
 ## 설치
 
@@ -24,7 +40,7 @@ gem "rails-mermaid_erd", group: :development, require: false
 그런 다음 실행하세요:
 
 ```bash
-$ bundle install
+bundle install
 ```
 
 애플리케이션의 Rakefile에 다음 줄을 추가하세요:
@@ -42,9 +58,9 @@ end
 Rake 태스크 `mermaid_erd`를 실행하면 `<app_root>/mermaid_erd/index.html`이 생성됩니다.
 
 ```bash
-$ bundle exec rails mermaid_erd
+bundle exec rails mermaid_erd
 # or
-$ bundle exec rake mermaid_erd
+bundle exec rake mermaid_erd
 ```
 
 생성된 `<app_root>/mermaid_erd/index.html`을 브라우저에서 열기만 하면 됩니다.
@@ -68,9 +84,9 @@ CI를 사용하여 자동으로 생성하는 것이 매우 효율적입니다.
 Rake 태스크 `mermaid_erd:print`를 실행하면 HTML 뷰어를 생성하는 대신 원시 `erDiagram` 소스를 표준 출력으로 인쇄합니다. 다른 도구로 바로 파이프할 수 있습니다:
 
 ```bash
-$ bundle exec rails mermaid_erd:print
-$ bundle exec rails mermaid_erd:print > er.mmd
-$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+bundle exec rails mermaid_erd:print
+bundle exec rails mermaid_erd:print > er.mmd
+bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 ```
 
 출력은 모든 테이블, 컬럼, 키, 주석, 관계를 포함한 완전한 다이어그램으로, HTML 뷰어의 모든 세부 정보 토글을 활성화한 상태와 동일합니다.
@@ -116,9 +132,9 @@ TODO:
 Contribution directions go here.
 -->
 
-## 라이선스
-이 gem은 [MIT License](https://opensource.org/licenses/MIT) 조건에 따라 오픈 소스로 제공됩니다.
-
 ## 상표
 
 이 프로젝트는 Rails, The Rails Foundation, Mermaid 프로젝트, Mermaid Chart Inc.와 제휴 관계가 없으며, 이들의 승인이나 후원을 받지 않았습니다. Rails와 Ruby on Rails는 David Heinemeier Hansson의 등록 상표입니다. Mermaid Chart Inc.는 미국에서 MERMAID CHART와 MERMAID 상표를 등록했거나 출원했습니다. 그 밖의 상표는 각 권리자의 자산입니다.
+
+## 라이선스
+이 gem은 [MIT License](https://opensource.org/licenses/MIT) 조건에 따라 오픈 소스로 제공됩니다.

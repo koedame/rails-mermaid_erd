@@ -34,36 +34,18 @@ bundle exec rspec
 cd /workspace/spec/dummy
 RAILS_ENV=test bundle exec rails mermaid_erd
 cp -f /workspace/spec/dummy/mermaid_erd/index.html /workspace/docs/example.html
-
-# Pre-select every model on load so the screenshot shows the rendered ERD
-# instead of the empty-selection default. See script/release_screenshot_hash.rb;
-# it raises on an empty model list. `|| exit 1` is load-bearing — `HASH=$(...)`
-# does NOT propagate the sub-shell's exit status, so without it a failed script
-# would leave HASH empty and chromium would screenshot the blank placeholder.
-HASH=$(ruby /workspace/script/release_screenshot_hash.rb /workspace/spec/dummy/mermaid_erd/index.html) || exit 1
-# --virtual-time-budget advances Chromium's virtual clock then snapshots; it is
-# not a render barrier on Mermaid's async render(). 10s is generous for the
-# dummy schema; bump if you ever point this at a much larger app.
-# --lang/--accept-lang pin the locale to English. The viewer resolves its UI
-# language from navigator.language, so without this the screenshot follows
-# Chromium's ambient locale and the canonical demo can render in a non-English
-# (even RTL) UI depending on the host environment.
-chromium-browser --headless --disable-gpu --no-sandbox \
-  --lang=en-US --accept-lang=en-US \
-  --window-size=1280,800 --hide-scrollbars \
-  --virtual-time-budget=10000 \
-  --screenshot="/workspace/docs/screen_shot.png" \
-  "file:///workspace/spec/dummy/mermaid_erd/index.html#${HASH}"
 ```
 
-Stage the bump, the regenerated demo, and the screenshot, then commit them together with the message `vX.Y.Z` (matching prior history: `v0.6.0`, `v0.5.1`, …):
+`docs/images/hero.png` (the README hero) is a fixed image and is not regenerated per release. Retake it only when the viewer's look changes: open `docs/example.html` with the Author, Post, Bookmark, Tag and AuthorProfile models selected, Columns set to Keys Only and Show Key on, in a 1600 × 760 window at 1.5× scale (2400 × 1140 px), with the browser language set to English.
+
+Stage the bump and the regenerated demo, then commit them together with the message `vX.Y.Z` (matching prior history: `v0.6.0`, `v0.5.1`, …):
 
 ```bash
-git add lib/rails-mermaid_erd/version.rb Gemfile.lock docs/example.html docs/screen_shot.png
+git add lib/rails-mermaid_erd/version.rb Gemfile.lock docs/example.html
 git commit -m "vX.Y.Z"
 ```
 
-`Gemfile.lock` updates because the gemspec version flows into it on `bundle install`. Past release commits (`v0.6.0`, `v0.5.1`, `v0.5.0`) all include the same four paths.
+`Gemfile.lock` updates because the gemspec version flows into it on `bundle install`. Past release commits (`v0.6.0`, `v0.5.1`, `v0.5.0`) include the same paths, plus `docs/screen_shot.png` before it was replaced by the static `docs/images/hero.png`.
 
 ### 3. Open the two release PRs
 

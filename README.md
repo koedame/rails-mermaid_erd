@@ -1,15 +1,31 @@
 [English](./README.md) | [日本語](./README.ja.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [한국어](./README.ko.md) | [Español](./README.es.md) | [Français](./README.fr.md) | [Deutsch](./README.de.md) | [Italiano](./README.it.md) | [Português (Brasil)](./README.pt-BR.md) | [Русский](./README.ru.md) | [العربية](./README.ar.md)
 
+<div align="center">
+
 # Rails Mermaid ERD
 
+**Generate an interactive Mermaid ERD of your Rails app as a single self-contained HTML file.**
+
+<a href="https://koedame.github.io/rails-mermaid_erd/example.html"><img alt="The Rails Mermaid ERD viewer showing five models with their primary and foreign keys, linked by relationship lines." src="docs/images/hero.png" width="880"></a>
+
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
-[![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
+[![Gem Version](https://img.shields.io/gem/v/rails-mermaid_erd?color=dc2626)](https://rubygems.org/gems/rails-mermaid_erd)
+![Rails 5.2 – 8.1](https://img.shields.io/badge/rails-5.2%20%E2%80%93%208.1-dc2626)
+![License: MIT](https://img.shields.io/badge/license-MIT-dc2626)
+
+[Demo Page](https://koedame.github.io/rails-mermaid_erd/example.html) · [Installation](#installation) · [Usage](#usage) · [Supported versions](#supported-versions) · [Configuration](#configuration)
+
+</div>
 
 Run `rails mermaid_erd` and get a single self-contained HTML file with your Rails schema — no extra gems or services. Tailwind, Mermaid and Vue are embedded in it, so it opens offline and behind a corporate proxy. In the browser, pick the tables you want and export them as Mermaid code, SVG or PNG; to share the diagram, hand over the HTML file or put it on a web server.
 
-[<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
+## Highlights
 
-[Demo Page](https://koedame.github.io/rails-mermaid_erd/example.html)
+- **One file, nothing else to install.** The output is a single ~4 MB HTML file with Tailwind, Mermaid and Vue inlined, so it opens offline and behind a corporate proxy.
+- **Draw only what you need.** Select models, show all columns, keys only or none, and add comments and relationship labels.
+- **Export and share.** Copy Mermaid or Markdown code, download SVG or PNG, or copy a link that restores your view.
+- **Wide Rails support.** CI covers Rails 5.2 through 8.1 on Ruby 2.7 through 4.0.
+- **12 languages.** The viewer follows your browser language, including right-to-left Arabic.
 
 ## Installation
 
@@ -22,7 +38,7 @@ gem "rails-mermaid_erd", group: :development, require: false
 And then execute:
 
 ```bash
-$ bundle install
+bundle install
 ```
 
 Add this line to your application's Rakefile:
@@ -40,9 +56,9 @@ end
 Run rake task `mermaid_erd` will generate `<app_root>/mermaid_erd/index.html`.
 
 ```bash
-$ bundle exec rails mermaid_erd
+bundle exec rails mermaid_erd
 # or
-$ bundle exec rake mermaid_erd
+bundle exec rake mermaid_erd
 ```
 
 Simply open the generated `<app_root>/mermaid_erd/index.html` in your browser.
@@ -66,9 +82,9 @@ It would be very smart to generate it automatically using CI.
 Run rake task `mermaid_erd:print` to print the raw `erDiagram` source to stdout instead of writing the HTML viewer. This pipes cleanly into other tools:
 
 ```bash
-$ bundle exec rails mermaid_erd:print
-$ bundle exec rails mermaid_erd:print > er.mmd
-$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+bundle exec rails mermaid_erd:print
+bundle exec rails mermaid_erd:print > er.mmd
+bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 ```
 
 The output is the full diagram — every table, column, key, comment, and relation — equivalent to the HTML viewer with all of its detail toggles enabled.
@@ -114,9 +130,9 @@ TODO:
 Contribution directions go here.
 -->
 
-## License
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
 ## Trademarks
 
 This project is not affiliated with, endorsed by, or sponsored by Rails, The Rails Foundation, the Mermaid project, or Mermaid Chart Inc. Rails and Ruby on Rails are registered trademarks of David Heinemeier Hansson. Mermaid Chart Inc. has registered or applied for the trademarks MERMAID CHART and MERMAID in the United States. All other trademarks are the property of their respective owners.
+
+## License
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

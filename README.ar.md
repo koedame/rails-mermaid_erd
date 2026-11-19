@@ -2,16 +2,32 @@
 
 > هذه ترجمة لـ [README الإنجليزي](./README.md). عند وجود أي تعارض، تُعدّ النسخة الإنجليزية هي المرجع الرسمي.
 
+<div align="center">
+
 # Rails Mermaid ERD
 
+**أنشئ مخطط ERD تفاعليًا بصيغة Mermaid لتطبيق Rails الخاص بك في ملف HTML واحد مستقل.**
+
+<a href="https://koedame.github.io/rails-mermaid_erd/example.html"><img alt="عارض Rails Mermaid ERD يعرض خمسة نماذج مع مفاتيحها الأساسية والأجنبية مرتبطة بخطوط العلاقات." src="docs/images/hero.png" width="880"></a>
+
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
-[![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
+[![Gem Version](https://img.shields.io/gem/v/rails-mermaid_erd?color=dc2626)](https://rubygems.org/gems/rails-mermaid_erd)
+![Rails 5.2 – 8.1](https://img.shields.io/badge/rails-5.2%20%E2%80%93%208.1-dc2626)
+![License: MIT](https://img.shields.io/badge/license-MIT-dc2626)
+
+[صفحة العرض التوضيحي](https://koedame.github.io/rails-mermaid_erd/example.html) · [التثبيت](#التثبيت) · [الاستخدام](#الاستخدام) · [الإصدارات المدعومة](#الإصدارات-المدعومة) · [الإعداد](#الإعداد)
+
+</div>
 
 نفّذ الأمر `rails mermaid_erd` لتحصل على ملف HTML واحد مستقل يحتوي على مخطط قاعدة بيانات تطبيق Rails الخاص بك، دون الحاجة إلى حزم gem أو خدمات إضافية. تأتي Tailwind وMermaid وVue مضمَّنة داخله، لذا يمكن فتحه دون اتصال بالإنترنت وخلف وكيل (proxy) الشركة. اختر في المتصفح الجداول التي تريدها وصدِّرها بصيغة كود Mermaid أو SVG أو PNG؛ وللمشاركة يكفي إرسال ملف HTML أو وضعه على خادم ويب.
 
-[<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
+## أبرز الميزات
 
-[صفحة العرض التوضيحي](https://koedame.github.io/rails-mermaid_erd/example.html)
+- **ملف واحد ولا شيء آخر للتثبيت.** الناتج ملف HTML واحد بحجم نحو 4 ميغابايت تتضمّن داخله Tailwind وMermaid وVue، فيُفتح دون اتصال وخلف وكيل الشركة.
+- **ارسم ما تحتاجه فقط.** اختر النماذج، واعرض كل الأعمدة أو المفاتيح فقط أو لا شيء، وأضف التعليقات وتسميات العلاقات.
+- **التصدير والمشاركة.** انسخ شيفرة Mermaid أو Markdown، ونزّل SVG أو PNG، أو انسخ رابطًا يستعيد عرضك.
+- **دعم واسع لـ Rails.** يغطي CI إصدارات Rails من 5.2 إلى 8.1 مع Ruby من 2.7 إلى 4.0.
+- **12 لغة.** تتبع الواجهة لغة المتصفح، بما في ذلك العربية المكتوبة من اليمين إلى اليسار.
 
 ## التثبيت
 
@@ -24,7 +40,7 @@ gem "rails-mermaid_erd", group: :development, require: false
 ثم نفّذ:
 
 ```bash
-$ bundle install
+bundle install
 ```
 
 أضف هذه الأسطر إلى ملف Rakefile في تطبيقك:
@@ -42,9 +58,9 @@ end
 تشغيل مهمة Rake المسماة `mermaid_erd` سيولّد الملف `<app_root>/mermaid_erd/index.html`.
 
 ```bash
-$ bundle exec rails mermaid_erd
+bundle exec rails mermaid_erd
 # or
-$ bundle exec rake mermaid_erd
+bundle exec rake mermaid_erd
 ```
 
 افتح الملف المولَّد `<app_root>/mermaid_erd/index.html` مباشرةً في متصفحك.
@@ -68,9 +84,9 @@ mermaid_erd
 شغّل مهمة Rake المسماة `mermaid_erd:print` لطباعة مصدر `erDiagram` الخام إلى stdout بدلاً من كتابة عارض HTML. يمكن توجيه المخرجات مباشرةً إلى أدوات أخرى:
 
 ```bash
-$ bundle exec rails mermaid_erd:print
-$ bundle exec rails mermaid_erd:print > er.mmd
-$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+bundle exec rails mermaid_erd:print
+bundle exec rails mermaid_erd:print > er.mmd
+bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 ```
 
 المخرجات تمثّل المخطط الكامل — كل الجداول والأعمدة والمفاتيح والتعليقات والعلاقات — ما يعادل عارض HTML مع تفعيل جميع مبدّلات التفاصيل.
@@ -116,10 +132,10 @@ TODO:
 Contribution directions go here.
 -->
 
-## الرخصة
-
-يتوفر gem كبرنامج مفتوح المصدر وفق شروط [رخصة MIT](https://opensource.org/licenses/MIT).
-
 ## العلامات التجارية
 
 هذا المشروع غير تابع لـ Rails أو The Rails Foundation أو مشروع Mermaid أو Mermaid Chart Inc.، ولم تعتمده هذه الجهات ولم ترعه. إن Rails وRuby on Rails علامتان تجاريتان مسجلتان لـ David Heinemeier Hansson. وقد سجّلت Mermaid Chart Inc. العلامتين التجاريتين MERMAID CHART وMERMAID في الولايات المتحدة أو قدّمت طلبًا لتسجيلهما. وتعود ملكية جميع العلامات التجارية الأخرى إلى أصحابها.
+
+## الرخصة
+
+يتوفر gem كبرنامج مفتوح المصدر وفق شروط [رخصة MIT](https://opensource.org/licenses/MIT).
