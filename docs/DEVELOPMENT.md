@@ -172,7 +172,7 @@ Outside contributors occasionally use bare slugs (e.g. `typo`, `readme-require-f
   - `Fix a typo`
   - `Avoid unnecessary loading on Rails boot`
   - `Add control hints`
-- Version-bump commits use the bare subject `vX.Y.Z` (e.g. `v0.6.0`). They are written by hand after `bundle exec bump <level> --no-commit` so the bump can be grouped with the regenerated `docs/example.html` and `docs/screen_shot.png` — see `RELEASE.md`.
+- Version-bump commits use the bare subject `vX.Y.Z` (e.g. `v0.6.0`). They are written by hand after `bundle exec bump <level> --no-commit` so the bump can be grouped with the regenerated `docs/example.html` — see `RELEASE.md`.
 
 ### Pull requests
 - **Title**: same imperative-English convention as commits. The PR title is what reviewers and changelog readers see, so make it specific (`Add zoom and drag mouse controls`, not `Update viewer`).
