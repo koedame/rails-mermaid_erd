@@ -43,14 +43,18 @@ Luego ejecuta:
 bundle install
 ```
 
-Añade esta línea al Rakefile de tu aplicación:
+Añade esto al Rakefile de tu aplicación, **antes** de `Rails.application.load_tasks` (la tarea se registra cuando se cargan las tareas, así que un `require` después de esa línea deja `rails mermaid_erd` sin reconocer):
 
 ```ruby
+require_relative "config/application"
+
 begin
   require "rails-mermaid_erd"
 rescue LoadError
   # Do nothing.
 end
+
+Rails.application.load_tasks
 ```
 
 ## Uso
@@ -124,13 +128,6 @@ Los parámetros de configuración son los siguientes.
 | `result_path` | Destino de los archivos generados. | `mermaid_erd/index.html` |
 | `ignore_tables` | Array de cadenas de expresiones regulares. Las tablas cuyo `table_name` coincida con algún patrón se excluyen del ERD generado, junto con cualquier relación que apunte a ellas. Es útil para excluir modelos de registro de auditoría, tablas eliminadas lógicamente o legadas, u otro ruido que no desees renderizar. Los patrones se compilan con `Regexp.new`, así que escapa las barras invertidas dentro de las cadenas YAML (p. ej. `"\\Aaudit_"`). | `[]` |
 | `viewer_defaults` | Vista con la que se abre el visor cuando la URL no lleva un estado guardado, y a la que vuelve **Restablecer**; un enlace con su propio estado siempre tiene prioridad. `models`: array con los nombres de los modelos seleccionados al inicio (un nombre que no está en el ERD se omite con una advertencia al generar el archivo). `columns`: `all`, `keys` (solo claves primarias y foráneas) o `none`, las mismas opciones que "Columnas" en la barra lateral. Útil para abrir una aplicación grande con los modelos por los que se suele empezar. | `models: []` (sin selección), `columns: all` |
-
-<!--
-TODO:
-## Contributing
-
-Contribution directions go here.
--->
 
 ## Marcas registradas
 
