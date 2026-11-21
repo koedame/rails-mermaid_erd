@@ -43,14 +43,18 @@ gem "rails-mermaid_erd", group: :development, require: false
 bundle install
 ```
 
-أضف هذه الأسطر إلى ملف Rakefile في تطبيقك:
+أضف ما يلي إلى ملف Rakefile في تطبيقك **قبل** `Rails.application.load_tasks` (يتم تسجيل المهمة عند تحميل المهام، لذا فإن وضع `require` بعد ذلك السطر يجعل `rails mermaid_erd` غير معروف):
 
 ```ruby
+require_relative "config/application"
+
 begin
   require "rails-mermaid_erd"
 rescue LoadError
   # Do nothing.
 end
+
+Rails.application.load_tasks
 ```
 
 ## الاستخدام
@@ -124,13 +128,6 @@ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 | `result_path` | مسار حفظ الملفات المولَّدة. | `mermaid_erd/index.html` |
 | `ignore_tables` | مصفوفة من سلاسل التعبيرات النمطية. الجداول التي يطابق `table_name` الخاص بها أيَّ نمط تُستبعد من مخطط ERD المولَّد مع جميع العلاقات المرتبطة بها. مفيد لاستبعاد نماذج سجلات التدقيق أو الجداول المحذوفة منطقياً أو القديمة أو غيرها من الضوضاء التي لا تريد عرضها. تُصرَّف الأنماط باستخدام `Regexp.new`، لذا يجب تهريب الشرطات المائلة العكسية داخل سلاسل YAML (مثال: `"\\Aaudit_"`). | `[]` |
 | `viewer_defaults` | العرض الذي يفتح به العارض عندما لا يحمل عنوان URL حالة محفوظة، والعرض الذي تعود إليه **إعادة تعيين**؛ والرابط الذي يحمل حالته الخاصة له الأولوية دائمًا. `models`: مصفوفة بأسماء النماذج المحددة في البداية (الاسم غير الموجود في ERD يتم تخطيه مع تحذير عند توليد الملف). `columns`: `all` أو `keys` (المفاتيح الأساسية والخارجية فقط) أو `none`، وهي نفس خيارات «الأعمدة» في الشريط الجانبي. مفيد لفتح تطبيق كبير على النماذج التي يبدأ بها الناس عادةً. | `models: []` (بدون تحديد)، `columns: all` |
-
-<!--
-TODO:
-## Contributing
-
-Contribution directions go here.
--->
 
 ## العلامات التجارية
 
