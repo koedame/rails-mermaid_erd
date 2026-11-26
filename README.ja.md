@@ -2,21 +2,32 @@
 
 > これは [英語版 README](./README.md) の翻訳です。内容に差異がある場合は英語版が正です。
 
+<div align="center">
+
 # Rails Mermaid ERD
 
+**RailsアプリのMermaid ERDを、自己完結した1枚のHTMLファイルとして生成します。**
+
+<a href="https://koedame.github.io/rails-mermaid_erd/example.html"><img alt="主キーと外部キーを持つ5つのモデルが関連線でつながれた、Rails Mermaid ERDのビューア。" src="docs/images/hero.png" width="880"></a>
+
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
-[![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
+[![Gem Version](https://img.shields.io/gem/v/rails-mermaid_erd?color=dc2626)](https://rubygems.org/gems/rails-mermaid_erd)
+![Rails 5.2 – 8.1](https://img.shields.io/badge/rails-5.2%20%E2%80%93%208.1-dc2626)
+![License: MIT](https://img.shields.io/badge/license-MIT-dc2626)
 
-Ruby on Railsアプリケーションから [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram) を生成します。
+[デモページ](https://koedame.github.io/rails-mermaid_erd/example.html) · [インストール手順](#インストール手順) · [使い方](#使い方) · [動作確認済みバージョン](#動作確認済みバージョン) · [設定](#設定)
 
-[<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
+</div>
 
-[デモページ](https://koedame.github.io/rails-mermaid_erd/example.html)
+`rails mermaid_erd` を実行するだけで、Railsのスキーマを自己完結した1枚のHTMLファイルにします。追加のGemやサービスは不要です。Tailwind・Mermaid・Vueが埋め込み済みなので、オフラインでも社内プロキシの内側でも開けます。ブラウザ上で見たいテーブルを選び、Mermaidコード・SVG・PNGとして書き出せます。共有するときは、HTMLファイルを渡すか、Webサーバーに置くだけです。
 
-ERDは自由自在に生成できます。
-生成されたERDはMarkdown形式でコピーできるため、GitHubなどで簡単に共有できます。
-画像として保存することもできるので、Mermaidが使えない環境でも使えます。
-エディターはシングルHTMLファイルであるため、エディター本体を共有することも可能です。
+## ハイライト
+
+- **1ファイルで完結。** Tailwind・Mermaid・Vueを埋め込んだ約4MBのHTML 1枚なので、オフラインでも社内プロキシの内側でも開けます。
+- **必要なところだけ描画。** モデルを選び、カラムは全部・キーのみ・なしから選べて、コメントやリレーションのラベルも付けられます。
+- **書き出しと共有。** MermaidやMarkdownのコードをコピーし、SVGやPNGをダウンロードし、表示を復元するリンクをコピーできます。
+- **幅広いRails対応。** CIはRails 5.2から8.1まで、Ruby 2.7から4.0までを検証しています。
+- **12言語。** ブラウザの言語に合わせて表示し、右から左に書くアラビア語にも対応します。
 
 ## インストール手順
 
@@ -29,7 +40,7 @@ gem "rails-mermaid_erd", group: :development, require: false
 次に、以下のコマンドを実行してGemをインストールします。
 
 ```bash
-$ bundle install
+bundle install
 ```
 
 次に、Rakefileに以下の行を追加してください。
@@ -54,9 +65,9 @@ Rails.application.load_tasks
 Rakeタスク `mermaid_erd` を実行すると `<app_root>/mermaid_erd/index.html` が生成されます。
 
 ```bash
-$ bundle exec rails mermaid_erd
+bundle exec rails mermaid_erd
 # or
-$ bundle exec rake mermaid_erd
+bundle exec rake mermaid_erd
 ```
 
 生成された `<app_root>/mermaid_erd/index.html` をお使いのブラウザで開くだけです。
@@ -77,9 +88,9 @@ CIと連携して生成から共有までを自動化するのはとても有効
 Rakeタスク `mermaid_erd:print` を実行すると、HTML ビューアを書き出す代わりに `erDiagram` のソースを標準出力します。他のツールへそのままパイプできます。
 
 ```bash
-$ bundle exec rails mermaid_erd:print
-$ bundle exec rails mermaid_erd:print > er.mmd
-$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+bundle exec rails mermaid_erd:print
+bundle exec rails mermaid_erd:print > er.mmd
+bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 ```
 
 出力はすべてのテーブル・カラム・キー・コメント・リレーションを含む完全な図で、HTML ビューアの詳細表示トグルをすべて有効にした状態に相当します。
@@ -125,10 +136,10 @@ TODO:
 Contribution directions go here.
 -->
 
-## ライセンス
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
 ## 商標
 
 このプロジェクトは、Rails、The Rails Foundation、Mermaid プロジェクト、Mermaid Chart Inc. と提携しておらず、これらの公認・後援も受けていません。Rails と Ruby on Rails は David Heinemeier Hansson の登録商標です。Mermaid Chart Inc. は、米国で MERMAID CHART と MERMAID の商標を登録または出願しています。そのほかの商標は、それぞれの権利者に帰属します。
+
+## ライセンス
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

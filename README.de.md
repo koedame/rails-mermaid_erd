@@ -2,21 +2,32 @@
 
 > Dies ist eine Übersetzung des [englischen README](./README.md). Bei Abweichungen ist die englische Version maßgeblich.
 
+<div align="center">
+
 # Rails Mermaid ERD
 
+**Erzeugen Sie ein interaktives Mermaid-ERD Ihrer Rails-Anwendung als einzelne, in sich geschlossene HTML-Datei.**
+
+<a href="https://koedame.github.io/rails-mermaid_erd/example.html"><img alt="Der Rails-Mermaid-ERD-Viewer mit fünf Modellen samt Primär- und Fremdschlüsseln, verbunden durch Beziehungslinien." src="docs/images/hero.png" width="880"></a>
+
 [![test](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml/badge.svg)](https://github.com/koedame/rails-mermaid_erd/actions/workflows/run-test.yml)
-[![Gem Version](https://badge.fury.io/rb/rails-mermaid_erd.svg)](https://rubygems.org/gems/rails-mermaid_erd)
+[![Gem Version](https://img.shields.io/gem/v/rails-mermaid_erd?color=dc2626)](https://rubygems.org/gems/rails-mermaid_erd)
+![Rails 5.2 – 8.1](https://img.shields.io/badge/rails-5.2%20%E2%80%93%208.1-dc2626)
+![License: MIT](https://img.shields.io/badge/license-MIT-dc2626)
 
-Erstellt ein [Mermaid ERD](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram) aus Ihrer Ruby-on-Rails-Anwendung.
+[Demoseite](https://koedame.github.io/rails-mermaid_erd/example.html) · [Installation](#installation) · [Verwendung](#verwendung) · [Unterstützte Versionen](#unterstützte-versionen) · [Konfiguration](#konfiguration)
 
-[<img src="./docs/screen_shot.png" width="50%">](./docs/screen_shot.png)
+</div>
 
-[Demoseite](https://koedame.github.io/rails-mermaid_erd/example.html)
+Mit `rails mermaid_erd` entsteht eine einzelne, in sich geschlossene HTML-Datei mit dem Schema Ihrer Rails-Anwendung – ohne zusätzliche Gems oder Dienste. Tailwind, Mermaid und Vue sind eingebettet, sodass sie offline und hinter einem Unternehmens-Proxy geöffnet werden kann. Im Browser wählen Sie die gewünschten Tabellen aus und exportieren sie als Mermaid-Code, SVG oder PNG; zum Teilen genügt es, die HTML-Datei weiterzugeben oder auf einen Webserver zu legen.
 
-Das ERD kann jederzeit erzeugt werden.
-Das erzeugte ERD kann im Markdown-Format kopiert werden und lässt sich so einfach auf GitHub teilen.
-Es kann auch als Bild gespeichert werden, sodass es in Umgebungen ohne Mermaid-Unterstützung verwendet werden kann.
-Der Editor ist eine einzelne HTML-Datei, weshalb der gesamte Editor weitergegeben werden kann.
+## Highlights
+
+- **Eine Datei, sonst nichts zu installieren.** Das Ergebnis ist eine einzelne HTML-Datei von etwa 4 MB mit eingebetteten Tailwind-, Mermaid- und Vue-Bundles. Sie öffnet sich offline und hinter einem Unternehmens-Proxy.
+- **Zeichnen Sie nur, was Sie brauchen.** Wählen Sie Modelle aus, zeigen Sie alle Spalten, nur Schlüssel oder keine an und ergänzen Sie Kommentare und Beziehungsbeschriftungen.
+- **Exportieren und teilen.** Kopieren Sie Mermaid- oder Markdown-Code, laden Sie SVG oder PNG herunter oder kopieren Sie einen Link, der Ihre Ansicht wiederherstellt.
+- **Breite Rails-Unterstützung.** Die CI deckt Rails 5.2 bis 8.1 auf Ruby 2.7 bis 4.0 ab.
+- **12 Sprachen.** Der Viewer folgt der Browsersprache, einschließlich des von rechts nach links geschriebenen Arabisch.
 
 ## Installation
 
@@ -29,7 +40,7 @@ gem "rails-mermaid_erd", group: :development, require: false
 Führen Sie anschließend aus:
 
 ```bash
-$ bundle install
+bundle install
 ```
 
 Fügen Sie diese Zeile zum Rakefile Ihrer Anwendung hinzu:
@@ -54,9 +65,9 @@ Setzen Sie sie **vor** `Rails.application.load_tasks`. Die Task wird registriert
 Das Ausführen des Rake-Tasks `mermaid_erd` erzeugt `<app_root>/mermaid_erd/index.html`.
 
 ```bash
-$ bundle exec rails mermaid_erd
+bundle exec rails mermaid_erd
 # or
-$ bundle exec rake mermaid_erd
+bundle exec rake mermaid_erd
 ```
 
 Öffnen Sie die erzeugte Datei `<app_root>/mermaid_erd/index.html` einfach in Ihrem Browser.
@@ -80,9 +91,9 @@ Es wäre sehr sinnvoll, sie mithilfe von CI automatisch zu erzeugen.
 Führen Sie den Rake-Task `mermaid_erd:print` aus, um die rohe `erDiagram`-Quelle auf stdout auszugeben, anstatt den HTML-Viewer zu schreiben. Damit lässt sich die Ausgabe direkt in andere Tools weiterleiten:
 
 ```bash
-$ bundle exec rails mermaid_erd:print
-$ bundle exec rails mermaid_erd:print > er.mmd
-$ bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
+bundle exec rails mermaid_erd:print
+bundle exec rails mermaid_erd:print > er.mmd
+bundle exec rails mermaid_erd:print | mmdc -i - -o er.svg
 ```
 
 Die Ausgabe ist das vollständige Diagramm — jede Tabelle, Spalte, Schlüssel, Kommentar und Relation — gleichwertig mit dem HTML-Viewer bei aktivierten Detailansichten.
@@ -128,9 +139,9 @@ TODO:
 Contribution directions go here.
 -->
 
-## Lizenz
-Das Gem ist als Open Source unter den Bedingungen der [MIT License](https://opensource.org/licenses/MIT) verfügbar.
-
 ## Marken
 
 Dieses Projekt steht in keiner Verbindung zu Rails, der Rails Foundation, dem Mermaid-Projekt oder Mermaid Chart Inc. und wird von ihnen weder unterstützt noch gesponsert. Rails und Ruby on Rails sind eingetragene Marken von David Heinemeier Hansson. Mermaid Chart Inc. hat die Marken MERMAID CHART und MERMAID in den USA eingetragen oder angemeldet. Alle übrigen Marken sind Eigentum ihrer jeweiligen Inhaber.
+
+## Lizenz
+Das Gem ist als Open Source unter den Bedingungen der [MIT License](https://opensource.org/licenses/MIT) verfügbar.

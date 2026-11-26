@@ -308,11 +308,16 @@
             <div class="bg-gray-800 text-white text-[10px] px-3 py-1.5 rounded flex flex-col space-y-0.5">
               <div>
                 <span class="font-medium">{{i18n[language]["controls"]["movement"]}}:</span>
-                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["scroll"]}} / {{i18n[language]["controls"]["arrow_keys"]}} / {{i18n[language]["controls"]["space_drag"]}} / {{i18n[language]["controls"]["middle_drag"]}}</span>
+                <span class="ml-1 text-white/60"><template v-if="scrollMoves">{{i18n[language]["controls"]["two_finger_scroll"]}} / </template>{{i18n[language]["controls"]["arrow_keys"]}} / {{i18n[language]["controls"]["space_drag"]}} / {{i18n[language]["controls"]["middle_drag"]}}</span>
               </div>
               <div>
                 <span class="font-medium">{{i18n[language]["controls"]["zoom"]}}:</span>
-                <span class="ml-1 text-white/60">{{i18n[language]["controls"]["ctrl_scroll"]}} / {{i18n[language]["controls"]["pinch"]}} / {{i18n[language]["controls"]["zoom_keys"]}}</span>
+                <span class="ml-1 text-white/60">{{scrollMoves ? i18n[language]["controls"]["mouse_wheel"] : i18n[language]["controls"]["scroll"]}} / {{i18n[language]["controls"]["ctrl_scroll"]}} / {{i18n[language]["controls"]["pinch"]}} / {{i18n[language]["controls"]["zoom_keys"]}}</span>
+              </div>
+              <div class="flex items-center">
+                <span class="font-medium">{{i18n[language]["controls"]["two_finger_scroll"]}}:</span>
+                <button type="button" :aria-pressed="scrollMoves" :class="scrollMoves ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'" class="ml-1 px-2 rounded focus:ring-2 focus:ring-white" @click="setScrollMoves(true)">{{i18n[language]["controls"]["movement"]}}</button>
+                <button type="button" :aria-pressed="!scrollMoves" :class="!scrollMoves ? 'bg-white text-gray-900' : 'bg-gray-400 text-gray-900'" class="ml-1 px-2 rounded focus:ring-2 focus:ring-white" @click="setScrollMoves(false)">{{i18n[language]["controls"]["zoom"]}}</button>
               </div>
             </div>
           </div>
@@ -428,6 +433,8 @@
           ctrl_scroll: 'Ctrl/⌘ + Scroll',
           zoom_keys: '+/- Keys',
           pinch: 'Pinch In/Out',
+          mouse_wheel: 'Mouse Wheel',
+          two_finger_scroll: 'Two-finger Scroll',
           reset_view: 'Reset View',
         }
       },
@@ -491,6 +498,8 @@
           ctrl_scroll: 'Ctrl/⌘ + スクロール',
           zoom_keys: '+/- キー',
           pinch: 'ピンチイン/アウト',
+          mouse_wheel: 'マウスホイール',
+          two_finger_scroll: '2 本指のスクロール',
           reset_view: 'ビューをリセット',
         }
       },
@@ -554,6 +563,8 @@
           ctrl_scroll: 'Ctrl/⌘ + 滚动',
           zoom_keys: '+/- 键',
           pinch: '双指缩放',
+          mouse_wheel: '鼠标滚轮',
+          two_finger_scroll: '双指滚动',
           reset_view: '重置视图',
         }
       },
@@ -617,6 +628,8 @@
           ctrl_scroll: 'Ctrl/⌘ + 捲動',
           zoom_keys: '+/- 鍵',
           pinch: '雙指縮放',
+          mouse_wheel: '滑鼠滾輪',
+          two_finger_scroll: '雙指捲動',
           reset_view: '重設檢視',
         }
       },
@@ -680,6 +693,8 @@
           ctrl_scroll: 'Ctrl/⌘ + 스크롤',
           zoom_keys: '+/- 키',
           pinch: '핀치 확대/축소',
+          mouse_wheel: '마우스 휠',
+          two_finger_scroll: '두 손가락 스크롤',
           reset_view: '보기 초기화',
         }
       },
@@ -743,6 +758,8 @@
           ctrl_scroll: 'Ctrl/⌘ + desplazamiento',
           zoom_keys: 'Teclas +/-',
           pinch: 'Pellizcar para acercar/alejar',
+          mouse_wheel: 'Rueda del ratón',
+          two_finger_scroll: 'Desplazamiento con dos dedos',
           reset_view: 'Restablecer vista',
         }
       },
@@ -806,6 +823,8 @@
           ctrl_scroll: 'Ctrl/⌘ + défilement',
           zoom_keys: 'Touches +/-',
           pinch: 'Pincer pour zoomer',
+          mouse_wheel: 'Molette de la souris',
+          two_finger_scroll: 'Défilement à deux doigts',
           reset_view: 'Réinitialiser la vue',
         }
       },
@@ -869,6 +888,8 @@
           ctrl_scroll: 'Strg/⌘ + Scrollen',
           zoom_keys: 'Tasten +/-',
           pinch: 'Zwei-Finger-Zoom',
+          mouse_wheel: 'Mausrad',
+          two_finger_scroll: 'Zwei-Finger-Scrollen',
           reset_view: 'Ansicht zurücksetzen',
         }
       },
@@ -932,6 +953,8 @@
           ctrl_scroll: 'Ctrl/⌘ + scorrimento',
           zoom_keys: 'Tasti +/-',
           pinch: 'Pizzica per zoomare',
+          mouse_wheel: 'Rotellina del mouse',
+          two_finger_scroll: 'Scorrimento a due dita',
           reset_view: 'Reimposta vista',
         }
       },
@@ -995,6 +1018,8 @@
           ctrl_scroll: 'Ctrl/⌘ + rolagem',
           zoom_keys: 'Teclas +/-',
           pinch: 'Pinçar para ampliar/reduzir',
+          mouse_wheel: 'Roda do mouse',
+          two_finger_scroll: 'Rolagem com dois dedos',
           reset_view: 'Redefinir visualização',
         }
       },
@@ -1058,6 +1083,8 @@
           ctrl_scroll: 'Ctrl/⌘ + прокрутка',
           zoom_keys: 'Клавиши +/-',
           pinch: 'Щипок для масштабирования',
+          mouse_wheel: 'Колесо мыши',
+          two_finger_scroll: 'Прокрутка двумя пальцами',
           reset_view: 'Сбросить вид',
         }
       },
@@ -1121,6 +1148,8 @@
           ctrl_scroll: 'Ctrl/⌘ + التمرير',
           zoom_keys: 'المفتاحان +/-',
           pinch: 'القرص للتكبير/التصغير',
+          mouse_wheel: 'عجلة الفأرة',
+          two_finger_scroll: 'التمرير بإصبعين',
           reset_view: 'إعادة تعيين العرض',
         }
       }
@@ -1178,6 +1207,20 @@
         // Approximate pixels-per-line for wheel events that report DOM_DELTA_LINE
         // (Firefox's default for mouse wheels, e.g. ±3 per notch).
         const WHEEL_LINE_HEIGHT_PX = 16
+        // A wheel with no modifier key zooms. A two-finger trackpad swipe arrives as the same
+        // `wheel` event, so it is told apart by the shape of its values — except that a Magic
+        // Mouse or a smooth-scrolling mouse on a Mac reports itself in the trackpad's shape and
+        // can't be told apart. So what a two-finger scroll does is a choice the viewer remembers
+        // on this device: it zooms by default (so a mouse always can), or moves the diagram.
+        const SCROLL_PREF_KEY = 'mermaid_erd.scroll'
+        const readScrollMoves = () => {
+          try { return window.localStorage.getItem(SCROLL_PREF_KEY) === 'pan' } catch (_) { return false }
+        }
+        const scrollMoves = Vue.ref(readScrollMoves())
+        const setScrollMoves = (moves) => {
+          scrollMoves.value = moves
+          try { window.localStorage.setItem(SCROLL_PREF_KEY, moves ? 'pan' : 'zoom') } catch (_) {}
+        }
 
         const scale = Vue.ref(1)
         const posX = Vue.ref(0)
@@ -1418,9 +1461,34 @@
           isDragging.value = false
         }
 
-        // Handle wheel: scrolling (a mouse wheel or a two-finger trackpad swipe) moves the diagram;
-        // Ctrl / Command + scrolling and trackpad pinches (which browsers send as Ctrl + wheel)
-        // zoom it, anchored at the cursor.
+        // A trackpad's two-finger swipe: Chrome and Safari report wheelDeltaY (or X) as -3 times
+        // the delta, while a mouse wheel's is a multiple of 120. Firefox has no wheelDelta, and
+        // sends a trackpad's swipe in pixels and a mouse wheel's notches in lines.
+        const isTwoFingerScroll = (e) => {
+          if (e.ctrlKey || e.metaKey) return false
+          const [wheelDelta, delta] = e.wheelDeltaY ? [e.wheelDeltaY, e.deltaY] : [e.wheelDeltaX, e.deltaX]
+          return wheelDelta ? wheelDelta === -3 * delta : e.deltaMode === 0
+        }
+
+        // How many mouse wheel notches a wheel event stands for, whatever the OS and browser
+        // report: a notch's deltaY is 100 on Windows but 4 on a Mac, so the zoom can't follow it.
+        const wheelNotches = (e) => {
+          const delta = Math.abs(e.deltaY || e.deltaX)
+          const wheelDelta = Math.abs(e.wheelDeltaY || e.wheelDeltaX || 0)
+          if (e.deltaMode === 1) return delta / 3 // Firefox: 3 lines per notch
+          if (e.deltaMode === 2) return delta
+          // Chrome: wheelDelta is 120 per notch (even on a Mac, before acceleration)
+          if (wheelDelta && wheelDelta % 120 === 0 && wheelDelta !== 3 * delta) return wheelDelta / 120
+          // Safari on a Mac: a notch is 4.000244140625 and acceleration makes it a multiple
+          const multiple = delta / 4.000244140625
+          if (multiple >= 1 && Math.abs(multiple - Math.round(multiple)) < 1e-6) return 1
+          return delta / 100 // other pixel deltas: a notch is 100px on Windows
+        }
+
+        // Handle wheel: a mouse wheel zooms by one button step per notch, anchored at the cursor.
+        // A two-finger trackpad swipe zooms too, or moves the diagram when that is chosen
+        // (scrollMoves). Ctrl / Command + scrolling and trackpad pinches (which browsers send as
+        // Ctrl + wheel) always zoom.
         const handleWheel = (e) => {
           // Use `viewport` rather than `#preview` so snapshot mode (which swaps `#preview` for
           // an <img> sibling under the same viewport) keeps responding to the wheel.
@@ -1441,12 +1509,13 @@
             zoomAt(e.clientX, e.clientY, Math.exp(-zoomDelta * WHEEL_ZOOM_SENSITIVITY))
             return
           }
-          // Browsers that don't turn Shift + mouse wheel into a horizontal scroll still get one
-          if (e.shiftKey && pixelDeltaX === 0) {
-            move(-pixelDeltaY, 0)
+          if (scrollMoves.value && isTwoFingerScroll(e)) {
+            move(-pixelDeltaX, -pixelDeltaY)
             return
           }
-          move(-pixelDeltaX, -pixelDeltaY)
+          const steps = wheelNotches(e)
+          const direction = (e.deltaY || e.deltaX) < 0 ? 1 : -1
+          zoomAt(e.clientX, e.clientY, BUTTON_ZOOM_FACTOR ** (direction * steps))
         }
 
         const zoomStyle = Vue.computed(() => {
@@ -2127,6 +2196,8 @@
           zoomStyle,
           zoomArea,
           viewport,
+          scrollMoves,
+          setScrollMoves,
           zoomIn,
           zoomOut,
           resetView,

@@ -81,7 +81,7 @@ jobs:
       RAILS_ENV: test
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Fail loudly if the matrix label points at a Gemfile that doesn't exist
       # (typo in `matrix.gemfile` or a deleted appraisal). Without this, Bundler
