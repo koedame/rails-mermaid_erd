@@ -43,14 +43,18 @@ gem "rails-mermaid_erd", group: :development, require: false
 bundle install
 ```
 
-次に、Rakefileに以下の行を追加してください。
+次に、アプリケーションの Rakefile の `Rails.application.load_tasks` の**前**に以下を追加してください（タスクは `load_tasks` の時点で登録されるため、その行より後ろに `require` を置くと `rails mermaid_erd` が認識されません）。
 
 ```ruby
+require_relative "config/application"
+
 begin
   require "rails-mermaid_erd"
 rescue LoadError
   # Do nothing.
 end
+
+Rails.application.load_tasks
 ```
 
 ## 使い方
@@ -121,13 +125,6 @@ push / pull request ごとに CI で検証している Ruby × Rails の組み�
 | `result_path` | 生成されるファイルのパス。 | `mermaid_erd/index.html` |
 | `ignore_tables` | 正規表現文字列の配列。`table_name` がいずれかのパターンに一致するテーブルは、それに紐づく関連線も含めて生成されるERDから除外されます。監査ログ系のモデル・論理削除済み/レガシーなテーブル・ノイズが多くて描画したくないテーブルを除外したい場合に有用です。パターンは `Regexp.new` でコンパイルされるため、YAML文字列内ではバックスラッシュをエスケープしてください(例: `"\\Aaudit_"`)。 | `[]` |
 | `viewer_defaults` | URL に保存済みの状態が無いときにビューアが最初に開く表示と、**リセット**で戻る表示。状態を持つリンクは常にそちらが優先されます。`models`: 最初に選択しておくモデル名の配列(ERD に無い名前は、ファイル生成時に警告を出して無視されます)。`columns`: `all` / `keys`(主キーと外部キーのみ)/ `none`。サイドバーの「カラム」と同じ選択肢です。大きなアプリで、いつも最初に見るモデルから開きたいときに使います。 | `models: []`(何も選択しない)、`columns: all` |
-
-<!--
-TODO:
-## Contributing
-
-Contribution directions go here.
--->
 
 ## 商標
 
